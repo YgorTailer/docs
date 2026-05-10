@@ -1,9 +1,11 @@
 ---
-title: ".nivo Config"
-description: "Complete reference for the .nivo configuration file used by the CLI."
+title: "Arquivo .nivo"
+description: "Referência completa do arquivo de configuração .nivo usado pelo CLI."
 ---
 
-## Full example
+O arquivo `.nivo` fica na raiz do seu projeto e define como o CLI deve criar e fazer deploy do app.
+
+## Exemplo completo
 
 ```json .nivo
 {
@@ -21,46 +23,45 @@ description: "Complete reference for the .nivo configuration file used by the CL
 }
 ```
 
-## Field reference
+## Referência de campos
 
-| Field | Type | Required | Default | Description |
-|-------|------|----------|---------|-------------|
-| `name` | string | Yes | — | App name. Used when creating the app. |
-| `projectId` | string | Yes | — | Project ID from the dashboard. |
-| `sourceType` | string | No | `zip` | `zip` or `github`. |
-| `type` | string | No | `site` | `site` or `worker`. |
-| `buildSystem` | string | No | `nivopack` | `nivopack`, `nixpacks`, or `dockerfile`. |
-| `runtime` | string | No | `node20` | Runtime (e.g. `node20`, `node18`, `python3.11`). |
-| `installCmd` | string | No | — | Dependency install command (e.g. `npm install`). |
-| `buildCmd` | string | No | — | Build command (e.g. `npm run build`). |
-| `startCmd` | string | No | `npm start` | App start command. |
-| `ramMb` | number | No | `256` | RAM allocation in MB. Minimum: `100`. |
-| `subdomain` | string | No | — | Custom subdomain (lowercase, numbers, hyphens). |
-| `repoFullName` | string | No | — | GitHub repo in `owner/repo` format. |
-| `repoBranch` | string | No | `main` | Git branch to deploy from. |
-| `appId` | string | — | — | **Auto-filled** by `nivo link`. Do not edit manually. |
-| `linkedAt` | string | — | — | **Auto-filled** timestamp. Do not edit manually. |
+| Campo | Tipo | Obrigatório | Padrão | Descrição |
+|-------|------|-------------|--------|-----------|
+| `name` | string | Sim | — | Nome do app. |
+| `projectId` | string | Sim | — | ID do projeto no dashboard. |
+| `sourceType` | string | Não | `zip` | `zip` ou `github`. |
+| `type` | string | Não | `site` | `site` ou `worker`. |
+| `buildSystem` | string | Não | `nivopack` | `nivopack`, `nixpacks` ou `dockerfile`. |
+| `runtime` | string | Não | `node20` | Runtime (ex: `node20`, `python3.11`). |
+| `installCmd` | string | Não | — | Comando de instalação (ex: `npm install`). |
+| `buildCmd` | string | Não | — | Comando de build (ex: `npm run build`). |
+| `startCmd` | string | Não | `npm start` | Comando de inicialização. |
+| `ramMb` | number | Não | `256` | RAM em MB. Mínimo: `100`. |
+| `subdomain` | string | Não | — | Subdomínio personalizado (minúsculas, números, hífens). |
+| `repoFullName` | string | Não | — | Repositório GitHub no formato `owner/repo`. |
+| `repoBranch` | string | Não | `main` | Branch do Git para deploy. |
+| `appId` | string | — | — | **Preenchido automaticamente** pelo `nivo link`. Não edite. |
+| `linkedAt` | string | — | — | **Timestamp automático** do `nivo link`. Não edite. |
 
-## Workflow
+## Como usar
 
 <Steps>
-  <Step title="Create .nivo">
-    Create a `.nivo` file in your project root with at least `name` and `projectId`.
+  <Step title="Crie o .nivo">
+    Crie o arquivo na raiz do projeto com pelo menos `name` e `projectId`.
   </Step>
-  <Step title="Link the app">
+  <Step title="Execute nivo link">
     ```bash
     nivo link
     ```
-    Creates the app on Nivo and writes `appId` back to `.nivo`.
+    Cria o app e preenche o `appId` automaticamente.
   </Step>
-  <Step title="Deploy">
+  <Step title="Faça o deploy">
     ```bash
     nivo deploy .
     ```
-    Sends the code and triggers a new deployment.
   </Step>
 </Steps>
 
 <Note>
-  You can safely commit `.nivo` to version control. Never commit `~/.nivo-auth` — it contains your session token.
+  Você pode commitar o `.nivo` no repositório. Nunca commite `~/.nivo-auth` — ele contém seu token de sessão.
 </Note>

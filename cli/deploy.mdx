@@ -1,31 +1,30 @@
 ---
-title: "Deploy"
-description: "Compress a directory, upload a ZIP, and trigger a new deployment."
+title: "nivo deploy"
+description: "Compacta o diretório, envia o ZIP e cria um novo deployment."
 ---
 
-## Usage
+## Uso
 
 ```bash
-nivo deploy
-nivo deploy .
-nivo deploy ./dist
-nivo deploy --watch
-nivo deploy --app 77faa1f9-316f-4dbb-8c1c-41c8eb871346
+nivo deploy              # deploya o diretório atual
+nivo deploy .            # mesmo que acima
+nivo deploy ./dist       # deploya um diretório específico
+nivo deploy --watch      # acompanha os logs até o deploy terminar
+nivo deploy --app ID     # deploya para um app específico
 ```
 
-## Options
+## Opções
 
-| Flag | Description |
-|------|-------------|
-| `--app <appId>` | Deploy to a specific app ID instead of reading from `.nivo`. |
-| `--watch` | Follow deployment logs in the terminal until completion. |
+| Flag | Descrição |
+|------|-----------|
+| `--app <appId>` | Deploy para um app específico (sem ler o `.nivo`). |
+| `--watch` | Exibe os logs do deployment no terminal até concluir. |
 
-## `.nivo` config fields used by deploy
+## Campos do `.nivo` usados no deploy
 
 ```json .nivo
 {
   "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346",
-  "sourceType": "zip",
   "buildSystem": "nivopack",
   "runtime": "node20",
   "installCmd": "npm install",
@@ -34,14 +33,14 @@ nivo deploy --app 77faa1f9-316f-4dbb-8c1c-41c8eb871346
 }
 ```
 
-See the [`.nivo` config reference](/config) for all available fields.
+Veja a [referência completa do `.nivo`](/config) para todos os campos disponíveis.
 
-## Typical workflow
+## Fluxo recomendado
 
 ```bash
-# First time: create and link the app
+# Primeira vez: linkar o projeto
 nivo link
 
-# Every deploy after that
+# Todos os deploys seguintes
 nivo deploy . --watch
 ```

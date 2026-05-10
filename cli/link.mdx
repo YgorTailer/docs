@@ -1,46 +1,38 @@
 ---
 title: "nivo link"
-description: "Read .nivo, create or update the app on Nivo, and save the appId back to the file."
+description: "Lê o .nivo, cria ou atualiza o app no Nivo e salva o appId de volta no arquivo."
 ---
 
-## Usage
+## Uso
 
 ```bash
 nivo link
 ```
 
-Reads the `.nivo` file in the current directory, creates (or updates) the app on the Nivo platform, and writes the generated `appId` back to `.nivo`.
+Lê o arquivo `.nivo` no diretório atual, cria (ou atualiza) o app na plataforma e escreve o `appId` gerado de volta no `.nivo`.
 
-## Required `.nivo` structure
+## `.nivo` mínimo necessário
 
 ```json .nivo
 {
-  "name": "api",
-  "projectId": "PROJECT_ID",
-  "sourceType": "zip",
-  "type": "worker",
-  "buildSystem": "nivopack",
+  "name": "meu-api",
+  "projectId": "SEU_PROJECT_ID",
   "runtime": "node20",
-  "startCmd": "npm start",
-  "ramMb": 100
+  "startCmd": "npm start"
 }
 ```
 
-After running `nivo link`, the file is updated with `appId` and `linkedAt`:
+## Resultado após o link
 
 ```json .nivo
 {
-  "name": "api",
-  "projectId": "PROJECT_ID",
-  "sourceType": "zip",
-  "type": "worker",
-  "buildSystem": "nivopack",
+  "name": "meu-api",
+  "projectId": "SEU_PROJECT_ID",
   "runtime": "node20",
   "startCmd": "npm start",
-  "ramMb": 100,
   "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346",
   "linkedAt": "2026-01-15T12:00:00.000Z"
 }
 ```
 
-See the [`.nivo` config reference](/config) for all available fields.
+Veja a [referência completa do `.nivo`](/config) para todos os campos disponíveis.

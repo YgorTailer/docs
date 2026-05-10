@@ -1,99 +1,93 @@
 ---
-title: "Plans & Billing"
-description: "Nivo uses usage-based billing. You only pay for the time your resources are running, with monthly credits included in the Pro plan."
+title: "Planos & Cobrança"
+description: "O Nivo usa cobrança por uso. Você paga apenas pelo tempo que seus recursos ficam rodando."
 ---
 
-## Plans
+## Planos
 
 <CardGroup cols={2}>
   <Card title="Free" icon="gift">
-    **R$0/month**
+    **R$0/mês**
 
-    For exploring the platform.
-    - 1 project
-    - No monthly credits
-    - Access to dashboard and projects
-    - Cannot create apps or databases
-    - Auth up to 500 MAU
+    Para explorar a plataforma.
+    - 1 projeto
+    - Sem créditos mensais
+    - Acesso ao dashboard
+    - Não é possível criar apps ou bancos
+    - Auth até 500 MAU
   </Card>
   <Card title="Pro" icon="star">
-    **R$15/month** — Recommended
+    **R$15/mês** — Recomendado
 
-    For production projects.
-    - Up to 5 projects
-    - R$20 monthly credits included
-    - Always-on apps (no sleep)
-    - All compute tiers available
-    - Priority support
-    - 10,000 Auth MAU included
+    Para projetos em produção.
+    - Até 5 projetos
+    - R$20 de créditos mensais incluídos
+    - Apps sempre ativos (sem sleep)
+    - Todos os tiers de compute disponíveis
+    - Suporte prioritário
+    - 10.000 Auth MAU incluídos
   </Card>
 </CardGroup>
 
 <Note>
-  The Pro plan covers R$20/month in infrastructure usage. If usage exceeds this amount, the overage is billed based on actual hourly usage.
+  O plano Pro inclui R$20/mês de créditos de infraestrutura. Se o uso ultrapassar esse valor, o excedente é cobrado com base no uso real por hora.
 </Note>
 
-## How billing works
+## Como a cobrança funciona
 
-Billing is hourly for each resource (app, database). The meter starts when the container starts and stops when it is deleted or stopped.
+A cobrança é **por hora** para cada recurso (app, banco de dados). O contador começa quando o container inicia e para quando é deletado ou parado.
 
-Each Pro organization receives **R$20/month** in credits automatically applied to the invoice. Unused credits do not roll over to the next month.
-
-The final cost is calculated as:
+Cada organização Pro recebe **R$20/mês** de créditos aplicados automaticamente na fatura. Créditos não utilizados não acumulam para o mês seguinte.
 
 ```
-cost = active_hours × tier_hourly_price
+custo = horas_ativas × preço_do_tier_por_hora
 ```
 
-## Compute tiers
+## Tiers de compute
 
-Each app and database runs on a compute tier that defines available RAM, CPU, and disk.
+Cada app e banco de dados roda em um tier que define RAM, CPU e disco disponíveis.
 
-| Tier | RAM | vCPU | Disk | Price/hour |
-|------|-----|------|------|-----------|
-| `NANO` | 512 MB | 0.5 | 5 GB | Free |
+| Tier | RAM | vCPU | Disco | Preço/hora |
+|------|-----|------|-------|-----------|
+| `NANO` | 512 MB | 0.5 | 5 GB | Gratuito |
 | `SMALL` | 1 GB | 1 | 10 GB | R$0,02 |
 | `MEDIUM` | 2 GB | 1.5 | 20 GB | R$0,04 |
 | `LARGE` | 4 GB | 2 | 40 GB | R$0,08 |
 | `XLARGE` | 8 GB | 4 | 80 GB | R$0,16 |
 
 <Note>
-  The NANO tier is free and intended for testing. Apps on NANO sleep after 15 minutes of inactivity, even on the Pro plan.
+  O tier NANO é gratuito e voltado para testes. Apps no NANO entram em sleep após 15 minutos de inatividade, mesmo no plano Pro.
 </Note>
 
 ## Auth MAU
 
-Nivo Auth counts MAU by unique users active in the month. Usage is visible on the project compute page.
+O Nivo Auth conta MAU por usuários únicos ativos no mês.
 
-| Plan | Included | Overage |
-|------|----------|---------|
-| Free | 500 MAU | No overage |
-| Pro | 10,000 MAU | R$0.008 per MAU above the limit |
-
-On Pro, Auth overage uses monthly credits before creating additional charges.
+| Plano | Incluído | Excedente |
+|-------|----------|-----------|
+| Free | 500 MAU | Sem excedente |
+| Pro | 10.000 MAU | R$0,008 por MAU acima do limite |
 
 ## Storage
 
-Storage usage is billed separately from compute tiers.
+| Uso | Preço |
+|-----|-------|
+| Storage por GB/hora | R$0,001 |
+| Buckets públicos | Gratuito |
 
-| Usage | Price |
-|-------|-------|
-| Storage per GB/hour | R$0,001 |
-| Public buckets | Free |
-
-## Frequently asked questions
+## Perguntas frequentes
 
 <AccordionGroup>
-  <Accordion title="Does the Free plan allow creating apps?">
-    No. The Free plan has no compute tiers enabled. Upgrade to Pro to create apps and databases.
+  <Accordion title="O plano Free permite criar apps?">
+    Não. O plano Free não tem tiers de compute habilitados. Faça upgrade para o Pro para criar apps e bancos de dados.
   </Accordion>
-  <Accordion title="What happens if I exceed R$20 of usage on Pro?">
-    The overage is charged to the registered card at the end of the month. You can monitor usage in real time in the dashboard.
+  <Accordion title="O que acontece se eu ultrapassar R$20 de uso no Pro?">
+    O excedente é cobrado no cartão cadastrado no final do mês. Você pode monitorar o uso em tempo real no dashboard.
   </Accordion>
-  <Accordion title="Can I cancel at any time?">
-    Yes. Cancellation is immediate. You are not charged for unused time after cancellation.
+  <Accordion title="Posso cancelar a qualquer momento?">
+    Sim. O cancelamento é imediato. Você não é cobrado pelo tempo não utilizado após o cancelamento.
   </Accordion>
-  <Accordion title="Do apps sleep on the Pro plan?">
-    Only apps on the NANO tier. All other tiers stay always active on Pro.
+  <Accordion title="Apps dormem no plano Pro?">
+    Apenas apps no tier NANO. Todos os outros tiers ficam sempre ativos no Pro.
   </Accordion>
 </AccordionGroup>

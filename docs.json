@@ -3,12 +3,12 @@
   "name": "Nivo",
   "theme": "mint",
   "colors": {
-    "primary": "#2a9e68",
-    "light": "#29b371",
-    "dark": "#1f7a50"
+    "primary": "#2BAB72",
+    "light": "#34c97f",
+    "dark": "#1e7a4e"
   },
   "topbarCtaButton": {
-    "name": "Dashboard",
+    "name": "Abrir Dashboard",
     "url": "https://app.nivo.lat"
   },
   "topbarLinks": [
@@ -20,11 +20,11 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Documentação",
         "groups": [
           {
-            "group": "Overview",
-            "pages": ["index"]
+            "group": "Começando",
+            "pages": ["index", "quickstart"]
           },
           {
             "group": "SDK",
@@ -44,23 +44,15 @@
               "cli/overview",
               "cli/auth",
               "cli/deploy",
+              "cli/link",
               "cli/apps",
               "cli/deployments",
-              "cli/link",
               "cli/logs"
             ]
           },
           {
-            "group": "Configuration",
-            "pages": ["config"]
-          },
-          {
-            "group": "Plans & Billing",
-            "pages": ["billing"]
-          },
-          {
-            "group": "Changelog",
-            "pages": ["changelog"]
+            "group": "Referência",
+            "pages": ["config", "billing", "changelog"]
           }
         ]
       }

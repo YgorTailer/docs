@@ -1,57 +1,50 @@
 ---
-title: "Manage Apps"
-description: "Control the lifecycle of your apps: list, start, stop, view logs, manage deployments, and environment variables."
+title: "Gerenciar Apps"
+description: "Controle o ciclo de vida dos seus apps: listar, iniciar, parar, ver logs, deployments e variáveis de ambiente."
 ---
 
-## List apps
+## Listar e buscar apps
 
 ```typescript
+// Listar todos os apps do projeto
 const apps = await nivo.apps.list()
-// returns App[]
-```
 
-## Get app
-
-```typescript
+// Buscar um app específico
 const app = await nivo.apps.get('app-id')
 ```
 
-## Start and stop
+## Iniciar e parar
 
 ```typescript
 await nivo.apps.start('app-id')
 await nivo.apps.stop('app-id')
 ```
 
-## Runtime logs
+## Logs em tempo real
 
-Returns `stdout`/`stderr` logs from the running container.
+Retorna os logs `stdout`/`stderr` do container em execução.
 
 ```typescript
 const { log } = await nivo.apps.logs('app-id')
+console.log(log)
 ```
 
 ## Deployments
 
-List deployment history and access logs for each deployment.
-
 ```typescript
-// List deployments
+// Listar histórico de deployments
 const deployments = await nivo.apps.deployments('app-id')
 
-// Logs for a specific deployment
+// Logs de um deployment específico
 const { log } = await nivo.apps.deploymentLogs('app-id', 'deployment-id')
-```
 
-To trigger a redeploy without uploading new code (using the latest commit):
-
-```typescript
+// Acionar redeploy sem enviar código novo (usa o último commit)
 await nivo.apps.deploy('app-id')
 ```
 
-## Environment variables
+## Variáveis de ambiente
 
-Updates the app environment variables. This operation **replaces** all existing variables with the provided object.
+Atualiza as variáveis de ambiente do app. Esta operação **substitui todas** as variáveis existentes.
 
 ```typescript
 await nivo.apps.setEnv('app-id', {
@@ -62,21 +55,21 @@ await nivo.apps.setEnv('app-id', {
 ```
 
 <Warning>
-  `setEnv()` is a full replacement operation. Include every variable you want to keep, not only the new ones.
+  `setEnv()` é uma substituição completa. Inclua **todas** as variáveis que quiser manter, não só as novas.
 </Warning>
 
-## Complete reference
+## Referência completa
 
-| Method | Description |
-|--------|-------------|
-| `nivo.apps.list()` | Lists all apps in the project. |
-| `nivo.apps.get(id)` | Returns details for a specific app. |
-| `nivo.apps.create(opts)` | Creates a new app. See [Commit & Deploy](/sdk/commit) for parameters. |
-| `nivo.apps.commit(opts)` | Uploads a zip file and starts a redeploy. |
-| `nivo.apps.deploy(id)` | Triggers a redeploy with the current code (no upload). |
-| `nivo.apps.start(id)` | Starts the app container. |
-| `nivo.apps.stop(id)` | Stops the app container. |
-| `nivo.apps.logs(id)` | Returns runtime logs from the container. |
-| `nivo.apps.deployments(id)` | Lists the latest 50 deployments. |
-| `nivo.apps.deploymentLogs(id, depId)` | Returns logs for a specific deployment. |
-| `nivo.apps.setEnv(id, vars)` | Replaces all environment variables. |
+| Método | Descrição |
+|--------|-----------|
+| `nivo.apps.list()` | Lista todos os apps do projeto. |
+| `nivo.apps.get(id)` | Retorna detalhes de um app específico. |
+| `nivo.apps.create(opts)` | Cria um novo app. Veja [Commit & Deploy](/sdk/commit). |
+| `nivo.apps.commit(opts)` | Envia zip e aciona redeploy. |
+| `nivo.apps.deploy(id)` | Redeploy sem enviar código novo. |
+| `nivo.apps.start(id)` | Inicia o container do app. |
+| `nivo.apps.stop(id)` | Para o container do app. |
+| `nivo.apps.logs(id)` | Retorna logs do container em execução. |
+| `nivo.apps.deployments(id)` | Lista os últimos 50 deployments. |
+| `nivo.apps.deploymentLogs(id, depId)` | Logs de um deployment específico. |
+| `nivo.apps.setEnv(id, vars)` | Substitui todas as variáveis de ambiente. |

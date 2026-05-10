@@ -1,57 +1,57 @@
 ---
 title: "Changelog"
-description: "All changes, features and fixes in nivo — organized by version."
+description: "Todas as mudanças, funcionalidades e correções do Nivo — organizadas por versão."
 ---
 
-## v1.3.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#7c3aed22', color: '#7c3aed', border: '1px solid #7c3aed33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>Latest</span> <span style={{fontSize: '11px', background: '#7c3aed22', color: '#7c3aed', border: '1px solid #7c3aed33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600, marginLeft: '4px'}}>New</span>
+## v1.3.0 — Mar 2026
 
-**Start / Stop / Restart** · Mar 2026
+**Start / Stop / Restart de bancos de dados**
 
-- Full control over PostgreSQL containers without losing data
-- Action buttons on the database details page
-- Status updates in real time after each action
-- Deletion confirmation with security dialog
-
----
-
-## v1.2.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#60a5fa22', color: '#60a5fa', border: '1px solid #60a5fa33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>New</span>
-
-**Live Stats via WebSocket** · Feb 2026
-
-- RAM, connections and size metrics in real time
-- Automatic update every 2 seconds via WebSocket
-- Historical line charts (last 2 minutes)
-- Automatic reconnection on connection drop
+- Controle total sobre containers PostgreSQL sem perder dados
+- Botões de ação na página de detalhes do banco
+- Atualizações de status em tempo real após cada ação
+- Confirmação de exclusão com diálogo de segurança
 
 ---
 
-## v1.1.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#c084fc22', color: '#c084fc', border: '1px solid #c084fc33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>New</span>
+## v1.2.0 — Fev 2026
 
-**Teams & Organization** · Jan 2026
+**Stats ao vivo via WebSocket**
 
-- Group databases into teams to organize projects
-- Create and rename teams in the dashboard
-- Filter databases by team
-- Database count per team
-
----
-
-## v1.0.1 <span style={{marginLeft: '8px', fontSize: '11px', background: '#fb923c22', color: '#fb923c', border: '1px solid #fb923c33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>Fix</span>
-
-**Stability fixes** · Jan 2026
-
-- Fixed 400 error on actions without JSON body
-- RAM validation now shows a toast instead of silently limiting
-- Statistics hidden when database is stopped
+- Métricas de RAM, conexões e tamanho em tempo real
+- Atualização automática a cada 2 segundos via WebSocket
+- Gráficos de linha históricos (últimos 2 minutos)
+- Reconexão automática em caso de queda de conexão
 
 ---
 
-## v1.0.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#6b728022', color: '#9ca3af', border: '1px solid #6b728033', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>Launch</span>
+## v1.1.0 — Jan 2026
 
-**nivo launch** · Jan 2026
+**Times & Organização**
 
-- PostgreSQL 16 Alpine container provisioning
-- JWT authentication with registration and login
-- Automatically generated connection string
-- Free, Pro and Business plans with per-database limits
-- Dashboard with overview and per-database details
+- Agrupe bancos de dados em times para organizar projetos
+- Crie e renomeie times no dashboard
+- Filtre bancos de dados por time
+- Contagem de bancos por time
+
+---
+
+## v1.0.1 — Jan 2026
+
+**Correções de estabilidade**
+
+- Corrigido erro 400 em ações sem corpo JSON
+- Validação de RAM agora exibe toast em vez de limitar silenciosamente
+- Estatísticas ocultadas quando o banco está parado
+
+---
+
+## v1.0.0 — Jan 2026
+
+**Lançamento do Nivo**
+
+- Provisionamento de containers PostgreSQL 16 Alpine
+- Autenticação JWT com cadastro e login
+- Connection string gerada automaticamente
+- Planos Free, Pro e Business com limites por banco
+- Dashboard com visão geral e detalhes por banco

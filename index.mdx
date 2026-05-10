@@ -1,51 +1,73 @@
 ---
-title: "Documentation"
-description: "Complete REST API for the Nivo platform. Manage apps, databases, and storage programmatically with any language, or use the official Node.js SDK."
+title: "O que é o Nivo?"
+description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos — com SDK e CLI oficial."
 ---
 
-## Get started
+O Nivo é uma plataforma de infraestrutura para times que precisam hospedar aplicações, bancos de dados e arquivos de forma simples, sem gerenciar servidores.
+
+## O que você pode fazer
 
 <CardGroup cols={3}>
-  <Card title="SDK @nivocloud/sdk" icon="npm" href="/sdk/overview">
-    Official npm package for Node.js/TypeScript
+  <Card title="Hospedar Apps" icon="rocket">
+    Deploy de aplicações Node.js, Python e outras runtimes com um comando.
   </Card>
-  <Card title="CLI" icon="terminal" href="/cli/overview">
-    Install, authenticate, and deploy from the terminal.
+  <Card title="Bancos de Dados" icon="database">
+    PostgreSQL, MySQL, MongoDB e Redis prontos em segundos.
   </Card>
-  <Card title="Storage" icon="cloud" href="/sdk/storage">
-    Buckets, upload, CDN, custom domain
+  <Card title="Storage & CDN" icon="cloud">
+    Buckets de arquivos com URLs públicas e CDN global.
   </Card>
 </CardGroup>
 
-## Errors
+## Como começar
 
-Errors return JSON with an `error` field and the matching HTTP status.
+<Steps>
+  <Step title="Crie sua conta">
+    Acesse [app.nivo.lat](https://app.nivo.lat) e crie um projeto.
+  </Step>
+  <Step title="Escolha sua ferramenta">
+    Use o **CLI** para deploy direto do terminal, ou o **SDK** para controlar tudo via código.
+  </Step>
+  <Step title="Faça seu primeiro deploy">
+    Siga o [Quickstart](/quickstart) e tenha sua aplicação no ar em menos de 5 minutos.
+  </Step>
+</Steps>
 
-| Status | Meaning |
-|--------|---------|
-| `200` | OK — request completed successfully |
-| `201` | Created — resource created successfully |
-| `202` | Accepted — action queued (e.g. deploy started) |
-| `204` | No Content — action completed with no response body |
-| `400` | Bad Request — invalid or missing parameters |
-| `401` | Unauthorized — missing or invalid API key |
-| `403` | Forbidden — plan does not allow this action, or Secret Key required |
-| `404` | Not Found — resource does not exist or does not belong to the project |
-| `409` | Conflict — resource already exists (e.g. bucket with same name) |
-| `413` | Payload Too Large — file exceeds the limit |
-| `500` | Internal Server Error — unexpected server error |
+## Escolha seu caminho
+
+<CardGroup cols={2}>
+  <Card title="Quero fazer deploy pelo terminal" icon="terminal" href="/quickstart">
+    Use o CLI para autenticar, linkar o projeto e fazer deploy com um comando.
+  </Card>
+  <Card title="Quero controlar via código" icon="code" href="/sdk/overview">
+    Instale o SDK e gerencie apps, bancos e storage diretamente do Node.js/TypeScript.
+  </Card>
+</CardGroup>
+
+## Erros da API
+
+Todos os erros retornam JSON com o campo `error` e o HTTP status correspondente.
+
+| Status | Significado |
+|--------|-------------|
+| `200` | OK — requisição concluída |
+| `201` | Criado — recurso criado com sucesso |
+| `400` | Requisição inválida — parâmetros incorretos |
+| `401` | Não autorizado — API key ausente ou inválida |
+| `403` | Proibido — plano não permite esta ação |
+| `404` | Não encontrado — recurso não existe |
+| `409` | Conflito — recurso já existe |
+| `500` | Erro interno do servidor |
 
 ## Rate limits
 
-Request limits are applied per API key:
-
-| Limit | Endpoint |
-|-------|----------|
-| `1,000 req/min` | Read endpoints (GET) |
-| `300 req/min` | Write endpoints (POST, PATCH, DELETE) |
-| `60 req/min` | Direct SQL queries (`/sdk/databases/:id/query`) |
-| `100 MB/file` | Storage file uploads |
+| Limite | Endpoints |
+|--------|-----------|
+| `1.000 req/min` | Leitura (GET) |
+| `300 req/min` | Escrita (POST, PATCH, DELETE) |
+| `60 req/min` | Queries SQL diretas |
+| `100 MB/arquivo` | Upload de arquivos |
 
 <Note>
-  When the limit is exceeded, the API returns `429 Too Many Requests` with the `Retry-After` header.
+  Quando o limite é atingido, a API retorna `429 Too Many Requests` com o header `Retry-After`.
 </Note>

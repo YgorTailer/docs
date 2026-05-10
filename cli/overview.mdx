@@ -1,62 +1,55 @@
 ---
-title: "Nivo CLI"
-description: "Command-line tool for authentication, linking projects, and deploying apps."
+title: "CLI do Nivo"
+description: "Faça deploy, gerencie apps e monitore logs diretamente do terminal."
 ---
 
-## Installation
+## Instalação
 
 ```bash
 npm install -g @nivocloud/cli
 ```
 
-## Update
+## Atualizar
 
 ```bash
 npm update -g @nivocloud/cli
 ```
 
-## Get started
+## Fluxo básico
 
 <Steps>
-  <Step title="Authenticate">
+  <Step title="Autentique-se">
     ```bash
     nivo login
     ```
-    Opens a browser window to authenticate. Confirm the code shown in the terminal.
+    Abre o navegador para autenticação. Confirme o código exibido no terminal.
   </Step>
-  <Step title="Link your project">
+  <Step title="Configure o `.nivo`">
+    Crie um arquivo `.nivo` na raiz do seu projeto com `name`, `projectId` e as configurações de build.
+  </Step>
+  <Step title="Linke o projeto">
     ```bash
     nivo link
     ```
-    Reads your `.nivo` config, creates (or updates) the app, and saves the `appId`.
+    Cria o app no Nivo e salva o `appId` no arquivo `.nivo`.
   </Step>
-  <Step title="Deploy">
+  <Step title="Faça o deploy">
     ```bash
     nivo deploy . --watch
     ```
-    Compresses the directory, uploads a ZIP, starts the build, and tails logs until completion.
+    Envia o código, inicia o build e exibe os logs até concluir.
   </Step>
 </Steps>
 
-## Commands
+## Comandos disponíveis
 
-<CardGroup cols={2}>
-  <Card title="Authentication" icon="lock" href="/cli/auth">
-    `nivo login`, `nivo me`, `nivo logout`
-  </Card>
-  <Card title="Deploy" icon="rocket" href="/cli/deploy">
-    Upload and deploy your app
-  </Card>
-  <Card title="Apps" icon="list" href="/cli/apps">
-    List accessible apps
-  </Card>
-  <Card title="Deployments" icon="clock" href="/cli/deployments">
-    List deployment history
-  </Card>
-  <Card title="Link" icon="link" href="/cli/link">
-    Link a local project to Nivo
-  </Card>
-  <Card title="Logs" icon="terminal" href="/cli/logs">
-    Stream app and deployment logs
-  </Card>
-</CardGroup>
+| Comando | Descrição |
+|---------|-----------|
+| `nivo login` | Autenticar com o Nivo |
+| `nivo logout` | Encerrar sessão |
+| `nivo me` | Ver conta logada |
+| `nivo link` | Linkar projeto local ao Nivo |
+| `nivo deploy` | Fazer deploy do app |
+| `nivo apps` | Listar apps acessíveis |
+| `nivo deployments` | Listar deployments do app |
+| `nivo logs` | Ver logs do app |

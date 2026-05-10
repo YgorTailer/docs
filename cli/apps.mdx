@@ -1,29 +1,28 @@
 ---
 title: "nivo apps"
-description: "List accessible apps and get their IDs for deployment."
+description: "Lista os apps acessíveis e exibe seus IDs para uso em deploys."
 ---
 
-## Usage
+## Uso
 
 ```bash
 nivo apps
 ```
 
-## Output example
+## Saída de exemplo
 
 ```
-name          status    source   url
-testapp       running   zip      https://testapp.app.nivo.lat
+nome          status    fonte   url
+testapp       running   zip     https://testapp.app.nivo.lat
 77faa1f9-316f-4dbb-8c1c-41c8eb871346
 ```
 
-The second line shows the app ID. Use it in your `.nivo` file or with `--app` flags.
+A segunda linha exibe o ID do app. Use-o no `.nivo` ou com a flag `--app` nos outros comandos.
 
-## Using the app ID in `.nivo`
+## Usando o ID no `.nivo`
 
 ```json .nivo
 {
-  "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346",
-  "sourceType": "zip"
+  "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346"
 }
 ```

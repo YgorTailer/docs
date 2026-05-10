@@ -1,99 +1,87 @@
 ---
-title: "Storage"
-description: "Store and serve files in project buckets. Upload via SDK with public or private URLs, CDN, and custom domain support."
+title: "Storage & CDN"
+description: "Armazene e sirva arquivos em buckets de projeto com URLs públicas, acesso privado e CDN global."
 ---
 
 <Note>
-  **Publishable Key:** read operations (list, get) work with `nivo_pub_`. Upload, creation, and deletion require a Secret Key.
+  Operações de leitura (listar, buscar) funcionam com `nivo_pub_`. Upload, criação e exclusão exigem Secret Key.
 </Note>
 
 ## Buckets
 
-Each bucket is a file container with its own access rules, MIME types, and size limit.
+Buckets são contêineres de arquivos com regras de acesso, tipos MIME e limite de tamanho próprios.
 
 ```typescript
-// List buckets
+// Listar buckets
 const buckets = await nivo.storage.buckets.list()
 
-// Create a bucket
+// Criar bucket público
 const bucket = await nivo.storage.buckets.create({
-  name: 'avatars',
+  name: 'avatares',
   public: true,
-  sizeLimit: 5 * 1024 * 1024,      // 5 MB
-  allowedMime: ['image/*'],
-  cors: ['https://myapp.com'],
-  cacheControl: 'public, max-age=31536000'
+  sizeLimit: 5 * 1024 * 1024,   // 5 MB
+  allowedMime: ['image/*']
 })
 ```
 
-| Parameter | Description |
-|-----------|-------------|
-| `name` | Unique bucket name in the project. |
-| `public` | If `true`, files are accessible by public URL without auth. |
-| `sizeLimit` | File size limit in bytes. |
-| `allowedMime` | Accepted MIME types. Example: `["image/*"]`. Omit to accept any type. |
-| `cors` | Allowed CORS origins. |
-| `cacheControl` | `Cache-Control` header applied to served files. |
+| Parâmetro | Descrição |
+|-----------|-----------|
+| `name` | Nome único do bucket no projeto. |
+| `public` | Se `true`, arquivos são acessíveis por URL pública sem autenticação. |
+| `sizeLimit` | Tamanho máximo do arquivo em bytes. |
+| `allowedMime` | Tipos MIME aceitos. Ex: `["image/*"]`. Omita para aceitar qualquer tipo. |
 
-## File upload
-
-Upload to a specific bucket. Accepts `Buffer`, file path, or `Readable`.
+## Upload de arquivos
 
 ```typescript
-const { file } = await nivo.storage.buckets.upload('bucket-id', './image.png', {
+const { file } = await nivo.storage.buckets.upload('bucket-id', './imagem.png', {
   filename: 'avatar.png'
 })
 
-console.log(file.url)      // public URL (if bucket is public)
-console.log(file.id)       // file ID for later operations
+console.log(file.url)  // URL pública (se bucket for público)
+console.log(file.id)   // ID do arquivo para operações futuras
 ```
 
-## List and delete files
+## Listar e excluir arquivos
 
 ```typescript
-// List files in a bucket
-const files = await nivo.storage.buckets.files('bucket-id')
+// Listar arquivos do bucket
+const arquivos = await nivo.storage.buckets.files('bucket-id')
 
-// Delete a file
+// Excluir arquivo
 await nivo.storage.files.delete('file-id')
 
-// Generate a signed URL for temporary access (private buckets)
-const { url } = await nivo.storage.files.signedUrl('file-id', 3600) // 1 hour
+// URL temporária assinada (buckets privados)
+const { url } = await nivo.storage.files.signedUrl('file-id', 3600) // 1 hora
 ```
 
 ## CDN
 
-The CDN is global storage for static assets with fast delivery URLs. Unlike buckets, it is not organized by project. Ideal for images, fonts, and permanent public files.
+O CDN é um storage global para assets estáticos com URLs de entrega rápida. Ideal para imagens, fontes e arquivos públicos permanentes.
 
 ```typescript
-// CDN stats
-const stats = await nivo.storage.cdn.stats()
-
-// List CDN files
-const files = await nivo.storage.cdn.files()
-
-// Upload to CDN
+// Upload para CDN
 const { file } = await nivo.storage.cdn.upload('./logo.svg')
-console.log(file.url)  // fast CDN URL
+console.log(file.url) // URL com cache global
 
-// Delete from CDN
+// Listar arquivos no CDN
+const arquivos = await nivo.storage.cdn.files()
+
+// Excluir do CDN
 await nivo.storage.cdn.delete('file-id')
 ```
 
-## Complete reference
+## Referência completa
 
-| Method | Description |
-|--------|-------------|
-| `nivo.storage.buckets.list()` | Lists all buckets in the project. |
-| `nivo.storage.buckets.get(id)` | Returns bucket details. |
-| `nivo.storage.buckets.create(opts)` | Creates a new bucket. |
-| `nivo.storage.buckets.update(id, opts)` | Updates settings, including custom domain. |
-| `nivo.storage.buckets.delete(id)` | Deletes the bucket and all its files. |
-| `nivo.storage.buckets.files(id)` | Lists bucket files with pagination and search. |
-| `nivo.storage.buckets.upload(id, file, opts)` | Uploads a file to the bucket. |
-| `nivo.storage.files.delete(id)` | Deletes a file by ID. |
-| `nivo.storage.files.signedUrl(id, ttl)` | Generates a signed URL for temporary access to a private file. |
-| `nivo.storage.cdn.stats()` | Returns total CDN usage. |
-| `nivo.storage.cdn.files()` | Lists all files in the CDN. |
-| `nivo.storage.cdn.upload(file)` | Uploads a file to the CDN. |
-| `nivo.storage.cdn.delete(id)` | Removes a file from the CDN. |
+| Método | Descrição |
+|--------|-----------|
+| `nivo.storage.buckets.list()` | Lista todos os buckets do projeto. |
+| `nivo.storage.buckets.create(opts)` | Cria um novo bucket. |
+| `nivo.storage.buckets.upload(id, arquivo, opts)` | Faz upload de um arquivo para o bucket. |
+| `nivo.storage.buckets.files(id)` | Lista arquivos do bucket. |
+| `nivo.storage.buckets.delete(id)` | Exclui o bucket e todos os seus arquivos. |
+| `nivo.storage.files.delete(id)` | Exclui um arquivo por ID. |
+| `nivo.storage.files.signedUrl(id, ttl)` | Gera URL assinada para acesso temporário. |
+| `nivo.storage.cdn.upload(arquivo)` | Faz upload para o CDN. |
+| `nivo.storage.cdn.files()` | Lista arquivos no CDN. |
+| `nivo.storage.cdn.delete(id)` | Remove arquivo do CDN. |

@@ -1,0 +1,86 @@
+---
+title: "Quickstart"
+description: "Do zero ao primeiro deploy em menos de 5 minutos usando o CLI do Nivo."
+---
+
+## Pré-requisitos
+
+- Node.js 18+
+- Uma conta no [app.nivo.lat](https://app.nivo.lat) com um projeto criado
+
+## 1. Instale o CLI
+
+```bash
+npm install -g @nivocloud/cli
+```
+
+## 2. Faça login
+
+```bash
+nivo login
+```
+
+Uma janela do navegador vai abrir. Confirme o código exibido no terminal para autenticar.
+
+## 3. Crie o arquivo `.nivo` no seu projeto
+
+Na raiz do seu projeto, crie um arquivo `.nivo` com as configurações:
+
+```json .nivo
+{
+  "name": "meu-app",
+  "projectId": "SEU_PROJECT_ID",
+  "runtime": "node20",
+  "startCmd": "npm start",
+  "buildCmd": "npm run build",
+  "installCmd": "npm install",
+  "ramMb": 256
+}
+```
+
+<Tip>
+  Encontre o `projectId` no dashboard: acesse seu projeto e copie o ID na URL ou nas configurações.
+</Tip>
+
+## 4. Linke o projeto
+
+```bash
+nivo link
+```
+
+Isso cria o app na plataforma e salva o `appId` no arquivo `.nivo` automaticamente.
+
+## 5. Faça o deploy
+
+```bash
+nivo deploy . --watch
+```
+
+O CLI compacta o diretório, envia o ZIP, inicia o build e exibe os logs até o deploy terminar.
+
+---
+
+## O que acontece por baixo
+
+1. O CLI compacta seu projeto em um `.zip`
+2. Envia para os servidores do Nivo
+3. O build roda (`installCmd` → `buildCmd`)
+4. O app sobe com o `startCmd`
+5. Uma URL pública é gerada automaticamente
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Variáveis de ambiente" icon="lock" href="/sdk/apps#variáveis-de-ambiente">
+    Configure secrets e variáveis de ambiente do app.
+  </Card>
+  <Card title="Banco de dados" icon="database" href="/sdk/databases">
+    Provisione um PostgreSQL para o seu app.
+  </Card>
+  <Card title="Domínio personalizado" icon="globe" href="/cli/deploy">
+    Configure um subdomínio personalizado.
+  </Card>
+  <Card title="Comandos do CLI" icon="terminal" href="/cli/overview">
+    Veja todos os comandos disponíveis.
+  </Card>
+</CardGroup>

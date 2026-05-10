@@ -1,19 +1,19 @@
 ---
-title: "Authentication"
-description: "Browser-based authentication flow with terminal code confirmation."
+title: "Autenticação"
+description: "Como fazer login, ver a conta logada e encerrar a sessão no CLI do Nivo."
 ---
 
 ## Login
-
-Opens a browser window to the Nivo auth page. Confirm the code shown in the terminal to complete authentication.
 
 ```bash
 nivo login
 ```
 
-The session token is stored locally at `~/.nivo-auth` and is not visible in the dashboard.
+Abre uma janela do navegador na página de autenticação do Nivo. Confirme o código exibido no terminal para concluir.
 
-## Check current user
+O token de sessão é salvo localmente em `~/.nivo-auth` e não aparece no dashboard.
+
+## Ver conta logada
 
 ```bash
 nivo me
@@ -21,12 +21,12 @@ nivo me
 
 ## Logout
 
-Removes the local session token.
+Remove o token de sessão local.
 
 ```bash
 nivo logout
 ```
 
 <Note>
-  The `~/.nivo-auth` file stores your session token locally. Do not commit it to version control.
+  Não commite o arquivo `~/.nivo-auth` no seu repositório — ele contém seu token de acesso.
 </Note>

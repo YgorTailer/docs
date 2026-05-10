@@ -1,17 +1,17 @@
 ---
-title: "Client"
-description: "Configure the SDK client with your API Key and start interacting with the Nivo platform."
+title: "Configurando o Cliente"
+description: "Como instalar, autenticar e configurar o SDK do Nivo no seu projeto."
 ---
 
-## Installation
+## Instalação
 
 ```bash
 npm install @nivocloud/sdk
 ```
 
-## Creating the client
+## Criando o cliente
 
-Import `NivoAPI` and pass your Secret Key. Generate your key in **Dashboard → API Keys**.
+Importe `NivoAPI` e passe sua Secret Key. Gere a chave em **Dashboard → API Keys**.
 
 <CodeGroup>
 ```typescript TypeScript
@@ -19,10 +19,10 @@ import { NivoAPI } from '@nivocloud/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 
-// Available resources:
-// nivo.apps       -> manage apps
-// nivo.databases  -> manage databases
-// nivo.storage    -> buckets, files, and CDN
+// Recursos disponíveis:
+// nivo.apps       → gerenciar apps
+// nivo.databases  → gerenciar bancos de dados
+// nivo.storage    → buckets, arquivos e CDN
 ```
 
 ```javascript JavaScript (ESM)
@@ -38,23 +38,9 @@ const nivo = new NivoAPI(process.env.NIVO_API_KEY)
 ```
 </CodeGroup>
 
-## Options
+## Variável de ambiente
 
-The constructor accepts an optional second parameter with configuration.
-
-```typescript
-const nivo = new NivoAPI('nivo_secret_...', {
-  baseUrl: 'https://api.nivo.lat/api'
-})
-```
-
-| Option | Description |
-|--------|-------------|
-| `baseUrl` | Base API URL. Default: `https://api.nivo.lat/api` |
-
-## Environment variables
-
-Never put your Secret Key directly in code. Use environment variables.
+Nunca coloque sua Secret Key diretamente no código. Use variáveis de ambiente.
 
 ```bash .env
 NIVO_API_KEY=nivo_secret_...
@@ -64,22 +50,26 @@ NIVO_API_KEY=nivo_secret_...
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 ```
 
-## Error handling
+## Opções avançadas
 
-All SDK methods throw `NivoError` when the API returns an error.
+```typescript
+const nivo = new NivoAPI('nivo_secret_...', {
+  baseUrl: 'https://api.nivo.lat/api' // padrão
+})
+```
+
+## Tratamento de erros
 
 ```typescript
 import { NivoAPI, NivoError } from '@nivocloud/sdk'
-
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 
 try {
   const app = await nivo.apps.get('app-id')
 } catch (err) {
   if (err instanceof NivoError) {
-    console.log(err.status)   // HTTP code (e.g. 404, 401, 403)
-    console.log(err.message)  // Error message from the API
-    console.log(err.detail)   // Additional detail (optional)
+    console.log(err.status)   // código HTTP (ex: 404, 401)
+    console.log(err.message)  // mensagem de erro da API
+    console.log(err.detail)   // detalhe adicional (opcional)
   }
 }
 ```
