@@ -6,7 +6,7 @@ description: "Como instalar, autenticar e configurar o SDK do Nivo no seu projet
 ## Instalação
 
 ```bash
-npm install @nivocloud/sdk
+npm install @nivo-lat/sdk
 ```
 
 ## Criando o cliente
@@ -15,7 +15,7 @@ Importe `NivoAPI` e passe sua Secret Key. Gere a chave em **Dashboard → API Ke
 
 <CodeGroup>
 ```typescript TypeScript
-import { NivoAPI } from '@nivocloud/sdk'
+import { NivoAPI } from '@nivo-lat/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 
@@ -26,13 +26,13 @@ const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 ```
 
 ```javascript JavaScript (ESM)
-import { NivoAPI } from '@nivocloud/sdk'
+import { NivoAPI } from '@nivo-lat/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY)
 ```
 
 ```javascript JavaScript (CJS)
-const { NivoAPI } = require('@nivocloud/sdk')
+const { NivoAPI } = require('@nivo-lat/sdk')
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY)
 ```
@@ -61,7 +61,7 @@ const nivo = new NivoAPI('nivo_secret_...', {
 ## Tratamento de erros
 
 ```typescript
-import { NivoAPI, NivoError } from '@nivocloud/sdk'
+import { NivoAPI, NivoError } from '@nivo-lat/sdk'
 
 try {
   const app = await nivo.apps.get('app-id')

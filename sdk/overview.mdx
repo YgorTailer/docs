@@ -5,7 +5,7 @@ description: "Controle apps, bancos de dados e storage do Nivo diretamente no se
 
 ## O que é o SDK?
 
-O `@nivocloud/sdk` é o pacote oficial do Nivo para Node.js e TypeScript. Com ele você gerencia toda a infraestrutura via código — sem precisar do CLI ou do dashboard.
+O `@nivo-lat/sdk` é o pacote oficial do Nivo para Node.js e TypeScript. Com ele você gerencia toda a infraestrutura via código — sem precisar do CLI ou do dashboard.
 
 **Casos de uso comuns:**
 - Scripts de automação e CI/CD
@@ -16,22 +16,22 @@ O `@nivocloud/sdk` é o pacote oficial do Nivo para Node.js e TypeScript. Com el
 
 <CodeGroup>
 ```bash npm
-npm install @nivocloud/sdk
+npm install @nivo-lat/sdk
 ```
 
 ```bash yarn
-yarn add @nivocloud/sdk
+yarn add @nivo-lat/sdk
 ```
 
 ```bash pnpm
-pnpm add @nivocloud/sdk
+pnpm add @nivo-lat/sdk
 ```
 </CodeGroup>
 
 ## Exemplo rápido
 
 ```typescript
-import { NivoAPI } from '@nivocloud/sdk'
+import { NivoAPI } from '@nivo-lat/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 
@@ -59,7 +59,7 @@ Gere suas chaves em **Dashboard → API Keys**.
 O SDK lança `NivoError` em qualquer resposta com erro HTTP.
 
 ```typescript
-import { NivoAPI, NivoError } from '@nivocloud/sdk'
+import { NivoAPI, NivoError } from '@nivo-lat/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 

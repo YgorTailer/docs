@@ -6,11 +6,11 @@ description: "Adicione login, cadastro e gerenciamento de sessão ao seu app com
 ## Instalação e inicialização
 
 ```typescript
-import { createClient } from '@nivocloud/sdk'
+import { createClient } from '@nivo-lat/sdk'
 
 const client = createClient(
   'https://api.nivo.lat',
-  'SUA_ANON_KEY'  // Dashboard → Auth → Settings
+  'nivo_pub_...'  // Dashboard → Configurações → API Keys
 )
 
 // Acesso ao auth:
@@ -21,7 +21,7 @@ client.auth.signIn.withPassword(...)
 | Parâmetro | Descrição |
 |-----------|-----------|
 | `authUrl` | URL base da API do Nivo. |
-| `anonKey` | Chave anônima pública do projeto. Encontrada em **Dashboard → Auth → Settings**. |
+| `apiKey` | Publishable Key (`nivo_pub_…`) do projeto. Encontrada em **Dashboard → Configurações → API Keys**. Use Secret Key (`nivo_secret_…`) apenas no servidor. |
 
 ## Cadastro
 
@@ -72,20 +72,23 @@ const { data, error } = await client.auth.verifyOtp({
 Redireciona o usuário para o provedor. **Funciona apenas no browser.**
 
 ```typescript
-// Redireciona para o GitHub
+// 1. Redireciona para o GitHub (ou 'google')
 client.auth.signIn.withOAuth({
   provider: 'github',
   redirectTo: 'https://meuapp.com/callback'
 })
 
-// Na página de callback, importar o token do hash da URL
-const hash = window.location.hash
-const refreshToken = new URLSearchParams(hash.slice(1)).get('refresh_token')
+// 2. Na página de callback, chame handleOAuthCallback()
+const { data, error } = client.auth.handleOAuthCallback()
 
-if (refreshToken) {
-  await client.auth.refreshSession(refreshToken)
+if (error) {
+  console.log('Erro no login:', error.message)
+} else {
+  console.log('Sessão criada:', data.access_token)
 }
 ```
+
+O método `handleOAuthCallback()` lê os tokens do hash da URL, salva a sessão localmente, dispara o evento `SIGNED_IN` e limpa o hash da URL automaticamente.
 
 ## Logout
 
@@ -179,5 +182,6 @@ if (error) {
 | `getUser()` | Retorna o usuário autenticado atual. |
 | `updateUser(updates)` | Atualiza nome, senha, telefone ou metadata. |
 | `getSession()` | Retorna a sessão atual (síncrono). |
+| `handleOAuthCallback()` | Lê tokens do hash da URL após redirect OAuth. |
 | `refreshSession(token?)` | Renova o access token. |
 | `onAuthStateChange(listener)` | Escuta mudanças de estado de autenticação. |
