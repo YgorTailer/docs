@@ -3,9 +3,9 @@
   "name": "Nivo",
   "theme": "mint",
   "colors": {
-    "primary": "#7c3aed",
-    "light": "#a78bfa",
-    "dark": "#6d28d9"
+    "primary": "#2a9e68",
+    "light": "#29b371",
+    "dark": "#1f7a50"
   },
   "topbarCtaButton": {
     "name": "Dashboard",
