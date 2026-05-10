@@ -1,0 +1,29 @@
+---
+title: "nivo apps"
+description: "List accessible apps and get their IDs for deployment."
+---
+
+## Usage
+
+```bash
+nivo apps
+```
+
+## Output example
+
+```
+name          status    source   url
+testapp       running   zip      https://testapp.app.nivo.lat
+77faa1f9-316f-4dbb-8c1c-41c8eb871346
+```
+
+The second line shows the app ID. Use it in your `.nivo` file or with `--app` flags.
+
+## Using the app ID in `.nivo`
+
+```json .nivo
+{
+  "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346",
+  "sourceType": "zip"
+}
+```

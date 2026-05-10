@@ -1,0 +1,32 @@
+---
+title: "Authentication"
+description: "Browser-based authentication flow with terminal code confirmation."
+---
+
+## Login
+
+Opens a browser window to the Nivo auth page. Confirm the code shown in the terminal to complete authentication.
+
+```bash
+nivo login
+```
+
+The session token is stored locally at `~/.nivo-auth` and is not visible in the dashboard.
+
+## Check current user
+
+```bash
+nivo me
+```
+
+## Logout
+
+Removes the local session token.
+
+```bash
+nivo logout
+```
+
+<Note>
+  The `~/.nivo-auth` file stores your session token locally. Do not commit it to version control.
+</Note>

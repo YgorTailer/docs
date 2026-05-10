@@ -1,0 +1,86 @@
+---
+title: "Databases"
+description: "Provision databases, run SQL queries, and perform table CRUD directly through the SDK. Supports PostgreSQL, MySQL, MongoDB, and Redis."
+---
+
+## Create database
+
+Provisions a new database container in the project. Returns a ready-to-use `connectionString`. Initial status is `provisioning` and changes to `running` in seconds.
+
+```typescript
+const db = await nivo.databases.create({
+  name: 'mydb',
+  password: 'secret123',
+  engine: 'postgresql',
+  ramMb: 512
+})
+
+console.log(db.connectionString)
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `name` | Database name (3–32 chars, lowercase, alphanumeric + underscore). |
+| `password` | Access password (minimum 6 characters). |
+| `engine` | `postgresql` (default), `mysql`, `mongodb`, or `redis`. |
+| `ramMb` | RAM in MB. Default: `512`. Minimum: `256` (64 for Redis). |
+
+### Available engines
+
+| Engine | Description |
+|--------|-------------|
+| **PostgreSQL** | Full support for SQL queries, tables, extensions, and backups. |
+| **MySQL** | MySQL 8.0. |
+| **MongoDB** | MongoDB 6/7. |
+| **Redis** | Redis 7 — cache and in-memory data structures. |
+
+## List and get
+
+```typescript
+const databases = await nivo.databases.list()
+
+const db = await nivo.databases.get('db-id')
+```
+
+## Run SQL query
+
+Run SQL queries directly through the SDK. **PostgreSQL only.** The database must have `running` status.
+
+```typescript
+const result = await nivo.databases.query('db-id', 'SELECT * FROM users LIMIT 10')
+
+console.log(result.rows)
+console.log(result.columns)
+```
+
+## Tables & CRUD
+
+Inspect and manipulate table data without writing SQL. **PostgreSQL only.**
+
+```typescript
+// List tables
+const tables = await nivo.databases.tables('db-id')
+
+// Get rows
+const { rows, columns, total } = await nivo.databases.tableRows('db-id', 'users')
+
+// Insert row
+const created = await nivo.databases.insertRow('db-id', 'users', {
+  email: 'user@example.com',
+  name: 'Jane'
+})
+```
+
+## Complete reference
+
+| Method | Description |
+|--------|-------------|
+| `nivo.databases.list()` | Lists all databases in the project. |
+| `nivo.databases.get(id)` | Returns database details, including host and port. |
+| `nivo.databases.create(opts)` | Provisions a new database and returns the `connectionString`. |
+| `nivo.databases.query(id, sql)` | Runs a SQL query (PostgreSQL only). |
+| `nivo.databases.tables(id)` | Lists tables from the public schema with estimated row counts. |
+| `nivo.databases.tableRows(id, table)` | Returns rows with columns, total, and pagination. |
+| `nivo.databases.insertRow(id, table, data)` | Inserts a row and returns the created row with auto-generated values. |
+| `nivo.databases.updateRow(id, table, pk, col, val)` | Updates one column value in a specific row. |
+| `nivo.databases.deleteRows(id, table, pks)` | Deletes one or more rows by primary keys. |

@@ -1,0 +1,76 @@
+---
+title: "Manage Files"
+description: "Access the app container file system in real time. Useful for editing configs, injecting secrets, or inspecting logs on disk."
+---
+
+<Warning>
+  The app must have a **running** container. File operations fail with status `400` if the app is stopped.
+</Warning>
+
+## List files
+
+Lists files and directories in a container path. Default: `/app`.
+
+```typescript
+const { files } = await nivo.apps.listFiles('app-id', '/app')
+
+// Each entry has:
+// file.name  — file or directory name
+// file.type  — "file", "dir", or "symlink"
+// file.size  — size in bytes
+```
+
+## Read file
+
+Returns file content as a string.
+
+```typescript
+const { content } = await nivo.apps.readFile('app-id', '/app/.env')
+console.log(content)
+```
+
+## Write file
+
+Creates or overwrites a file in the container. Intermediate directories are created automatically.
+
+```typescript
+await nivo.apps.writeFile('app-id', '/app/.env', 'NODE_ENV=production\nPORT=3000')
+```
+
+<Warning>
+  File changes are lost when the container is recreated (e.g. on the next deploy). For permanent changes, include files in the commit zip.
+</Warning>
+
+## Delete file
+
+```typescript
+await nivo.apps.deleteFile('app-id', '/app/tmp/cache.json')
+```
+
+## Practical examples
+
+### Inject `.env` at runtime
+
+```typescript
+const env = Object.entries(process.env)
+  .map(([k, v]) => `${k}=${v}`)
+  .join('\n')
+
+await nivo.apps.writeFile('app-id', '/app/.env', env)
+```
+
+### Inspect logs on disk
+
+```typescript
+const { content } = await nivo.apps.readFile('app-id', '/app/logs/app.log')
+console.log(content.split('\n').slice(-50).join('\n'))
+```
+
+## Complete reference
+
+| Method | Description |
+|--------|-------------|
+| `nivo.apps.listFiles(id, path)` | Lists files at the specified path. Default: `/app`. |
+| `nivo.apps.readFile(id, path)` | Reads file content as a string. |
+| `nivo.apps.writeFile(id, path, content)` | Creates or replaces a file. |
+| `nivo.apps.deleteFile(id, path)` | Removes a file from the container. |

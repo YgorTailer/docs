@@ -1,0 +1,57 @@
+---
+title: "Changelog"
+description: "All changes, features and fixes in nivo — organized by version."
+---
+
+## v1.3.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#7c3aed22', color: '#7c3aed', border: '1px solid #7c3aed33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>Latest</span> <span style={{fontSize: '11px', background: '#7c3aed22', color: '#7c3aed', border: '1px solid #7c3aed33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600, marginLeft: '4px'}}>New</span>
+
+**Start / Stop / Restart** · Mar 2026
+
+- Full control over PostgreSQL containers without losing data
+- Action buttons on the database details page
+- Status updates in real time after each action
+- Deletion confirmation with security dialog
+
+---
+
+## v1.2.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#60a5fa22', color: '#60a5fa', border: '1px solid #60a5fa33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>New</span>
+
+**Live Stats via WebSocket** · Feb 2026
+
+- RAM, connections and size metrics in real time
+- Automatic update every 2 seconds via WebSocket
+- Historical line charts (last 2 minutes)
+- Automatic reconnection on connection drop
+
+---
+
+## v1.1.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#c084fc22', color: '#c084fc', border: '1px solid #c084fc33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>New</span>
+
+**Teams & Organization** · Jan 2026
+
+- Group databases into teams to organize projects
+- Create and rename teams in the dashboard
+- Filter databases by team
+- Database count per team
+
+---
+
+## v1.0.1 <span style={{marginLeft: '8px', fontSize: '11px', background: '#fb923c22', color: '#fb923c', border: '1px solid #fb923c33', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>Fix</span>
+
+**Stability fixes** · Jan 2026
+
+- Fixed 400 error on actions without JSON body
+- RAM validation now shows a toast instead of silently limiting
+- Statistics hidden when database is stopped
+
+---
+
+## v1.0.0 <span style={{marginLeft: '8px', fontSize: '11px', background: '#6b728022', color: '#9ca3af', border: '1px solid #6b728033', borderRadius: '4px', padding: '2px 6px', fontWeight: 600}}>Launch</span>
+
+**nivo launch** · Jan 2026
+
+- PostgreSQL 16 Alpine container provisioning
+- JWT authentication with registration and login
+- Automatically generated connection string
+- Free, Pro and Business plans with per-database limits
+- Dashboard with overview and per-database details

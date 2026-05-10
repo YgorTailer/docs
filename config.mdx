@@ -1,0 +1,66 @@
+---
+title: ".nivo Config"
+description: "Complete reference for the .nivo configuration file used by the CLI."
+---
+
+## Full example
+
+```json .nivo
+{
+  "name": "meu-app",
+  "projectId": "proj_abc123",
+  "sourceType": "zip",
+  "type": "site",
+  "buildSystem": "nivopack",
+  "runtime": "node20",
+  "installCmd": "npm install",
+  "buildCmd": "npm run build",
+  "startCmd": "npm start",
+  "ramMb": 256,
+  "subdomain": "meu-app"
+}
+```
+
+## Field reference
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | Yes | — | App name. Used when creating the app. |
+| `projectId` | string | Yes | — | Project ID from the dashboard. |
+| `sourceType` | string | No | `zip` | `zip` or `github`. |
+| `type` | string | No | `site` | `site` or `worker`. |
+| `buildSystem` | string | No | `nivopack` | `nivopack`, `nixpacks`, or `dockerfile`. |
+| `runtime` | string | No | `node20` | Runtime (e.g. `node20`, `node18`, `python3.11`). |
+| `installCmd` | string | No | — | Dependency install command (e.g. `npm install`). |
+| `buildCmd` | string | No | — | Build command (e.g. `npm run build`). |
+| `startCmd` | string | No | `npm start` | App start command. |
+| `ramMb` | number | No | `256` | RAM allocation in MB. Minimum: `100`. |
+| `subdomain` | string | No | — | Custom subdomain (lowercase, numbers, hyphens). |
+| `repoFullName` | string | No | — | GitHub repo in `owner/repo` format. |
+| `repoBranch` | string | No | `main` | Git branch to deploy from. |
+| `appId` | string | — | — | **Auto-filled** by `nivo link`. Do not edit manually. |
+| `linkedAt` | string | — | — | **Auto-filled** timestamp. Do not edit manually. |
+
+## Workflow
+
+<Steps>
+  <Step title="Create .nivo">
+    Create a `.nivo` file in your project root with at least `name` and `projectId`.
+  </Step>
+  <Step title="Link the app">
+    ```bash
+    nivo link
+    ```
+    Creates the app on Nivo and writes `appId` back to `.nivo`.
+  </Step>
+  <Step title="Deploy">
+    ```bash
+    nivo deploy .
+    ```
+    Sends the code and triggers a new deployment.
+  </Step>
+</Steps>
+
+<Note>
+  You can safely commit `.nivo` to version control. Never commit `~/.nivo-auth` — it contains your session token.
+</Note>

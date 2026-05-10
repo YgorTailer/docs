@@ -1,0 +1,64 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Nivo",
+  "colors": {
+    "primary": "#7c3aed",
+    "light": "#a78bfa",
+    "dark": "#6d28d9"
+  },
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://app.nivo.lat"
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/YgorTailer/nivo"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Overview",
+      "pages": ["index"]
+    },
+    {
+      "group": "SDK",
+      "pages": [
+        "sdk/overview",
+        "sdk/client",
+        "sdk/commit",
+        "sdk/apps",
+        "sdk/databases",
+        "sdk/storage",
+        "sdk/files"
+      ]
+    },
+    {
+      "group": "CLI",
+      "pages": [
+        "cli/overview",
+        "cli/auth",
+        "cli/deploy",
+        "cli/apps",
+        "cli/deployments",
+        "cli/link",
+        "cli/logs"
+      ]
+    },
+    {
+      "group": "Configuration",
+      "pages": ["config"]
+    },
+    {
+      "group": "Plans & Billing",
+      "pages": ["billing"]
+    },
+    {
+      "group": "Changelog",
+      "pages": ["changelog"]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/YgorTailer/nivo"
+  }
+}

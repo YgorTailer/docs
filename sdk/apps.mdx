@@ -1,0 +1,82 @@
+---
+title: "Manage Apps"
+description: "Control the lifecycle of your apps: list, start, stop, view logs, manage deployments, and environment variables."
+---
+
+## List apps
+
+```typescript
+const apps = await nivo.apps.list()
+// returns App[]
+```
+
+## Get app
+
+```typescript
+const app = await nivo.apps.get('app-id')
+```
+
+## Start and stop
+
+```typescript
+await nivo.apps.start('app-id')
+await nivo.apps.stop('app-id')
+```
+
+## Runtime logs
+
+Returns `stdout`/`stderr` logs from the running container.
+
+```typescript
+const { log } = await nivo.apps.logs('app-id')
+```
+
+## Deployments
+
+List deployment history and access logs for each deployment.
+
+```typescript
+// List deployments
+const deployments = await nivo.apps.deployments('app-id')
+
+// Logs for a specific deployment
+const { log } = await nivo.apps.deploymentLogs('app-id', 'deployment-id')
+```
+
+To trigger a redeploy without uploading new code (using the latest commit):
+
+```typescript
+await nivo.apps.deploy('app-id')
+```
+
+## Environment variables
+
+Updates the app environment variables. This operation **replaces** all existing variables with the provided object.
+
+```typescript
+await nivo.apps.setEnv('app-id', {
+  NODE_ENV: 'production',
+  PORT: '3000',
+  DATABASE_URL: 'postgres://...'
+})
+```
+
+<Warning>
+  `setEnv()` is a full replacement operation. Include every variable you want to keep, not only the new ones.
+</Warning>
+
+## Complete reference
+
+| Method | Description |
+|--------|-------------|
+| `nivo.apps.list()` | Lists all apps in the project. |
+| `nivo.apps.get(id)` | Returns details for a specific app. |
+| `nivo.apps.create(opts)` | Creates a new app. See [Commit & Deploy](/sdk/commit) for parameters. |
+| `nivo.apps.commit(opts)` | Uploads a zip file and starts a redeploy. |
+| `nivo.apps.deploy(id)` | Triggers a redeploy with the current code (no upload). |
+| `nivo.apps.start(id)` | Starts the app container. |
+| `nivo.apps.stop(id)` | Stops the app container. |
+| `nivo.apps.logs(id)` | Returns runtime logs from the container. |
+| `nivo.apps.deployments(id)` | Lists the latest 50 deployments. |
+| `nivo.apps.deploymentLogs(id, depId)` | Returns logs for a specific deployment. |
+| `nivo.apps.setEnv(id, vars)` | Replaces all environment variables. |

@@ -1,0 +1,62 @@
+---
+title: "Nivo CLI"
+description: "Command-line tool for authentication, linking projects, and deploying apps."
+---
+
+## Installation
+
+```bash
+npm install -g @nivocloud/cli
+```
+
+## Update
+
+```bash
+npm update -g @nivocloud/cli
+```
+
+## Get started
+
+<Steps>
+  <Step title="Authenticate">
+    ```bash
+    nivo login
+    ```
+    Opens a browser window to authenticate. Confirm the code shown in the terminal.
+  </Step>
+  <Step title="Link your project">
+    ```bash
+    nivo link
+    ```
+    Reads your `.nivo` config, creates (or updates) the app, and saves the `appId`.
+  </Step>
+  <Step title="Deploy">
+    ```bash
+    nivo deploy . --watch
+    ```
+    Compresses the directory, uploads a ZIP, starts the build, and tails logs until completion.
+  </Step>
+</Steps>
+
+## Commands
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/cli/auth">
+    `nivo login`, `nivo me`, `nivo logout`
+  </Card>
+  <Card title="Deploy" icon="rocket" href="/cli/deploy">
+    Upload and deploy your app
+  </Card>
+  <Card title="Apps" icon="list" href="/cli/apps">
+    List accessible apps
+  </Card>
+  <Card title="Deployments" icon="clock" href="/cli/deployments">
+    List deployment history
+  </Card>
+  <Card title="Link" icon="link" href="/cli/link">
+    Link a local project to Nivo
+  </Card>
+  <Card title="Logs" icon="terminal" href="/cli/logs">
+    Stream app and deployment logs
+  </Card>
+</CardGroup>

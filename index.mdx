@@ -1,0 +1,51 @@
+---
+title: "Documentation"
+description: "Complete REST API for the Nivo platform. Manage apps, databases, and storage programmatically with any language, or use the official Node.js SDK."
+---
+
+## Get started
+
+<CardGroup cols={3}>
+  <Card title="SDK @nivocloud/sdk" icon="npm" href="/sdk/overview">
+    Official npm package for Node.js/TypeScript
+  </Card>
+  <Card title="CLI" icon="terminal" href="/cli/overview">
+    Install, authenticate, and deploy from the terminal.
+  </Card>
+  <Card title="Storage" icon="cloud" href="/sdk/storage">
+    Buckets, upload, CDN, custom domain
+  </Card>
+</CardGroup>
+
+## Errors
+
+Errors return JSON with an `error` field and the matching HTTP status.
+
+| Status | Meaning |
+|--------|---------|
+| `200` | OK — request completed successfully |
+| `201` | Created — resource created successfully |
+| `202` | Accepted — action queued (e.g. deploy started) |
+| `204` | No Content — action completed with no response body |
+| `400` | Bad Request — invalid or missing parameters |
+| `401` | Unauthorized — missing or invalid API key |
+| `403` | Forbidden — plan does not allow this action, or Secret Key required |
+| `404` | Not Found — resource does not exist or does not belong to the project |
+| `409` | Conflict — resource already exists (e.g. bucket with same name) |
+| `413` | Payload Too Large — file exceeds the limit |
+| `500` | Internal Server Error — unexpected server error |
+
+## Rate limits
+
+Request limits are applied per API key:
+
+| Limit | Endpoint |
+|-------|----------|
+| `1,000 req/min` | Read endpoints (GET) |
+| `300 req/min` | Write endpoints (POST, PATCH, DELETE) |
+| `60 req/min` | Direct SQL queries (`/sdk/databases/:id/query`) |
+| `100 MB/file` | Storage file uploads |
+
+<Note>
+  When the limit is exceeded, the API returns `429 Too Many Requests` with the `Retry-After` header.
+</Note>

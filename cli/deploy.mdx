@@ -1,0 +1,47 @@
+---
+title: "Deploy"
+description: "Compress a directory, upload a ZIP, and trigger a new deployment."
+---
+
+## Usage
+
+```bash
+nivo deploy
+nivo deploy .
+nivo deploy ./dist
+nivo deploy --watch
+nivo deploy --app 77faa1f9-316f-4dbb-8c1c-41c8eb871346
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--app <appId>` | Deploy to a specific app ID instead of reading from `.nivo`. |
+| `--watch` | Follow deployment logs in the terminal until completion. |
+
+## `.nivo` config fields used by deploy
+
+```json .nivo
+{
+  "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346",
+  "sourceType": "zip",
+  "buildSystem": "nivopack",
+  "runtime": "node20",
+  "installCmd": "npm install",
+  "buildCmd": "npm run build",
+  "startCmd": "npm start"
+}
+```
+
+See the [`.nivo` config reference](/config) for all available fields.
+
+## Typical workflow
+
+```bash
+# First time: create and link the app
+nivo link
+
+# Every deploy after that
+nivo deploy . --watch
+```

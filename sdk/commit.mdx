@@ -1,0 +1,138 @@
+---
+title: "Commit & Deploy"
+description: "Upload a .zip file with your app code and automatically trigger a redeploy. The existing app, environment variables, and settings are preserved."
+---
+
+## 1. Create an app
+
+Before committing, create the app once. The returned `id` is used by all other methods.
+
+```typescript
+const app = await nivo.apps.create({
+  name: 'my-api',
+  runtime: 'node20',
+  startCmd: 'node dist/index.js',
+  buildCmd: 'npm run build',
+  installCmd: 'npm ci',
+  buildSystem: 'nivopack',
+  ramMb: 256,
+  envVars: { PORT: '3000' },
+  type: 'site'
+})
+
+console.log(app.id) // use this id going forward
+```
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `name` | Yes | App name (1–48 characters). |
+| `runtime` | No | App runtime. Example: `node20`, `python3.11`. Default: `node20`. |
+| `startCmd` | No | Startup command. Example: `node dist/index.js`. |
+| `buildCmd` | No | Build command. Example: `npm run build`. |
+| `installCmd` | No | Install command. Example: `npm ci`. |
+| `buildSystem` | No | Build system. `nivopack` (default), `nixpacks`, or `dockerfile`. |
+| `ramMb` | No | RAM in MB. Default: `256`. |
+| `envVars` | No | Initial environment variables. Example: `PORT=3000`. |
+| `type` | No | `site` (default) or `worker`. |
+
+## 2. Commit (upload zip + redeploy)
+
+Use `nivo.apps.commit()` to upload the project zip and trigger the build. The app keeps running while the new build is in progress.
+
+<CodeGroup>
+```typescript Buffer
+import { readFileSync } from 'fs'
+
+const zip = readFileSync('./dist.zip')
+
+const { deploymentId } = await nivo.apps.commit({
+  id: app.id,
+  file: zip,
+  filename: 'app.zip'
+})
+```
+
+```typescript Stream
+import { createReadStream } from 'fs'
+
+const stream = createReadStream('./dist.zip')
+
+const { deploymentId } = await nivo.apps.commit({
+  id: app.id,
+  file: stream,
+  filename: 'app.zip'
+})
+```
+
+```typescript Path
+const { deploymentId } = await nivo.apps.commit({
+  id: app.id,
+  file: './dist.zip'
+})
+```
+</CodeGroup>
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `id` | Yes | App ID (returned by `create()`). |
+| `file` | Yes | Project zip file. Accepts `Buffer`, `Readable`, or a file path string. |
+| `filename` | No | File name. Default: `app.zip`. |
+
+## 3. Wait for the build
+
+`commit()` is asynchronous. Use `nivo.apps.deploymentLogs()` to follow the progress.
+
+```typescript
+let done = false
+
+while (!done) {
+  await new Promise(r => setTimeout(r, 2000))
+
+  const { log } = await nivo.apps.deploymentLogs(app.id, deploymentId)
+
+  const last = log.at(-1)
+  if (last?.status === 'success' || last?.status === 'failed') {
+    done = true
+    console.log('Final status:', last.status)
+  }
+}
+```
+
+## Complete workflow
+
+```typescript
+import { readFileSync } from 'fs'
+import { NivoAPI } from '@nivocloud/sdk'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+
+// 1. Create app
+const app = await nivo.apps.create({
+  name: 'my-api',
+  runtime: 'node20',
+  startCmd: 'node dist/index.js',
+  buildCmd: 'npm run build',
+  installCmd: 'npm ci'
+})
+
+// 2. Commit
+const zip = readFileSync('./dist.zip')
+const { deploymentId } = await nivo.apps.commit({ id: app.id, file: zip })
+
+console.log('Build started:', deploymentId)
+
+// 3. Poll until done
+let done = false
+while (!done) {
+  await new Promise(r => setTimeout(r, 2000))
+  const { log } = await nivo.apps.deploymentLogs(app.id, deploymentId)
+  const last = log.at(-1)
+  if (last?.status === 'success') {
+    console.log('Deploy completed successfully!')
+    done = true
+  } else if (last?.status === 'failed') {
+    console.log('Deploy failed:', last)
+    done = true
+  }
+}
+```

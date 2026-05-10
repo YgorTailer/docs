@@ -1,0 +1,85 @@
+---
+title: "Client"
+description: "Configure the SDK client with your API Key and start interacting with the Nivo platform."
+---
+
+## Installation
+
+```bash
+npm install @nivocloud/sdk
+```
+
+## Creating the client
+
+Import `NivoAPI` and pass your Secret Key. Generate your key in **Dashboard → API Keys**.
+
+<CodeGroup>
+```typescript TypeScript
+import { NivoAPI } from '@nivocloud/sdk'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+
+// Available resources:
+// nivo.apps       -> manage apps
+// nivo.databases  -> manage databases
+// nivo.storage    -> buckets, files, and CDN
+```
+
+```javascript JavaScript (ESM)
+import { NivoAPI } from '@nivocloud/sdk'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY)
+```
+
+```javascript JavaScript (CJS)
+const { NivoAPI } = require('@nivocloud/sdk')
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY)
+```
+</CodeGroup>
+
+## Options
+
+The constructor accepts an optional second parameter with configuration.
+
+```typescript
+const nivo = new NivoAPI('nivo_secret_...', {
+  baseUrl: 'https://api.nivo.lat/api'
+})
+```
+
+| Option | Description |
+|--------|-------------|
+| `baseUrl` | Base API URL. Default: `https://api.nivo.lat/api` |
+
+## Environment variables
+
+Never put your Secret Key directly in code. Use environment variables.
+
+```bash .env
+NIVO_API_KEY=nivo_secret_...
+```
+
+```typescript
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+```
+
+## Error handling
+
+All SDK methods throw `NivoError` when the API returns an error.
+
+```typescript
+import { NivoAPI, NivoError } from '@nivocloud/sdk'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+
+try {
+  const app = await nivo.apps.get('app-id')
+} catch (err) {
+  if (err instanceof NivoError) {
+    console.log(err.status)   // HTTP code (e.g. 404, 401, 403)
+    console.log(err.message)  // Error message from the API
+    console.log(err.detail)   // Additional detail (optional)
+  }
+}
+```

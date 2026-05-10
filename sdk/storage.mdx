@@ -1,0 +1,99 @@
+---
+title: "Storage"
+description: "Store and serve files in project buckets. Upload via SDK with public or private URLs, CDN, and custom domain support."
+---
+
+<Note>
+  **Publishable Key:** read operations (list, get) work with `nivo_pub_`. Upload, creation, and deletion require a Secret Key.
+</Note>
+
+## Buckets
+
+Each bucket is a file container with its own access rules, MIME types, and size limit.
+
+```typescript
+// List buckets
+const buckets = await nivo.storage.buckets.list()
+
+// Create a bucket
+const bucket = await nivo.storage.buckets.create({
+  name: 'avatars',
+  public: true,
+  sizeLimit: 5 * 1024 * 1024,      // 5 MB
+  allowedMime: ['image/*'],
+  cors: ['https://myapp.com'],
+  cacheControl: 'public, max-age=31536000'
+})
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `name` | Unique bucket name in the project. |
+| `public` | If `true`, files are accessible by public URL without auth. |
+| `sizeLimit` | File size limit in bytes. |
+| `allowedMime` | Accepted MIME types. Example: `["image/*"]`. Omit to accept any type. |
+| `cors` | Allowed CORS origins. |
+| `cacheControl` | `Cache-Control` header applied to served files. |
+
+## File upload
+
+Upload to a specific bucket. Accepts `Buffer`, file path, or `Readable`.
+
+```typescript
+const { file } = await nivo.storage.buckets.upload('bucket-id', './image.png', {
+  filename: 'avatar.png'
+})
+
+console.log(file.url)      // public URL (if bucket is public)
+console.log(file.id)       // file ID for later operations
+```
+
+## List and delete files
+
+```typescript
+// List files in a bucket
+const files = await nivo.storage.buckets.files('bucket-id')
+
+// Delete a file
+await nivo.storage.files.delete('file-id')
+
+// Generate a signed URL for temporary access (private buckets)
+const { url } = await nivo.storage.files.signedUrl('file-id', 3600) // 1 hour
+```
+
+## CDN
+
+The CDN is global storage for static assets with fast delivery URLs. Unlike buckets, it is not organized by project. Ideal for images, fonts, and permanent public files.
+
+```typescript
+// CDN stats
+const stats = await nivo.storage.cdn.stats()
+
+// List CDN files
+const files = await nivo.storage.cdn.files()
+
+// Upload to CDN
+const { file } = await nivo.storage.cdn.upload('./logo.svg')
+console.log(file.url)  // fast CDN URL
+
+// Delete from CDN
+await nivo.storage.cdn.delete('file-id')
+```
+
+## Complete reference
+
+| Method | Description |
+|--------|-------------|
+| `nivo.storage.buckets.list()` | Lists all buckets in the project. |
+| `nivo.storage.buckets.get(id)` | Returns bucket details. |
+| `nivo.storage.buckets.create(opts)` | Creates a new bucket. |
+| `nivo.storage.buckets.update(id, opts)` | Updates settings, including custom domain. |
+| `nivo.storage.buckets.delete(id)` | Deletes the bucket and all its files. |
+| `nivo.storage.buckets.files(id)` | Lists bucket files with pagination and search. |
+| `nivo.storage.buckets.upload(id, file, opts)` | Uploads a file to the bucket. |
+| `nivo.storage.files.delete(id)` | Deletes a file by ID. |
+| `nivo.storage.files.signedUrl(id, ttl)` | Generates a signed URL for temporary access to a private file. |
+| `nivo.storage.cdn.stats()` | Returns total CDN usage. |
+| `nivo.storage.cdn.files()` | Lists all files in the CDN. |
+| `nivo.storage.cdn.upload(file)` | Uploads a file to the CDN. |
+| `nivo.storage.cdn.delete(id)` | Removes a file from the CDN. |

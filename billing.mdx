@@ -1,0 +1,99 @@
+---
+title: "Plans & Billing"
+description: "Nivo uses usage-based billing. You only pay for the time your resources are running, with monthly credits included in the Pro plan."
+---
+
+## Plans
+
+<CardGroup cols={2}>
+  <Card title="Free" icon="gift">
+    **R$0/month**
+
+    For exploring the platform.
+    - 1 project
+    - No monthly credits
+    - Access to dashboard and projects
+    - Cannot create apps or databases
+    - Auth up to 500 MAU
+  </Card>
+  <Card title="Pro" icon="star">
+    **R$15/month** — Recommended
+
+    For production projects.
+    - Up to 5 projects
+    - R$20 monthly credits included
+    - Always-on apps (no sleep)
+    - All compute tiers available
+    - Priority support
+    - 10,000 Auth MAU included
+  </Card>
+</CardGroup>
+
+<Note>
+  The Pro plan covers R$20/month in infrastructure usage. If usage exceeds this amount, the overage is billed based on actual hourly usage.
+</Note>
+
+## How billing works
+
+Billing is hourly for each resource (app, database). The meter starts when the container starts and stops when it is deleted or stopped.
+
+Each Pro organization receives **R$20/month** in credits automatically applied to the invoice. Unused credits do not roll over to the next month.
+
+The final cost is calculated as:
+
+```
+cost = active_hours × tier_hourly_price
+```
+
+## Compute tiers
+
+Each app and database runs on a compute tier that defines available RAM, CPU, and disk.
+
+| Tier | RAM | vCPU | Disk | Price/hour |
+|------|-----|------|------|-----------|
+| `NANO` | 512 MB | 0.5 | 5 GB | Free |
+| `SMALL` | 1 GB | 1 | 10 GB | R$0,02 |
+| `MEDIUM` | 2 GB | 1.5 | 20 GB | R$0,04 |
+| `LARGE` | 4 GB | 2 | 40 GB | R$0,08 |
+| `XLARGE` | 8 GB | 4 | 80 GB | R$0,16 |
+
+<Note>
+  The NANO tier is free and intended for testing. Apps on NANO sleep after 15 minutes of inactivity, even on the Pro plan.
+</Note>
+
+## Auth MAU
+
+Nivo Auth counts MAU by unique users active in the month. Usage is visible on the project compute page.
+
+| Plan | Included | Overage |
+|------|----------|---------|
+| Free | 500 MAU | No overage |
+| Pro | 10,000 MAU | R$0.008 per MAU above the limit |
+
+On Pro, Auth overage uses monthly credits before creating additional charges.
+
+## Storage
+
+Storage usage is billed separately from compute tiers.
+
+| Usage | Price |
+|-------|-------|
+| Storage per GB/hour | R$0,001 |
+| Public buckets | Free |
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Does the Free plan allow creating apps?">
+    No. The Free plan has no compute tiers enabled. Upgrade to Pro to create apps and databases.
+  </Accordion>
+  <Accordion title="What happens if I exceed R$20 of usage on Pro?">
+    The overage is charged to the registered card at the end of the month. You can monitor usage in real time in the dashboard.
+  </Accordion>
+  <Accordion title="Can I cancel at any time?">
+    Yes. Cancellation is immediate. You are not charged for unused time after cancellation.
+  </Accordion>
+  <Accordion title="Do apps sleep on the Pro plan?">
+    Only apps on the NANO tier. All other tiers stay always active on Pro.
+  </Accordion>
+</AccordionGroup>

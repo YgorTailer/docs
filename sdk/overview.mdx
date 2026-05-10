@@ -1,0 +1,81 @@
+---
+title: "@nivocloud/sdk"
+description: "Official Nivo SDK for Node.js and TypeScript. Manage apps, databases, and storage programmatically with full typing."
+---
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Client" icon="key" href="/sdk/client">
+    Install and authenticate
+  </Card>
+  <Card title="Commit & Deploy" icon="rocket" href="/sdk/commit">
+    Upload zip files and trigger builds
+  </Card>
+  <Card title="Manage Apps" icon="play" href="/sdk/apps">
+    Start, stop, logs, env vars
+  </Card>
+  <Card title="Manage Files" icon="file" href="/sdk/files">
+    Read, write, and delete files
+  </Card>
+</CardGroup>
+
+## Installation
+
+Install with npm, yarn, or pnpm. Requires **Node.js 18+**.
+
+<CodeGroup>
+```bash npm
+npm install @nivocloud/sdk
+```
+
+```bash yarn
+yarn add @nivocloud/sdk
+```
+
+```bash pnpm
+pnpm add @nivocloud/sdk
+```
+</CodeGroup>
+
+## Quickstart
+
+Create a client with your Secret Key and start using it.
+
+```typescript
+import { NivoAPI } from '@nivocloud/sdk'
+
+const nivo = new NivoAPI('nivo_secret_...')
+
+const apps = await nivo.apps.list()
+const databases = await nivo.databases.list()
+const stats = await nivo.storage.stats()
+```
+
+## Key types
+
+The SDK uses two key types. Generate your keys in **Dashboard → API Keys**.
+
+| Key | Prefix | Description |
+|-----|--------|-------------|
+| **Secret Key** | `nivo_secret_` | Full access. Use in the backend or local scripts. Never expose in the frontend. |
+| **Publishable Key** | `nivo_pub_` | Read-only access to storage and CDN. Safe for client-side browser use. |
+
+## Errors
+
+The SDK throws `NivoError` for any response with an HTTP error status.
+
+```typescript
+import { NivoAPI, NivoError } from '@nivocloud/sdk'
+
+const nivo = new NivoAPI('nivo_secret_...')
+
+try {
+  const app = await nivo.apps.get('nonexistent-id')
+} catch (err) {
+  if (err instanceof NivoError) {
+    console.log(err.status)   // 404
+    console.log(err.message)  // "App not found"
+  }
+}
+```
