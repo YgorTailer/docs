@@ -1,0 +1,183 @@
+---
+title: "Autenticação"
+description: "Adicione login, cadastro e gerenciamento de sessão ao seu app com o SDK de Auth do Nivo."
+---
+
+## Instalação e inicialização
+
+```typescript
+import { createClient } from '@nivocloud/sdk'
+
+const client = createClient(
+  'https://api.nivo.lat',
+  'SUA_ANON_KEY'  // Dashboard → Auth → Settings
+)
+
+// Acesso ao auth:
+client.auth.signUp(...)
+client.auth.signIn.withPassword(...)
+```
+
+| Parâmetro | Descrição |
+|-----------|-----------|
+| `authUrl` | URL base da API do Nivo. |
+| `anonKey` | Chave anônima pública do projeto. Encontrada em **Dashboard → Auth → Settings**. |
+
+## Cadastro
+
+```typescript
+const { data, error } = await client.auth.signUp({
+  email: 'usuario@exemplo.com',
+  password: 'senha123',
+  name: 'João Silva'        // opcional
+})
+
+if (error) {
+  console.log(error.message)
+} else {
+  console.log(data.user)    // AuthUser
+  console.log(data.session) // Session
+}
+```
+
+## Login com senha
+
+```typescript
+const { data, error } = await client.auth.signIn.withPassword({
+  email: 'usuario@exemplo.com',
+  password: 'senha123'
+})
+```
+
+## Login com Magic Link
+
+Envia um link de acesso por email. O usuário não precisa de senha.
+
+```typescript
+// 1. Enviar o link
+const { error } = await client.auth.signIn.withMagicLink({
+  email: 'usuario@exemplo.com',
+  redirectTo: 'https://meuapp.com/callback'
+})
+
+// 2. Após o clique no link, verificar o token
+const { data, error } = await client.auth.verifyOtp({
+  token: 'token-da-url',
+  type: 'magic_link'
+})
+```
+
+## Login com OAuth (GitHub / Google)
+
+Redireciona o usuário para o provedor. **Funciona apenas no browser.**
+
+```typescript
+// Redireciona para o GitHub
+client.auth.signIn.withOAuth({
+  provider: 'github',
+  redirectTo: 'https://meuapp.com/callback'
+})
+
+// Na página de callback, importar o token do hash da URL
+const hash = window.location.hash
+const refreshToken = new URLSearchParams(hash.slice(1)).get('refresh_token')
+
+if (refreshToken) {
+  await client.auth.refreshSession(refreshToken)
+}
+```
+
+## Logout
+
+```typescript
+await client.auth.signOut()
+```
+
+Limpa a sessão local, revoga o refresh token no servidor e dispara o evento `SIGNED_OUT`.
+
+## Buscar usuário atual
+
+```typescript
+const { data, error } = await client.auth.getUser()
+console.log(data.user.email)
+console.log(data.user.name)
+```
+
+## Atualizar perfil
+
+```typescript
+const { data, error } = await client.auth.updateUser({
+  name: 'Novo Nome',
+  phone: '+55 11 99999-9999',
+  password: 'novaSenha123',
+  metadata: { plano: 'pro' }
+})
+```
+
+## Obter sessão atual
+
+Retorno síncrono, sem chamada de rede.
+
+```typescript
+const session = client.auth.getSession()
+
+if (session) {
+  console.log(session.access_token)
+  console.log(session.expires_at)
+}
+```
+
+## Ouvir mudanças de estado
+
+```typescript
+const { unsubscribe } = client.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN') {
+    console.log('Usuário logou:', session?.access_token)
+  }
+  if (event === 'SIGNED_OUT') {
+    console.log('Usuário deslogou')
+  }
+})
+
+// Para cancelar o listener:
+unsubscribe()
+```
+
+| Evento | Quando ocorre |
+|--------|---------------|
+| `SIGNED_IN` | Login ou cadastro concluído |
+| `SIGNED_OUT` | Logout |
+| `TOKEN_REFRESHED` | Access token renovado automaticamente |
+| `USER_UPDATED` | Perfil atualizado via `updateUser()` |
+
+## Tratamento de erros
+
+Todos os métodos retornam `{ data, error }` — nunca lançam exceções.
+
+```typescript
+const { data, error } = await client.auth.signIn.withPassword({
+  email: 'usuario@exemplo.com',
+  password: 'errada'
+})
+
+if (error) {
+  console.log(error.message) // "Invalid credentials"
+  console.log(error.status)  // 401
+}
+```
+
+## Referência completa
+
+| Método | Descrição |
+|--------|-----------|
+| `signUp({ email, password, name? })` | Cadastra e loga o usuário. |
+| `signIn.withPassword({ email, password })` | Login com email e senha. |
+| `signIn.withMagicLink({ email, redirectTo? })` | Envia link de acesso por email. |
+| `signIn.withOAuth({ provider, redirectTo? })` | Redireciona para GitHub ou Google. |
+| `verifyOtp({ token, type })` | Verifica token de magic link ou email. |
+| `signOut()` | Encerra a sessão. |
+| `getUser()` | Retorna o usuário autenticado atual. |
+| `updateUser(updates)` | Atualiza nome, senha, telefone ou metadata. |
+| `getSession()` | Retorna a sessão atual (síncrono). |
+| `refreshSession(token?)` | Renova o access token. |
+| `onAuthStateChange(listener)` | Escuta mudanças de estado de autenticação. |

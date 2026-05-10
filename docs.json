@@ -35,7 +35,8 @@
               "sdk/apps",
               "sdk/databases",
               "sdk/storage",
-              "sdk/files"
+              "sdk/files",
+              "sdk/auth"
             ]
           },
           {
