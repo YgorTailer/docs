@@ -1,75 +1,50 @@
 ---
-title: "Gerenciar Arquivos do App"
-description: "Acesse o sistema de arquivos do container do app em tempo real — útil para editar configs e injetar secrets."
+title: "Arquivos do App"
+description: "Leia, escreva e remova arquivos dentro do container em execucao."
 ---
 
 <Warning>
-  O app precisa ter um container **em execução**. Operações de arquivo falham com status `400` se o app estiver parado.
+  O app precisa estar em execucao. Mudancas feitas no filesystem do container podem ser perdidas no proximo deploy. Para configuracao permanente, prefira `updateEnv()` ou inclua o arquivo no ZIP.
 </Warning>
 
 ## Listar arquivos
 
-Lista arquivos e diretórios em um caminho do container. Padrão: `/app`.
-
 ```typescript
 const { files } = await nivo.apps.listFiles('app-id', '/app')
 
-// Cada entrada tem:
-// file.name — nome do arquivo ou diretório
-// file.type — "file", "dir" ou "symlink"
-// file.size — tamanho em bytes
+for (const file of files) {
+  console.log(file.name, file.type, file.size)
+}
 ```
 
 ## Ler arquivo
 
 ```typescript
-const { content } = await nivo.apps.readFile('app-id', '/app/.env')
+const { content } = await nivo.apps.readFile('app-id', '/app/package.json')
 console.log(content)
 ```
 
 ## Escrever arquivo
 
-Cria ou sobrescreve um arquivo no container. Diretórios intermediários são criados automaticamente.
-
 ```typescript
-await nivo.apps.writeFile('app-id', '/app/.env', 'NODE_ENV=production\nPORT=3000')
+await nivo.apps.writeFile(
+  'app-id',
+  '/app/runtime-config.json',
+  JSON.stringify({ plan: 'pro' })
+)
 ```
 
-<Warning>
-  Alterações em arquivos são perdidas quando o container é recriado (ex: no próximo deploy). Para alterações permanentes, inclua os arquivos no zip do commit.
-</Warning>
-
-## Excluir arquivo
+## Deletar arquivo
 
 ```typescript
 await nivo.apps.deleteFile('app-id', '/app/tmp/cache.json')
 ```
 
-## Exemplos práticos
+## Referencia
 
-### Injetar `.env` em tempo de execução
-
-```typescript
-const vars = Object.entries(process.env)
-  .map(([k, v]) => `${k}=${v}`)
-  .join('\n')
-
-await nivo.apps.writeFile('app-id', '/app/.env', vars)
-```
-
-### Inspecionar logs em disco
-
-```typescript
-const { content } = await nivo.apps.readFile('app-id', '/app/logs/app.log')
-const ultimas50 = content.split('\n').slice(-50).join('\n')
-console.log(ultimas50)
-```
-
-## Referência completa
-
-| Método | Descrição |
+| Metodo | Descricao |
 |--------|-----------|
-| `nivo.apps.listFiles(id, caminho)` | Lista arquivos no caminho. Padrão: `/app`. |
-| `nivo.apps.readFile(id, caminho)` | Lê conteúdo do arquivo como string. |
-| `nivo.apps.writeFile(id, caminho, conteudo)` | Cria ou substitui um arquivo. |
-| `nivo.apps.deleteFile(id, caminho)` | Remove um arquivo do container. |
+| `apps.listFiles(id, path?)` | Lista arquivos. Padrao: `/app`. |
+| `apps.readFile(id, path)` | Le arquivo como string. |
+| `apps.writeFile(id, path, content)` | Cria ou sobrescreve arquivo. |
+| `apps.deleteFile(id, path)` | Remove arquivo. |

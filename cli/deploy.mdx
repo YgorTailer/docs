@@ -1,46 +1,51 @@
 ---
 title: "Deploy"
-description: "Compacta o diretório, envia o ZIP e cria um novo deployment."
+description: "Envie codigo ZIP ou dispare redeploy GitHub com checklist visual no terminal."
 ---
 
 ## Uso
 
 ```bash
-nivo deploy              # deploya o diretório atual
-nivo deploy .            # mesmo que acima
-nivo deploy ./dist       # deploya um diretório específico
-nivo deploy --watch      # acompanha os logs até o deploy terminar
-nivo deploy --app ID     # deploya para um app específico
+nivo deploy
+nivo deploy .
+nivo deploy ./dist
+nivo deploy --watch
+nivo deploy --app APP_ID --watch
 ```
 
-## Opções
+## Como funciona
 
-| Flag | Descrição |
+O deploy roda como checklist visual com `listr2`:
+
+1. Resolve o `appId` pelo `--app` ou pelo `.nivo`
+2. Aplica as configuracoes locais do `.nivo`
+3. Busca o app
+4. Se `sourceType` for `zip`, compacta e envia o ZIP
+5. Se `sourceType` for `github`, dispara redeploy do repositorio
+6. Com `--watch`, acompanha os logs ate terminar
+
+## Opcoes
+
+| Flag | Descricao |
 |------|-----------|
-| `--app <appId>` | Deploy para um app específico (sem ler o `.nivo`). |
-| `--watch` | Exibe os logs do deployment no terminal até concluir. |
+| `--app <appId>` | Faz deploy para um app especifico, sem depender do `.nivo`. |
+| `--watch` | Mostra logs de build ate o deployment terminar. |
 
-## Campos do `.nivo` usados no deploy
+## Arquivos ignorados no ZIP
 
-```json .nivo
-{
-  "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346",
-  "buildSystem": "nivopack",
-  "runtime": "node20",
-  "installCmd": "npm install",
-  "buildCmd": "npm run build",
-  "startCmd": "npm start"
-}
-```
+O CLI nao envia:
 
-Veja a [referência completa do `.nivo`](/config) para todos os campos disponíveis.
+- `.git`
+- `.nivo`
+- `.next`
+- `node_modules`
+- `.env*`
+- arquivos `.log`
 
-## Fluxo recomendado
+## Apps GitHub
+
+Para apps GitHub, `nivo deploy` nao envia ZIP. Ele chama o redeploy do app configurado:
 
 ```bash
-# Primeira vez: linkar o projeto
-nivo link
-
-# Todos os deploys seguintes
-nivo deploy . --watch
+nivo deploy --watch
 ```

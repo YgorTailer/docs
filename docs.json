@@ -20,10 +20,10 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentação",
+        "tab": "Documentacao",
         "groups": [
           {
-            "group": "Começando",
+            "group": "Comecando",
             "pages": ["index", "quickstart"]
           },
           {
@@ -44,6 +44,7 @@
             "pages": [
               "cli/overview",
               "cli/auth",
+              "cli/language",
               "cli/deploy",
               "cli/link",
               "cli/apps",
@@ -52,7 +53,7 @@
             ]
           },
           {
-            "group": "Referência",
+            "group": "Referencia",
             "pages": ["config", "billing", "changelog"]
           }
         ]

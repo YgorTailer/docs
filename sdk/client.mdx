@@ -1,75 +1,42 @@
 ---
 title: "Configurando o Cliente"
-description: "Como instalar, autenticar e configurar o SDK do Nivo no seu projeto."
+description: "Escolha entre o cliente publico de Auth e o cliente administrativo de infraestrutura."
 ---
 
-## Instalação
+## Cliente administrativo
 
-```bash
-npm install @nivo-lat/sdk
-```
-
-## Criando o cliente
-
-Importe `NivoAPI` e passe sua Secret Key. Gere a chave em **Dashboard → API Keys**.
-
-<CodeGroup>
-```typescript TypeScript
-import { NivoAPI } from '@nivo-lat/sdk'
-
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
-
-// Recursos disponíveis:
-// nivo.apps       → gerenciar apps
-// nivo.databases  → gerenciar bancos de dados
-// nivo.storage    → buckets, arquivos e CDN
-```
-
-```javascript JavaScript (ESM)
-import { NivoAPI } from '@nivo-lat/sdk'
-
-const nivo = new NivoAPI(process.env.NIVO_API_KEY)
-```
-
-```javascript JavaScript (CJS)
-const { NivoAPI } = require('@nivo-lat/sdk')
-
-const nivo = new NivoAPI(process.env.NIVO_API_KEY)
-```
-</CodeGroup>
-
-## Variável de ambiente
-
-Nunca coloque sua Secret Key diretamente no código. Use variáveis de ambiente.
-
-```bash .env
-NIVO_API_KEY=nivo_secret_...
-```
+Use `NivoAPI` somente em backend, scripts locais, workers e CI/CD.
 
 ```typescript
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
-```
+import { NivoAPI } from '@nivo-lat/sdk'
 
-## Opções avançadas
-
-```typescript
-const nivo = new NivoAPI('nivo_secret_...', {
-  baseUrl: 'https://api.nivo.lat/api' // padrão
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  baseUrl: 'https://api.nivo.lat/api'
 })
 ```
 
-## Tratamento de erros
+`NIVO_API_KEY` deve ser uma Secret Key (`nivo_secret_...`).
+
+## Cliente publico
+
+Use `createClient()` no browser para Auth e sessoes do usuario final.
 
 ```typescript
-import { NivoAPI, NivoError } from '@nivo-lat/sdk'
+import { createClient } from '@nivo-lat/sdk'
 
-try {
-  const app = await nivo.apps.get('app-id')
-} catch (err) {
-  if (err instanceof NivoError) {
-    console.log(err.status)   // código HTTP (ex: 404, 401)
-    console.log(err.message)  // mensagem de erro da API
-    console.log(err.detail)   // detalhe adicional (opcional)
-  }
-}
+const client = createClient('https://api.nivo.lat', 'nivo_pub_...')
+
+await client.auth.signIn.withPassword({
+  email: 'user@example.com',
+  password: 'secret'
+})
 ```
+
+## Regra de seguranca
+
+| Chave | Pode ir para frontend? | Uso |
+|-------|-------------------------|-----|
+| `nivo_pub_...` | Sim | Auth e recursos publicos. |
+| `nivo_secret_...` | Nao | Managers, deploys, apps, bancos e storage administrativo. |
+
+Nunca envie uma Secret Key para o browser, app mobile ou cliente final.

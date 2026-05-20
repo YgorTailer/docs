@@ -1,55 +1,66 @@
 ---
-title: "Visão Geral"
-description: "Faça deploy, gerencie apps e monitore logs diretamente do terminal."
+title: "Visao Geral"
+description: "Use o CLI da Nivo para autenticar, linkar projetos, fazer deploy e acompanhar apps pelo terminal."
 ---
 
-## Instalação
+## Instalacao
 
 ```bash
 npm install -g @nivo-lat/cli
 ```
 
-## Atualizar
+O pacote instala o binario `nivo`.
+
+## Idioma
+
+A ajuda e os prompts do CLI tem suporte a portugues e ingles.
 
 ```bash
-npm update -g @nivo-lat/cli
+nivo lang set pt
+nivo lang set en
+nivo lang get
 ```
 
-## Fluxo básico
+O idioma padrao fica salvo neste computador.
+
+## Fluxo basico
 
 <Steps>
-  <Step title="Autentique-se">
+  <Step title="Autentique">
     ```bash
     nivo login
     ```
-    Abre o navegador para autenticação. Confirme o código exibido no terminal.
+    O CLI abre o navegador, mostra um codigo e salva a API key no storage local do usuario.
   </Step>
-  <Step title="Configure o `.nivo`">
-    Crie um arquivo `.nivo` na raiz do seu projeto com `name`, `projectId` e as configurações de build.
-  </Step>
-  <Step title="Linke o projeto">
+  <Step title="Vincule o projeto">
     ```bash
     nivo link
     ```
-    Cria o app no Nivo e salva o `appId` no arquivo `.nivo`.
+    O wizard cria ou atualiza o app e grava apenas metadados no `.nivo`.
   </Step>
-  <Step title="Faça o deploy">
+  <Step title="Faca deploy">
     ```bash
-    nivo deploy . --watch
+    nivo deploy --watch
     ```
-    Envia o código, inicia o build e exibe os logs até concluir.
+    Apps ZIP enviam a pasta atual. Apps GitHub disparam redeploy do repositorio configurado.
   </Step>
 </Steps>
 
-## Comandos disponíveis
+## Comandos
 
-| Comando | Descrição |
-|---------|-----------|
-| `nivo login` | Autenticar com o Nivo |
-| `nivo logout` | Encerrar sessão |
-| `nivo me` | Ver conta logada |
-| `nivo link` | Linkar projeto local ao Nivo |
-| `nivo deploy` | Fazer deploy do app |
-| `nivo apps` | Listar apps acessíveis |
-| `nivo deployments` | Listar deployments do app |
-| `nivo logs` | Ver logs do app |
+| Comando | Uso |
+|---------|-----|
+| `nivo login` | Login por device flow. |
+| `nivo logout` | Remove a API key local. |
+| `nivo me` | Mostra a conta logada e a chave mascarada. |
+| `nivo lang set pt` | Salva portugues como idioma padrao. |
+| `nivo lang set en` | Salva ingles como idioma padrao. |
+| `nivo link` | Cria/atualiza o app e salva `.nivo`. |
+| `nivo deploy --watch` | Cria deployment e acompanha logs. |
+| `nivo apps` | Lista apps em tabela. |
+| `nivo deployments` | Lista deploys do app. |
+| `nivo logs --tail 300` | Mostra logs de runtime. |
+
+## UX do terminal
+
+O CLI usa `picocolors` para destaque, `ora` para spinners curtos, `listr2` para checklist do deploy, `@inquirer/prompts` para inputs, `cli-table3` para tabelas, `boxen` para resumos e `terminal-link` para URLs clicaveis quando o terminal suporta.

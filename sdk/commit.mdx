@@ -1,125 +1,91 @@
 ---
 title: "Commit & Deploy"
-description: "Envie um arquivo .zip com o código da sua aplicação e acione um redeploy automaticamente."
+description: "Envie codigo ZIP ou dispare redeploy GitHub pelo SDK."
 ---
 
-O deploy via SDK funciona em 3 etapas: criar o app, enviar o código (commit) e acompanhar o build.
+## ZIP upload
 
-## 1. Criar o app
-
-Faça isso uma vez. O `id` retornado é usado em todas as operações seguintes.
+Para apps com `sourceType: 'zip'`, `commit()` envia um arquivo ZIP e cria um deployment.
 
 ```typescript
-const app = await nivo.apps.create({
-  name: 'meu-api',
-  runtime: 'node20',
-  startCmd: 'node dist/index.js',
-  buildCmd: 'npm run build',
-  installCmd: 'npm ci',
-  ramMb: 256
-})
-
-console.log(app.id) // salve este ID
+const { deploymentId } = await nivo.apps.commit(
+  'app-id',
+  './app.zip',
+  'app.zip'
+)
 ```
 
-| Parâmetro | Obrigatório | Descrição |
-|-----------|-------------|-----------|
-| `name` | Sim | Nome do app (1–48 caracteres). |
-| `runtime` | Não | Runtime. Ex: `node20`, `python3.11`. Padrão: `node20`. |
-| `startCmd` | Não | Comando de inicialização. Ex: `node dist/index.js`. |
-| `buildCmd` | Não | Comando de build. Ex: `npm run build`. |
-| `installCmd` | Não | Comando de instalação. Ex: `npm ci`. |
-| `buildSystem` | Não | `nivopack` (padrão), `nixpacks` ou `dockerfile`. |
-| `ramMb` | Não | RAM em MB. Padrão: `256`. |
-| `type` | Não | `site` (padrão) ou `worker`. |
-
-## 2. Enviar o código (commit)
-
-Use `nivo.apps.commit()` para enviar o zip e acionar o build. O app continua rodando enquanto o novo build é processado.
-
-<CodeGroup>
-```typescript Buffer
-import { readFileSync } from 'fs'
-
-const zip = readFileSync('./dist.zip')
-
-const { deploymentId } = await nivo.apps.commit({
-  id: app.id,
-  file: zip,
-  filename: 'app.zip'
-})
-```
-
-```typescript Stream
-import { createReadStream } from 'fs'
-
-const { deploymentId } = await nivo.apps.commit({
-  id: app.id,
-  file: createReadStream('./dist.zip'),
-  filename: 'app.zip'
-})
-```
-
-```typescript Caminho do arquivo
-const { deploymentId } = await nivo.apps.commit({
-  id: app.id,
-  file: './dist.zip'
-})
-```
-</CodeGroup>
-
-## 3. Aguardar o build
-
-O `commit()` é assíncrono. Use `deploymentLogs()` para acompanhar o progresso.
+Tambem aceita `Buffer` e `Readable`.
 
 ```typescript
-let concluido = false
+import { readFileSync, createReadStream } from 'node:fs'
 
-while (!concluido) {
-  await new Promise(r => setTimeout(r, 2000))
-
-  const { log } = await nivo.apps.deploymentLogs(app.id, deploymentId)
-  const ultimo = log.at(-1)
-
-  if (ultimo?.status === 'success') {
-    console.log('✅ Deploy concluído!')
-    concluido = true
-  } else if (ultimo?.status === 'failed') {
-    console.log('❌ Deploy falhou:', ultimo)
-    concluido = true
-  }
-}
+await nivo.apps.commit('app-id', readFileSync('./app.zip'), 'app.zip')
+await nivo.apps.commit('app-id', createReadStream('./app.zip'), 'app.zip')
 ```
 
-## Fluxo completo
+## Commit e aguardar
 
 ```typescript
-import { readFileSync } from 'fs'
+const result = await nivo.apps.commitAndWait('app-id', './app.zip', 'app.zip', {
+  intervalMs: 3000,
+  timeoutMs: 30 * 60 * 1000,
+  onLog: (chunk) => process.stdout.write(chunk),
+  onStatus: (status) => console.log(status)
+})
+
+console.log(result.status)
+```
+
+## GitHub redeploy
+
+Para apps com `sourceType: 'github'`, use `deploy()` ou `deployAndWait()`.
+
+```typescript
+const { deploymentId } = await nivo.apps.deploy('app-id')
+
+await nivo.apps.deployAndWait('app-id', {
+  onLog: (chunk) => process.stdout.write(chunk)
+})
+```
+
+## Fluxo completo para managers
+
+```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 
-// 1. Criar app
 const app = await nivo.apps.create({
-  name: 'meu-api',
+  name: 'cliente-vendas',
+  sourceType: 'zip',
   runtime: 'node20',
-  startCmd: 'node dist/index.js',
+  installCmd: 'npm ci',
   buildCmd: 'npm run build',
-  installCmd: 'npm ci'
+  startCmd: 'npm start',
+  ramMb: 256,
+  envVars: {
+    CLIENT_ID: 'client_123'
+  }
 })
 
-// 2. Enviar código
-const zip = readFileSync('./dist.zip')
-const { deploymentId } = await nivo.apps.commit({ id: app.id, file: zip })
-console.log('Build iniciado:', deploymentId)
+await nivo.apps.commitAndWait(app.id, './release.zip', 'release.zip', {
+  onLog: (chunk) => process.stdout.write(chunk)
+})
 
-// 3. Aguardar conclusão
-let concluido = false
-while (!concluido) {
-  await new Promise(r => setTimeout(r, 2000))
-  const { log } = await nivo.apps.deploymentLogs(app.id, deploymentId)
-  const ultimo = log.at(-1)
-  if (ultimo?.status === 'success') { console.log('✅ Sucesso!'); concluido = true }
-  else if (ultimo?.status === 'failed') { console.log('❌ Falhou'); concluido = true }
+await nivo.apps.updateEnv(app.id, {
+  PLAN: 'enterprise'
+})
+```
+
+## Status final
+
+`waitForDeployment()`, `commitAndWait()` e `deployAndWait()` retornam os logs do deployment com status final.
+
+```typescript
+const logs = await nivo.apps.waitForDeployment('app-id', 'deployment-id')
+
+if (logs.status !== 'success') {
+  throw new Error(`Deploy falhou: ${logs.status}`)
 }
 ```

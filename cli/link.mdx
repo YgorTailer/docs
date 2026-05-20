@@ -1,6 +1,6 @@
 ---
 title: "Linkar Projeto"
-description: "Lê o .nivo, cria ou atualiza o app no Nivo e salva o appId de volta no arquivo."
+description: "Crie ou conecte um app Nivo a pasta atual sem salvar segredos no repositorio."
 ---
 
 ## Uso
@@ -9,30 +9,57 @@ description: "Lê o .nivo, cria ou atualiza o app no Nivo e salva o appId de vol
 nivo link
 ```
 
-Lê o arquivo `.nivo` no diretório atual, cria (ou atualiza) o app na plataforma e escreve o `appId` gerado de volta no `.nivo`.
+Se nao existir `.nivo`, o CLI abre um wizard com `@inquirer/prompts`: nome do app, projeto, fonte do codigo, runtime, comandos, RAM e subdominio. Se o `.nivo` ja existir, o CLI valida o arquivo, atualiza o app e mantem o `appId`.
 
-## `.nivo` mínimo necessário
+## `.nivo` para ZIP
 
-```json .nivo
+```json
 {
-  "name": "meu-api",
-  "projectId": "SEU_PROJECT_ID",
+  "name": "sales-bot",
+  "projectId": "proj_123",
+  "sourceType": "zip",
+  "type": "site",
+  "buildSystem": "nivopack",
+  "runtime": "node20",
+  "installCmd": "npm ci",
+  "buildCmd": "npm run build",
+  "startCmd": "npm start",
+  "ramMb": 256,
+  "subdomain": "sales-bot"
+}
+```
+
+Ao rodar `nivo link`, o CLI cria o app, envia o codigo inicial e grava o `appId`:
+
+```json
+{
+  "appId": "app_123",
+  "name": "sales-bot",
+  "projectId": "proj_123",
+  "sourceType": "zip",
+  "linkedAt": "2026-05-20T12:00:00.000Z"
+}
+```
+
+## `.nivo` para GitHub
+
+```json
+{
+  "name": "sales-bot",
+  "projectId": "proj_123",
+  "sourceType": "github",
+  "repoFullName": "empresa/sales-bot",
+  "repoBranch": "main",
   "runtime": "node20",
   "startCmd": "npm start"
 }
 ```
 
-## Resultado após o link
+## O que nunca vai no `.nivo`
 
-```json .nivo
-{
-  "name": "meu-api",
-  "projectId": "SEU_PROJECT_ID",
-  "runtime": "node20",
-  "startCmd": "npm start",
-  "appId": "77faa1f9-316f-4dbb-8c1c-41c8eb871346",
-  "linkedAt": "2026-01-15T12:00:00.000Z"
-}
-```
+- API key
+- Token de usuario
+- Senhas de banco
+- Variaveis `.env`
 
-Veja a [referência completa do `.nivo`](/config) para todos os campos disponíveis.
+O `.nivo` e somente configuracao de projeto/app.

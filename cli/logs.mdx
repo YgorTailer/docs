@@ -1,19 +1,27 @@
 ---
-title: "Ver Logs"
-description: "Visualize logs de runtime ou de um deployment específico do seu app."
+title: "Logs"
+description: "Veja logs de runtime ou logs de build de um deployment."
 ---
 
-## Uso
+## Runtime logs
 
 ```bash
-nivo logs                          # logs de runtime do app linkado
-nivo logs --app APP_ID             # logs de um app específico
-nivo logs --deployment DEP_ID      # logs de um deployment específico
+nivo logs
+nivo logs --tail 300
+nivo logs --app APP_ID --tail 1000
 ```
 
-## Opções
+## Deployment logs
 
-| Flag | Descrição |
+```bash
+nivo logs --deployment DEPLOYMENT_ID
+nivo logs --app APP_ID --deployment DEPLOYMENT_ID
+```
+
+## Opcoes
+
+| Flag | Descricao |
 |------|-----------|
-| `--app <appId>` | Exibe logs de um app específico. Padrão: app do `.nivo`. |
-| `--deployment <id>` | Exibe logs de um deployment ao invés dos logs de runtime. |
+| `--app <appId>` | App especifico. Padrao: app do `.nivo`. |
+| `--deployment <id>` | Mostra logs de build do deployment. |
+| `--tail <lines>` | Numero de linhas de runtime logs. Padrao: `300`. |

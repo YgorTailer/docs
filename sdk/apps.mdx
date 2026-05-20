@@ -1,75 +1,136 @@
 ---
-title: "Gerenciar Apps"
-description: "Controle o ciclo de vida dos seus apps: listar, iniciar, parar, ver logs, deployments e variáveis de ambiente."
+title: "Apps"
+description: "Crie, atualize, reinicie, monitore e remova aplicacoes pelo SDK."
 ---
 
-## Listar e buscar apps
+## Criar app
 
 ```typescript
-// Listar todos os apps do projeto
-const apps = await nivo.apps.list()
+const app = await nivo.apps.create({
+  name: 'sales-bot',
+  sourceType: 'zip',
+  runtime: 'node20',
+  startCmd: 'npm start',
+  installCmd: 'npm ci',
+  buildCmd: 'npm run build',
+  ramMb: 256,
+  envVars: {
+    CUSTOMER_ID: 'cus_123'
+  }
+})
+```
 
-// Buscar um app específico
+Para GitHub:
+
+```typescript
+const app = await nivo.apps.create({
+  name: 'sales-bot',
+  sourceType: 'github',
+  repoFullName: 'empresa/sales-bot',
+  repoBranch: 'main',
+  runtime: 'node20',
+  startCmd: 'npm start'
+})
+```
+
+## Ciclo de vida
+
+```typescript
+await nivo.apps.start(app.id)
+await nivo.apps.stop(app.id)
+await nivo.apps.restart(app.id)
+```
+
+## Status e logs
+
+```typescript
 const app = await nivo.apps.get('app-id')
+const stats = await nivo.apps.stats('app-id')
+const logs = await nivo.apps.logs('app-id', { tail: 300 })
+
+console.log(app.status)
+console.log(stats.memUsageMb, stats.cpuPct)
+console.log(logs.log)
 ```
 
-## Iniciar e parar
+## Atualizar configuracao
 
 ```typescript
-await nivo.apps.start('app-id')
-await nivo.apps.stop('app-id')
+await nivo.apps.update('app-id', {
+  runtime: 'node20',
+  startCmd: 'npm start',
+  buildCmd: 'npm run build',
+  ramMb: 512,
+  autoRestart: true
+})
+
+await nivo.apps.updateRam('app-id', 512)
 ```
 
-## Logs em tempo real
+## Variaveis de ambiente
 
-Retorna os logs `stdout`/`stderr` do container em execução.
+`updateEnv()` faz merge: adiciona ou altera somente as chaves enviadas.
 
 ```typescript
-const { log } = await nivo.apps.logs('app-id')
-console.log(log)
+await nivo.apps.updateEnv('app-id', {
+  STRIPE_KEY: 'sk_live_...',
+  PLAN: 'pro'
+})
+```
+
+`replaceEnv()` substitui tudo de forma explicita.
+
+```typescript
+await nivo.apps.replaceEnv('app-id', {
+  NODE_ENV: 'production'
+})
+```
+
+Para remover chaves:
+
+```typescript
+await nivo.apps.removeEnv('app-id', ['OLD_KEY'])
 ```
 
 ## Deployments
 
 ```typescript
-// Listar histórico de deployments
 const deployments = await nivo.apps.deployments('app-id')
+const logs = await nivo.apps.deploymentLogs('app-id', 'deployment-id')
 
-// Logs de um deployment específico
-const { log } = await nivo.apps.deploymentLogs('app-id', 'deployment-id')
-
-// Acionar redeploy sem enviar código novo (usa o último commit)
-await nivo.apps.deploy('app-id')
-```
-
-## Variáveis de ambiente
-
-Atualiza as variáveis de ambiente do app. Esta operação **substitui todas** as variáveis existentes.
-
-```typescript
-await nivo.apps.setEnv('app-id', {
-  NODE_ENV: 'production',
-  PORT: '3000',
-  DATABASE_URL: 'postgres://...'
+await nivo.apps.deployAndWait('app-id', {
+  onLog: (chunk) => process.stdout.write(chunk)
 })
 ```
 
-<Warning>
-  `setEnv()` é uma substituição completa. Inclua **todas** as variáveis que quiser manter, não só as novas.
-</Warning>
+## Deletar app
 
-## Referência completa
+```typescript
+await nivo.apps.delete('app-id')
+```
 
-| Método | Descrição |
+## Referencia
+
+| Metodo | Descricao |
 |--------|-----------|
-| `nivo.apps.list()` | Lista todos os apps do projeto. |
-| `nivo.apps.get(id)` | Retorna detalhes de um app específico. |
-| `nivo.apps.create(opts)` | Cria um novo app. Veja [Commit & Deploy](/sdk/commit). |
-| `nivo.apps.commit(opts)` | Envia zip e aciona redeploy. |
-| `nivo.apps.deploy(id)` | Redeploy sem enviar código novo. |
-| `nivo.apps.start(id)` | Inicia o container do app. |
-| `nivo.apps.stop(id)` | Para o container do app. |
-| `nivo.apps.logs(id)` | Retorna logs do container em execução. |
-| `nivo.apps.deployments(id)` | Lista os últimos 50 deployments. |
-| `nivo.apps.deploymentLogs(id, depId)` | Logs de um deployment específico. |
-| `nivo.apps.setEnv(id, vars)` | Substitui todas as variáveis de ambiente. |
+| `list()` | Lista apps. |
+| `get(id)` | Retorna app e status. |
+| `create(opts)` | Cria app ZIP ou GitHub. |
+| `update(id, opts)` | Atualiza configuracao. |
+| `updateRam(id, ramMb)` | Atalho para alterar RAM. |
+| `delete(id)` | Remove app e recursos. |
+| `upload(id, file)` | Envia ZIP e cria deployment. |
+| `uploadAndWait(id, file)` | Envia ZIP e espera terminar. |
+| `commit(id, file)` | Alias profissional para upload de codigo. |
+| `commitAndWait(id, file)` | Upload de codigo e espera deployment. |
+| `deploy(id)` | Redeploy do ultimo codigo ou repo GitHub. |
+| `deployAndWait(id)` | Redeploy e espera terminar. |
+| `start(id)` | Inicia app. |
+| `stop(id)` | Para app. |
+| `restart(id)` | Reinicia app. |
+| `logs(id, { tail })` | Logs de runtime. |
+| `stats(id)` | CPU, memoria, rede, uptime e imagem. |
+| `getEnv(id)` | Lista env vars. |
+| `updateEnv(id, vars)` | Merge de env vars. |
+| `replaceEnv(id, vars)` | Substitui env vars. |
+| `removeEnv(id, keys)` | Remove env vars. |

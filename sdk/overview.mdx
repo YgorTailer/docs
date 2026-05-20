@@ -1,18 +1,20 @@
 ---
-title: "Visão Geral"
-description: "Controle apps, bancos de dados e storage do Nivo diretamente no seu código Node.js ou TypeScript."
+title: "Visao Geral"
+description: "Use o SDK oficial da Nivo para Auth, apps, bancos, deploys e storage."
 ---
 
-## O que é o SDK?
+## Um pacote, dois clientes
 
-O `@nivo-lat/sdk` é o pacote oficial do Nivo para Node.js e TypeScript. Com ele você gerencia toda a infraestrutura via código — sem precisar do CLI ou do dashboard.
+O pacote `@nivo-lat/sdk` nao e duplicado. Ele expoe dois clientes para casos diferentes:
 
-**Casos de uso comuns:**
-- Scripts de automação e CI/CD
-- Backends que gerenciam infraestrutura dinamicamente
-- Ferramentas internas de DevOps
+| Cliente | Chave | Onde usar | Recursos |
+|---------|-------|-----------|----------|
+| `createClient()` | Publishable key `nivo_pub_...` | Browser/app do usuario final | Auth, sessoes, mail e SMS seguros para frontend. |
+| `new NivoAPI()` | Secret key `nivo_secret_...` | Backend, scripts, managers e CI/CD | Apps, deploys, bancos, storage, CDN e operacoes administrativas. |
 
-## Instalação
+Para um bot manager, use `NivoAPI` no backend do manager. Nunca exponha secret keys no browser.
+
+## Instalacao
 
 <CodeGroup>
 ```bash npm
@@ -28,64 +30,69 @@ pnpm add @nivo-lat/sdk
 ```
 </CodeGroup>
 
-## Exemplo rápido
+## Exemplo: manager criando app para um cliente
 
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 
-// Listar apps do projeto
-const apps = await nivo.apps.list()
+const app = await nivo.apps.create({
+  name: 'cliente-vendas',
+  sourceType: 'zip',
+  runtime: 'node20',
+  startCmd: 'npm start',
+  buildCmd: 'npm run build',
+  installCmd: 'npm ci',
+  ramMb: 256,
+  envVars: {
+    CUSTOMER_ID: 'cus_123'
+  }
+})
 
-// Listar bancos de dados
-const databases = await nivo.databases.list()
-
-// Ver uso do storage
-const stats = await nivo.storage.stats()
+await nivo.apps.commitAndWait(app.id, './app.zip', 'app.zip', {
+  onLog: (chunk) => process.stdout.write(chunk)
+})
 ```
 
-## Tipos de chave de API
+## Fluxo GitHub
 
-Gere suas chaves em **Dashboard → API Keys**.
+```typescript
+const app = await nivo.apps.create({
+  name: 'cliente-vendas',
+  sourceType: 'github',
+  repoFullName: 'empresa/cliente-vendas',
+  repoBranch: 'main',
+  runtime: 'node20',
+  startCmd: 'npm start'
+})
 
-| Tipo | Prefixo | Quando usar |
-|------|---------|-------------|
-| **Secret Key** | `nivo_secret_` | Backend, scripts locais. **Nunca exponha no frontend.** |
-| **Publishable Key** | `nivo_pub_` | Somente leitura de storage/CDN. Seguro para uso no browser. |
+await nivo.apps.deployAndWait(app.id)
+```
 
-## Tratamento de erros
+## Recursos principais
 
-O SDK lança `NivoError` em qualquer resposta com erro HTTP.
+| Recurso | Exemplos |
+|---------|----------|
+| Apps | `create`, `commit`, `deploy`, `start`, `stop`, `restart`, `stats`, `logs`, `updateRam`, `delete`. |
+| Env vars | `getEnv`, `updateEnv`, `replaceEnv`, `removeEnv`. |
+| Bancos | `create`, `query`, `start`, `stop`, `restart`, `stats`, `logs`, `updateRam`, `delete`. |
+| Storage | Buckets, upload, signed URLs, CDN, multipart upload e status do storage. |
+
+## Erros
+
+Respostas HTTP com erro viram `NivoError`.
 
 ```typescript
 import { NivoAPI, NivoError } from '@nivo-lat/sdk'
 
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
-
 try {
-  const app = await nivo.apps.get('id-invalido')
+  await nivo.apps.get('app_invalido')
 } catch (err) {
   if (err instanceof NivoError) {
-    console.log(err.status)   // ex: 404
-    console.log(err.message)  // "App not found"
+    console.log(err.status)
+    console.log(err.message)
+    console.log(err.detail)
   }
 }
 ```
-
-## O que fazer a seguir
-
-<CardGroup cols={2}>
-  <Card title="Configurar o cliente" icon="key" href="/sdk/client">
-    Como instalar e autenticar o SDK.
-  </Card>
-  <Card title="Fazer deploy via código" icon="rocket" href="/sdk/commit">
-    Upload de zip e redeploy programático.
-  </Card>
-  <Card title="Gerenciar apps" icon="play" href="/sdk/apps">
-    Start, stop, logs e variáveis de ambiente.
-  </Card>
-  <Card title="Bancos de dados" icon="database" href="/sdk/databases">
-    Criar e consultar bancos de dados.
-  </Card>
-</CardGroup>
