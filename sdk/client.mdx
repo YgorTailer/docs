@@ -1,42 +1,57 @@
 ---
-title: "Configurando o Cliente"
-description: "Escolha entre o cliente publico de Auth e o cliente administrativo de infraestrutura."
+title: "Configuração do Cliente"
+description: "Configure o NivoAPI para operações de infraestrutura ou o createClient para auth de usuários finais."
 ---
 
-## Cliente administrativo
+## NivoAPI — cliente de infraestrutura
 
-Use `NivoAPI` somente em backend, scripts locais, workers e CI/CD.
+Use `NivoAPI` exclusivamente no servidor: backends, workers, scripts e pipelines de CI/CD.
 
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
 
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+```
+
+Para apontar para uma URL customizada:
+
+```typescript
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
-  baseUrl: 'https://api.nivo.lat/api'
+  baseUrl: 'https://api.nivo.lat/api',
 })
 ```
 
-`NIVO_API_KEY` deve ser uma Secret Key (`nivo_secret_...`).
+A variável `NIVO_API_KEY` deve conter uma **Secret Key** (`nivo_secret_...`), obtida no painel da Nivo em **Configurações → API Keys**.
 
-## Cliente publico
+## createClient — cliente de Auth
 
-Use `createClient()` no browser para Auth e sessoes do usuario final.
+Use `createClient()` no frontend para autenticar e gerenciar sessões dos usuários da sua aplicação.
 
 ```typescript
 import { createClient } from '@nivo-lat/sdk'
 
-const client = createClient('https://api.nivo.lat', 'nivo_pub_...')
-
-await client.auth.signIn.withPassword({
-  email: 'user@example.com',
-  password: 'secret'
-})
+const client = createClient('https://api.nivo.lat', process.env.NEXT_PUBLIC_NIVO_KEY!)
 ```
 
-## Regra de seguranca
+A variável deve conter uma **Publishable Key** (`nivo_pub_...`). Ela pode ser exposta no browser com segurança.
 
-| Chave | Pode ir para frontend? | Uso |
-|-------|-------------------------|-----|
-| `nivo_pub_...` | Sim | Auth e recursos publicos. |
-| `nivo_secret_...` | Nao | Managers, deploys, apps, bancos e storage administrativo. |
+## Referência de chaves
 
-Nunca envie uma Secret Key para o browser, app mobile ou cliente final.
+| Tipo | Prefixo | Pode ir para o frontend? | Uso |
+|------|---------|--------------------------|-----|
+| Publishable Key | `nivo_pub_...` | Sim | Auth e sessões de usuários finais |
+| Secret Key | `nivo_secret_...` | **Não** | Toda operação de infraestrutura via `NivoAPI` |
+
+<Warning>
+Nunca inclua uma Secret Key em código que rode no browser, app mobile ou qualquer ambiente acessível pelo usuário final. Use variáveis de ambiente exclusivas do servidor.
+</Warning>
+
+## Variáveis de ambiente recomendadas
+
+```bash
+# .env (servidor — nunca no frontend)
+NIVO_API_KEY=nivo_secret_...
+
+# .env.local (frontend — Next.js, Vite, etc.)
+NEXT_PUBLIC_NIVO_KEY=nivo_pub_...
+```

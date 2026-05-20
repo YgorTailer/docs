@@ -1,20 +1,9 @@
 ---
-title: "Visao Geral"
-description: "Use o SDK oficial da Nivo para Auth, apps, bancos, deploys e storage."
+title: "Visão Geral"
+description: "SDK oficial da Nivo para Auth, apps, bancos de dados, deploys e storage."
 ---
 
-## Um pacote, dois clientes
-
-O pacote `@nivo-lat/sdk` nao e duplicado. Ele expoe dois clientes para casos diferentes:
-
-| Cliente | Chave | Onde usar | Recursos |
-|---------|-------|-----------|----------|
-| `createClient()` | Publishable key `nivo_pub_...` | Browser/app do usuario final | Auth, sessoes, mail e SMS seguros para frontend. |
-| `new NivoAPI()` | Secret key `nivo_secret_...` | Backend, scripts, managers e CI/CD | Apps, deploys, bancos, storage, CDN e operacoes administrativas. |
-
-Para um bot manager, use `NivoAPI` no backend do manager. Nunca exponha secret keys no browser.
-
-## Instalacao
+## Instalação
 
 <CodeGroup>
 ```bash npm
@@ -30,69 +19,104 @@ pnpm add @nivo-lat/sdk
 ```
 </CodeGroup>
 
-## Exemplo: manager criando app para um cliente
+## Dois clientes, dois contextos
+
+O `@nivo-lat/sdk` expõe dois clientes com responsabilidades distintas:
+
+| Cliente | Chave | Contexto | Recursos |
+|---------|-------|----------|----------|
+| `createClient()` | Publishable `nivo_pub_...` | Frontend, browser, app mobile | Auth de usuários finais, sessões, e-mail e SMS |
+| `new NivoAPI()` | Secret `nivo_secret_...` | Backend, scripts, workers, CI/CD | Apps, deploys, bancos de dados, storage e todas as operações de infraestrutura |
+
+<Warning>
+Nunca exponha uma Secret Key no browser, app mobile ou em qualquer código acessível pelo cliente final.
+</Warning>
+
+## Operações de infraestrutura
+
+Use `NivoAPI` no servidor para gerenciar toda a infraestrutura da sua aplicação.
 
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
 
+// Criar e fazer deploy de uma aplicação
 const app = await nivo.apps.create({
-  name: 'cliente-vendas',
-  sourceType: 'zip',
+  name: 'minha-api',
   runtime: 'node20',
-  startCmd: 'npm start',
+  startCmd: 'node dist/server.js',
   buildCmd: 'npm run build',
   installCmd: 'npm ci',
-  ramMb: 256,
-  envVars: {
-    CUSTOMER_ID: 'cus_123'
-  }
+  ramMb: 512,
 })
 
-await nivo.apps.commitAndWait(app.id, './app.zip', 'app.zip', {
-  onLog: (chunk) => process.stdout.write(chunk)
+await nivo.apps.commitAndWait(app.id, './build.zip', 'build.zip', {
+  onLog: (chunk) => process.stdout.write(chunk),
 })
+
+console.log(`App disponível em: https://${app.subdomain}.nivo.lat`)
 ```
 
-## Fluxo GitHub
+## Deploy via GitHub
 
 ```typescript
 const app = await nivo.apps.create({
-  name: 'cliente-vendas',
+  name: 'minha-api',
   sourceType: 'github',
-  repoFullName: 'empresa/cliente-vendas',
+  repoFullName: 'org/minha-api',
   repoBranch: 'main',
   runtime: 'node20',
-  startCmd: 'npm start'
+  startCmd: 'node dist/server.js',
 })
 
-await nivo.apps.deployAndWait(app.id)
+await nivo.apps.deployAndWait(app.id, {
+  onLog: (chunk) => process.stdout.write(chunk),
+})
 ```
 
-## Recursos principais
+## Auth de usuários finais
 
-| Recurso | Exemplos |
-|---------|----------|
-| Apps | `create`, `commit`, `deploy`, `start`, `stop`, `restart`, `stats`, `logs`, `updateRam`, `delete`. |
-| Env vars | `getEnv`, `updateEnv`, `replaceEnv`, `removeEnv`. |
-| Bancos | `create`, `query`, `start`, `stop`, `restart`, `stats`, `logs`, `updateRam`, `delete`. |
-| Storage | Buckets, upload, signed URLs, CDN, multipart upload e status do storage. |
+Use `createClient()` no frontend para autenticar usuários da sua aplicação.
 
-## Erros
+```typescript
+import { createClient } from '@nivo-lat/sdk'
 
-Respostas HTTP com erro viram `NivoError`.
+const client = createClient('https://api.nivo.lat', 'nivo_pub_...')
+
+// Login com e-mail e senha
+const { session } = await client.auth.signIn.withPassword({
+  email: 'usuario@exemplo.com',
+  password: 'senha123',
+})
+```
+
+## Recursos disponíveis
+
+| Recurso | Operações |
+|---------|-----------|
+| **Apps** | `create`, `update`, `delete`, `start`, `stop`, `restart`, `deploy`, `commit`, `stats`, `logs` |
+| **Env vars** | `getEnv`, `updateEnv`, `replaceEnv`, `removeEnv` |
+| **Arquivos** | `listFiles`, `readFile`, `writeFile`, `deleteFile` |
+| **Bancos de dados** | `create`, `query`, `start`, `stop`, `restart`, `stats`, `logs`, `tables` |
+| **Storage** | Buckets, upload, upload multipart, signed URLs, CDN |
+| **Auth** | Sign up, sign in, magic link, OAuth, sessões, usuários |
+
+## Tratamento de erros
+
+Todos os erros de API retornam uma instância de `NivoError` com status HTTP, mensagem e detalhe.
 
 ```typescript
 import { NivoAPI, NivoError } from '@nivo-lat/sdk'
 
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+
 try {
-  await nivo.apps.get('app_invalido')
+  const app = await nivo.apps.get('app-id')
 } catch (err) {
   if (err instanceof NivoError) {
-    console.log(err.status)
-    console.log(err.message)
-    console.log(err.detail)
+    console.error(`[${err.status}] ${err.message}`)
+    if (err.detail) console.error(err.detail)
   }
 }
 ```
