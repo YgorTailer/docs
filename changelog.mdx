@@ -1,57 +1,58 @@
 ---
 title: "Changelog"
-description: "Todas as mudanças, funcionalidades e correções do Nivo — organizadas por versão."
+description: "Mudancas reais da Nivo desde o lancamento publico em maio de 2026."
 ---
 
-## v1.3.0 — Mar 2026
+## Maio 2026
 
-**Start / Stop / Restart de bancos de dados**
+**Lancamento publico da Nivo**
 
-- Controle total sobre containers PostgreSQL sem perder dados
-- Botões de ação na página de detalhes do banco
-- Atualizações de status em tempo real após cada ação
-- Confirmação de exclusão com diálogo de segurança
-
----
-
-## v1.2.0 — Fev 2026
-
-**Stats ao vivo via WebSocket**
-
-- Métricas de RAM, conexões e tamanho em tempo real
-- Atualização automática a cada 2 segundos via WebSocket
-- Gráficos de linha históricos (últimos 2 minutos)
-- Reconexão automática em caso de queda de conexão
+- Dashboard com organizacoes, projetos e recursos
+- Planos Free, Pro, Builder e Team
+- Creditos pre-pagos e creditos mensais nos planos pagos
+- Compute tiers VOID, SPARK, PULSE, NOVA, ORBIT, NEBULA, QUASAR e COSMOS
 
 ---
 
-## v1.1.0 — Jan 2026
+## Maio 2026
 
-**Times & Organização**
+**Storage separado do compute**
 
-- Agrupe bancos de dados em times para organizar projetos
-- Crie e renomeie times no dashboard
-- Filtre bancos de dados por time
-- Contagem de bancos por time
-
----
-
-## v1.0.1 — Jan 2026
-
-**Correções de estabilidade**
-
-- Corrigido erro 400 em ações sem corpo JSON
-- Validação de RAM agora exibe toast em vez de limitar silenciosamente
-- Estatísticas ocultadas quando o banco está parado
+- Storage reservado por projeto
+- Tier gratuito de 1 GB
+- Tiers pagos de 5 GB ate 500 GB
+- Bancos, buckets, backups e snapshots contabilizados no storage do projeto
+- Configuracao de storage adicionada na criacao e nas configuracoes do projeto
 
 ---
 
-## v1.0.0 — Jan 2026
+## Maio 2026
 
-**Lançamento do Nivo**
+**Billing por creditos e Spend Cap**
 
-- Provisionamento de containers PostgreSQL 16 Alpine
-- Autenticação JWT com cadastro e login
-- Connection string gerada automaticamente
-- Planos Free, Pro e Business com limites por banco
-- Dashboard com visão geral e detalhes por banco
+- Compute cobrado por minuto enquanto recursos pagos estao ativos
+- Storage pago debitado proporcionalmente como capacidade reservada mensal
+- Billing em atraso pausa recursos pagos
+- Spend Cap e saldo baixo aparecem no dashboard de billing
+
+---
+
+## Maio 2026
+
+**Auth, Mail e SMS**
+
+- Auth gerenciado disponivel a partir do plano PRO
+- Emails gerenciados para convites, verificacao e reset de senha
+- SMS via creditos conforme uso
+- Uso aparece junto do custo real da organizacao
+
+---
+
+## Maio 2026
+
+**Apps, databases e daemon**
+
+- Deploy de apps via Nivo daemon
+- Databases PostgreSQL, MySQL, Redis e MongoDB por projeto
+- Dominios personalizados com validacao DNS
+- Logs e metricas no dashboard do projeto

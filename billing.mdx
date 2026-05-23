@@ -1,93 +1,132 @@
 ---
-title: "Planos & Cobrança"
-description: "O Nivo usa cobrança por uso. Você paga apenas pelo tempo que seus recursos ficam rodando."
+title: "Planos & Cobranca"
+description: "Como funcionam planos, creditos, compute, storage, Auth, Mail e SMS na Nivo."
 ---
+
+## Visao geral
+
+A Nivo usa creditos e cobranca por uso. Compute e cobrado por minuto enquanto apps ou databases pagos estao ativos. Storage e uma capacidade reservada por projeto e fica separado do compute.
+
+Auth, Mail e SMS seguem os limites do plano e tambem podem consumir creditos conforme o uso.
 
 ## Planos
 
 <CardGroup cols={2}>
   <Card title="Free" icon="gift">
-    **R$0/mês**
+    **R$0/mes**
 
-    Para explorar a plataforma.
-    - 1 projeto
-    - Sem créditos mensais
-    - Acesso ao dashboard
-    - Não é possível criar apps ou bancos
-    - Auth até 500 MAU
+    Para comecar e testar projetos.
+    - 1 projeto ativo
+    - Sem creditos mensais inclusos
+    - Dashboard, projetos, API keys e tier VOID
+    - Compute pago exige saldo disponivel
+    - Auth gerenciado e snapshots automaticos ficam no PRO+
   </Card>
   <Card title="Pro" icon="star">
-    **R$15/mês** — Recomendado
+    **R$15/mes** - Recomendado
 
-    Para projetos em produção.
-    - Até 5 projetos
-    - R$20 de créditos mensais incluídos
-    - Apps sempre ativos (sem sleep)
-    - Todos os tiers de compute disponíveis
-    - Suporte prioritário
-    - 10.000 Auth MAU incluídos
+    Para projetos em producao.
+    - Ate 5 projetos ativos
+    - R$20 de creditos mensais inclusos
+    - Todos os tiers de compute disponiveis com creditos
+    - Spend Cap e alertas de budget
+    - 100 emails gerenciados/mes inclusos
+    - 500 MAU de Auth inclusos
+  </Card>
+  <Card title="Builder" icon="rocket">
+    **R$29/mes**
+
+    Para projetos em crescimento.
+    - Ate 15 projetos ativos
+    - R$30 de creditos mensais inclusos
+    - 1.000 emails gerenciados/mes inclusos
+    - 1.000 MAU de Auth inclusos
+    - Backups avancados e snapshots automaticos
+  </Card>
+  <Card title="Team" icon="users">
+    **R$79/mes**
+
+    Para equipes.
+    - Ate 20 projetos ativos
+    - R$100 de creditos mensais inclusos
+    - 3.000 emails gerenciados/mes inclusos
+    - 5.000 MAU de Auth inclusos
+    - Organizacao com membros e permissoes
   </Card>
 </CardGroup>
 
 <Note>
-  O plano Pro inclui R$20/mês de créditos de infraestrutura. Se o uso ultrapassar esse valor, o excedente é cobrado com base no uso real por hora.
+  Creditos mensais cobrem compute, storage, emails, SMS e excedentes enquanto houver saldo. Creditos nao utilizados nao acumulam para o proximo ciclo.
 </Note>
 
-## Como a cobrança funciona
+## Como a cobranca funciona
 
-A cobrança é **por hora** para cada recurso (app, banco de dados). O contador começa quando o container inicia e para quando é deletado ou parado.
+Compute e cobrado por minuto de uso de cada app ou database em tier pago. O tier VOID custa R$0 e tem limite de 100 MB de RAM.
 
-Cada organização Pro recebe **R$20/mês** de créditos aplicados automaticamente na fatura. Créditos não utilizados não acumulam para o mês seguinte.
+Storage pago e cobrado como capacidade reservada mensal por projeto, debitado proporcionalmente por minuto. Recursos pagos podem ser pausados quando a organizacao fica sem saldo, atinge o Spend Cap ou entra em billing em atraso.
 
 ```
-custo = horas_ativas × preço_do_tier_por_hora
+custo = compute_ativo + storage_reservado + Auth/Mail/SMS_usados
 ```
 
 ## Tiers de compute
 
-Cada app e banco de dados roda em um tier que define RAM, CPU e disco disponíveis.
+Cada app e database escolhe um tier que define RAM e vCPU. Storage nao fica mais dentro do compute.
 
-| Tier | RAM | vCPU | Disco | Preço/hora |
-|------|-----|------|-------|-----------|
-| `NANO` | 512 MB | 0.5 | 5 GB | Gratuito |
-| `SMALL` | 1 GB | 1 | 10 GB | R$0,02 |
-| `MEDIUM` | 2 GB | 1.5 | 20 GB | R$0,04 |
-| `LARGE` | 4 GB | 2 | 40 GB | R$0,08 |
-| `XLARGE` | 8 GB | 4 | 80 GB | R$0,16 |
+| Tier | RAM | vCPU | Preco/hora |
+|------|-----|------|------------|
+| `VOID` | 100 MB | 0.5 | R$0,00 |
+| `SPARK` | 768 MB | 0.75 | R$0,005 |
+| `PULSE` | 1 GB | 1 | R$0,008 |
+| `NOVA` | 1.5 GB | 1.25 | R$0,012 |
+| `ORBIT` | 2 GB | 1.5 | R$0,016 |
+| `NEBULA` | 4 GB | 2 | R$0,030 |
+| `QUASAR` | 8 GB | 4 | R$0,060 |
+| `COSMOS` | 16 GB | 8 | R$0,120 |
 
 <Note>
-  O tier NANO é gratuito e voltado para testes. Apps no NANO entram em sleep após 15 minutos de inatividade, mesmo no plano Pro.
+  VOID e gratuito e limitado a 100 MB de RAM. Para usar recursos ativos acima desse limite, escolha um tier pago e mantenha creditos disponiveis.
 </Note>
-
-## Auth MAU
-
-O Nivo Auth conta MAU por usuários únicos ativos no mês.
-
-| Plano | Incluído | Excedente |
-|-------|----------|-----------|
-| Free | 500 MAU | Sem excedente |
-| Pro | 10.000 MAU | R$0,008 por MAU acima do limite |
 
 ## Storage
 
-| Uso | Preço |
-|-----|-------|
-| Storage por GB/hora | R$0,001 |
-| Buckets públicos | Gratuito |
+Storage e reservado por projeto e usado por bancos, buckets, backups e snapshots.
+
+| Tier | Capacidade | Preco mensal |
+|------|------------|--------------|
+| `S1` | 1 GB | Gratuito |
+| `S5` | 5 GB | R$3 |
+| `S10` | 10 GB | R$6 |
+| `S25` | 25 GB | R$16 |
+| `S50` | 50 GB | R$35 |
+| `S100` | 100 GB | R$70 |
+| `S250` | 250 GB | R$190 |
+| `S500` | 500 GB | R$380 |
+
+## Auth, Mail e SMS
+
+| Plano | Auth MAU incluso | Emails inclusos | SMS |
+|-------|------------------|-----------------|-----|
+| Free | Nao incluso | 0 | Indisponivel no Free |
+| Pro | 500 MAU | 100/mes | Via creditos |
+| Builder | 1.000 MAU | 1.000/mes | Via creditos |
+| Team | 5.000 MAU | 3.000/mes | Via creditos |
+
+Emails acima do limite do plano consomem creditos quando o recurso estiver habilitado. SMS consome creditos conforme uso.
 
 ## Perguntas frequentes
 
 <AccordionGroup>
   <Accordion title="O plano Free permite criar apps?">
-    Não. O plano Free não tem tiers de compute habilitados. Faça upgrade para o Pro para criar apps e bancos de dados.
+    Sim, desde que a organizacao tenha creditos para recursos pagos. VOID e gratuito. Auth gerenciado e snapshots automaticos ficam no PRO+.
   </Accordion>
-  <Accordion title="O que acontece se eu ultrapassar R$20 de uso no Pro?">
-    O excedente é cobrado no cartão cadastrado no final do mês. Você pode monitorar o uso em tempo real no dashboard.
+  <Accordion title="O que acontece se eu ficar sem creditos?">
+    Recursos pagos podem ser pausados. Voce pode adicionar creditos, reduzir tiers ou usar opcoes gratuitas quando o projeto couber nos limites.
   </Accordion>
-  <Accordion title="Posso cancelar a qualquer momento?">
-    Sim. O cancelamento é imediato. Você não é cobrado pelo tempo não utilizado após o cancelamento.
+  <Accordion title="Storage muda quando eu troco compute?">
+    Nao. Storage e separado do compute e continua no tier reservado do projeto.
   </Accordion>
-  <Accordion title="Apps dormem no plano Pro?">
-    Apenas apps no tier NANO. Todos os outros tiers ficam sempre ativos no Pro.
+  <Accordion title="Posso cancelar um plano pago?">
+    Sim. Ao cancelar, os beneficios e creditos mensais do plano deixam de ser aplicados no proximo ciclo.
   </Accordion>
 </AccordionGroup>
