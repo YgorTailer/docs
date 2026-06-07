@@ -1,100 +1,87 @@
 ---
-title: "Planos & Cobranca"
-description: "Como funcionam planos, creditos, compute, storage, Auth, Mail e SMS na Nivo."
+title: "Planos & Cobrança"
+description: "Como funcionam planos, saldo, compute e storage na Nivo."
 ---
 
-## Visao geral
+## Visão geral
 
-A Nivo usa creditos e cobranca por uso. Compute e cobrado por minuto enquanto apps ou databases pagos estao ativos. Storage e uma capacidade reservada por projeto e fica separado do compute.
-
-Auth, Mail e SMS seguem os limites do plano e tambem podem consumir creditos conforme o uso.
+A Nivo cobra por plano de workspace e por recursos consumidos via saldo. O plano define limites, recursos disponíveis e saldo mensal concedido. Compute é cobrado por hora enquanto apps ou bancos pagos estão ativos. Storage é capacidade reservada mensal por projeto.
 
 ## Planos
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="Free" icon="gift">
-    **R$0/mes**
+    **R$0/mês**
 
-    Para comecar e testar projetos.
-    - 1 projeto ativo
-    - Sem creditos mensais inclusos
-    - Dashboard, projetos, API keys e tier VOID
-    - Compute pago exige saldo disponivel
-    - Auth gerenciado e snapshots automaticos ficam no PRO+
+    Para começar e testar.
+    - Até 1 projeto
+    - Saldo mensal: R$0
+    - Compute permitido: VOID e SPARK
+    - Backups manuais de banco
+    - Sem snapshots de projeto
   </Card>
   <Card title="Pro" icon="star">
-    **R$15/mes** - Recomendado
+    **R$15/mês**
 
-    Para projetos em producao.
-    - Ate 5 projetos ativos
-    - R$20 de creditos mensais inclusos
-    - Todos os tiers de compute disponiveis com creditos
-    - Spend Cap e alertas de budget
-    - 100 emails gerenciados/mes inclusos
-    - 500 MAU de Auth inclusos
+    Para projetos em produção.
+    - Até 5 projetos
+    - Saldo mensal: R$20
+    - Compute até ORBIT
+    - Backups automáticos diários de banco
+    - Snapshots manuais de projeto
   </Card>
   <Card title="Builder" icon="rocket">
-    **R$29/mes**
+    **R$29/mês**
 
     Para projetos em crescimento.
-    - Ate 15 projetos ativos
-    - R$30 de creditos mensais inclusos
-    - 1.000 emails gerenciados/mes inclusos
-    - 1.000 MAU de Auth inclusos
-    - Backups avancados e snapshots automaticos
-  </Card>
-  <Card title="Team" icon="users">
-    **R$79/mes**
-
-    Para equipes.
-    - Ate 20 projetos ativos
-    - R$100 de creditos mensais inclusos
-    - 3.000 emails gerenciados/mes inclusos
-    - 5.000 MAU de Auth inclusos
-    - Organizacao com membros e permissoes
+    - Até 15 projetos
+    - Saldo mensal: R$30
+    - Compute até QUASAR
+    - Backups automáticos diários de banco
+    - Snapshots automáticos de projeto
   </Card>
 </CardGroup>
 
 <Note>
-  Creditos mensais cobrem compute, storage, emails, SMS e excedentes enquanto houver saldo. Creditos nao utilizados nao acumulam para o proximo ciclo.
+O saldo mensal é aplicado ao workspace e cobre uso de compute, storage, backups e snapshots. Saldo não substitui o pagamento do plano.
 </Note>
 
-## Como a cobranca funciona
+## Como a cobrança funciona
 
-Compute e cobrado por minuto de uso de cada app ou database em tier pago. O tier VOID custa R$0 e tem limite de 100 MB de RAM.
-
-Storage pago e cobrado como capacidade reservada mensal por projeto, debitado proporcionalmente por minuto. Recursos pagos podem ser pausados quando a organizacao fica sem saldo, atinge o Spend Cap ou entra em billing em atraso.
+Compute é cobrado por tempo de execução de apps e bancos em tier pago. Storage é cobrado como capacidade reservada mensal por projeto, proporcional ao ciclo.
 
 ```
-custo = compute_ativo + storage_reservado + Auth/Mail/SMS_usados
+custo = compute_ativo + storage_reservado + backups + snapshots
 ```
+
+Recursos pagos podem ser pausados quando o workspace fica sem saldo, atinge o Spend Cap ou entra em atraso.
 
 ## Tiers de compute
 
-Cada app e database escolhe um tier que define RAM e vCPU. Storage nao fica mais dentro do compute.
+Cada app e database escolhe RAM e vCPU próprios. Storage não fica dentro do compute.
 
-| Tier | RAM | vCPU | Preco/hora |
+| Tier | RAM | vCPU | Preço/hora |
 |------|-----|------|------------|
 | `VOID` | 100 MB | 0.5 | R$0,00 |
-| `SPARK` | 768 MB | 0.75 | R$0,005 |
-| `PULSE` | 1 GB | 1 | R$0,008 |
-| `NOVA` | 1.5 GB | 1.25 | R$0,012 |
-| `ORBIT` | 2 GB | 1.5 | R$0,016 |
-| `NEBULA` | 4 GB | 2 | R$0,030 |
-| `QUASAR` | 8 GB | 4 | R$0,060 |
-| `COSMOS` | 16 GB | 8 | R$0,120 |
+| `SPARK` | 768 MB | 0.75 | R$0,0062 |
+| `PULSE` | 1 GB | 1 | R$0,0076 |
+| `NOVA` | 1.5 GB | 1.25 | R$0,0111 |
+| `ORBIT` | 2 GB | 1.5 | R$0,0138 |
+| `NEBULA` | 4 GB | 2 | R$0,031 |
+| `QUASAR` | 8 GB | 4 | R$0,062 |
+| `COSMOS` | 16 GB | 8 | R$0,125 |
 
 <Note>
-  VOID e gratuito e limitado a 100 MB de RAM. Para usar recursos ativos acima desse limite, escolha um tier pago e mantenha creditos disponiveis.
+O plano do workspace define quais tiers podem ser usados. Free permite VOID e SPARK, Pro permite até ORBIT e Builder permite até QUASAR.
 </Note>
 
 ## Storage
 
-Storage e reservado por projeto e usado por bancos, buckets, backups e snapshots.
+Storage é reservado por projeto e usado por bancos, buckets, backups e snapshots.
 
-| Tier | Capacidade | Preco mensal |
+| Tier | Capacidade | Preço mensal |
 |------|------------|--------------|
-| `S1` | 1 GB | Gratuito |
+| `S1` | 1 GB | R$0 |
 | `S5` | 5 GB | R$3 |
 | `S10` | 10 GB | R$6 |
 | `S25` | 25 GB | R$16 |
@@ -103,30 +90,20 @@ Storage e reservado por projeto e usado por bancos, buckets, backups e snapshots
 | `S250` | 250 GB | R$190 |
 | `S500` | 500 GB | R$380 |
 
-## Auth, Mail e SMS
+## Spend Cap
 
-| Plano | Auth MAU incluso | Emails inclusos | SMS |
-|-------|------------------|-----------------|-----|
-| Free | Nao incluso | 0 | Indisponivel no Free |
-| Pro | 500 MAU | 100/mes | Via creditos |
-| Builder | 1.000 MAU | 1.000/mes | Via creditos |
-| Team | 5.000 MAU | 3.000/mes | Via creditos |
-
-Emails acima do limite do plano consomem creditos quando o recurso estiver habilitado. SMS consome creditos conforme uso.
+Spend Cap limita o gasto mensal. Quando ativado, a Nivo pausa recursos pagos antes que o uso ultrapasse o limite configurado.
 
 ## Perguntas frequentes
 
 <AccordionGroup>
   <Accordion title="O plano Free permite criar apps?">
-    Sim, desde que a organizacao tenha creditos para recursos pagos. VOID e gratuito. Auth gerenciado e snapshots automaticos ficam no PRO+.
+    Sim. Apps podem usar tiers permitidos pelo plano. Recursos pagos exigem saldo disponível.
   </Accordion>
-  <Accordion title="O que acontece se eu ficar sem creditos?">
-    Recursos pagos podem ser pausados. Voce pode adicionar creditos, reduzir tiers ou usar opcoes gratuitas quando o projeto couber nos limites.
+  <Accordion title="O que acontece se eu ficar sem saldo?">
+    Recursos pagos podem ser pausados. Recarregue saldo, reduza tiers ou use recursos gratuitos quando couber nos limites.
   </Accordion>
   <Accordion title="Storage muda quando eu troco compute?">
-    Nao. Storage e separado do compute e continua no tier reservado do projeto.
-  </Accordion>
-  <Accordion title="Posso cancelar um plano pago?">
-    Sim. Ao cancelar, os beneficios e creditos mensais do plano deixam de ser aplicados no proximo ciclo.
+    Não. Storage é separado do compute e continua no tier reservado do projeto.
   </Accordion>
 </AccordionGroup>

@@ -1,0 +1,49 @@
+---
+title: "Login"
+description: "Como fazer login, ver a conta atual e remover a API key local."
+---
+
+## Login
+
+```bash
+nivo login
+nivo login --manual
+```
+
+`nivo login` inicia um device flow, abre o navegador e mostra um código no terminal. Depois da autorização, a API key fica salva no storage local do usuário.
+
+`nivo login --manual` pede a API key em um prompt mascarado. Use isso em máquinas onde o browser não está disponível.
+
+<Warning>
+A API key nunca é gravada em `.nivo` e nunca é exibida inteira no terminal.
+</Warning>
+
+## Onde a chave fica salva
+
+| Sistema | Caminho |
+|---------|---------|
+| Windows | `%APPDATA%\nivo\config.json` |
+| macOS/Linux | `~/.config/nivo/config.json` |
+
+Você pode trocar a API usada no login:
+
+```bash
+nivo login --api-url https://api.nivo.lat/api
+```
+
+## Ver conta
+
+```bash
+nivo me
+```
+
+A saída mostra a conta, o ID, o tipo de usuário e a API key mascarada.
+
+## Logout
+
+```bash
+nivo logout
+nivo logout --yes
+```
+
+`logout` remove a chave local. Para revogar a chave no servidor, use **Minha conta → Configurações → CLI**.

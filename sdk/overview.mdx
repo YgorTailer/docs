@@ -1,6 +1,6 @@
 ---
 title: "Visão Geral"
-description: "SDK oficial da Nivo para Auth, apps, bancos de dados, deploys e storage."
+description: "SDK oficial da Nivo para apps, bancos de dados, deploys e storage."
 ---
 
 ## Instalação
@@ -19,29 +19,27 @@ pnpm add @nivo-lat/sdk
 ```
 </CodeGroup>
 
-## Dois clientes, dois contextos
+## Cliente oficial
 
-O `@nivo-lat/sdk` expõe dois clientes com responsabilidades distintas:
-
-| Cliente | Chave | Contexto | Recursos |
-|---------|-------|----------|----------|
-| `createClient()` | Publishable `nivo_pub_...` | Frontend, browser, app mobile | Auth de usuários finais, sessões, e-mail e SMS |
-| `new NivoAPI()` | Secret `nivo_secret_...` | Backend, scripts, workers, CI/CD | Apps, deploys, bancos de dados, storage e todas as operações de infraestrutura |
-
-<Warning>
-Nunca exponha uma Secret Key no browser, app mobile ou em qualquer código acessível pelo cliente final.
-</Warning>
-
-## Operações de infraestrutura
-
-Use `NivoAPI` no servidor para gerenciar toda a infraestrutura da sua aplicação.
+O SDK usa uma única API key da conta. A key deve ficar somente no servidor, worker, script ou CI/CD. Ela não deve ser enviada para browser, aplicativo mobile ou qualquer ambiente público.
 
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
 
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
+```
 
-// Criar e fazer deploy de uma aplicação
+<Warning>
+Nunca exponha `NIVO_API_KEY` no frontend. Para arquivos privados, faça o download pelo seu backend usando o SDK/API key e entregue a resposta ao usuário final conforme a regra da sua aplicação.
+</Warning>
+
+## Operações de infraestrutura
+
+Use `NivoAPI` para gerenciar recursos do projeto informado em `projectId`.
+
+```typescript
 const app = await nivo.apps.create({
   name: 'minha-api',
   runtime: 'node20',
@@ -64,7 +62,7 @@ console.log(`App disponível em: https://${app.subdomain}.nivo.lat`)
 const app = await nivo.apps.create({
   name: 'minha-api',
   sourceType: 'github',
-  repoFullName: 'org/minha-api',
+  repoFullName: 'empresa/minha-api',
   repoBranch: 'main',
   runtime: 'node20',
   startCmd: 'node dist/server.js',
@@ -75,41 +73,33 @@ await nivo.apps.deployAndWait(app.id, {
 })
 ```
 
-## Auth de usuários finais
+## Storage privado
 
-Use `createClient()` no frontend para autenticar usuários da sua aplicação.
+Buckets públicos retornam URL CDN direta. Buckets privados não geram URL pública; o acesso é feito pelo backend/SDK/API key.
 
 ```typescript
-import { createClient } from '@nivo-lat/sdk'
-
-const client = createClient('https://api.nivo.lat', 'nivo_pub_...')
-
-// Login com e-mail e senha
-const { session } = await client.auth.signIn.withPassword({
-  email: 'usuario@exemplo.com',
-  password: 'senha123',
-})
+const buffer = await nivo.storage.downloadFile('file-id')
 ```
 
 ## Recursos disponíveis
 
 | Recurso | Operações |
 |---------|-----------|
-| **Apps** | `create`, `update`, `delete`, `start`, `stop`, `restart`, `deploy`, `commit`, `stats`, `logs` |
-| **Env vars** | `getEnv`, `updateEnv`, `replaceEnv`, `removeEnv` |
-| **Arquivos** | `listFiles`, `readFile`, `writeFile`, `deleteFile` |
-| **Bancos de dados** | `create`, `query`, `start`, `stop`, `restart`, `stats`, `logs`, `tables` |
-| **Storage** | Buckets, upload, upload multipart, signed URLs, CDN |
-| **Auth** | Sign up, sign in, magic link, OAuth, sessões, usuários |
+| **Apps** | Criar, atualizar, iniciar, parar, reiniciar, deploy, commit, logs e métricas |
+| **Arquivos do app** | Listar, ler, escrever e remover arquivos dentro do container |
+| **Bancos de dados** | Criar, consultar, iniciar, parar, reiniciar, logs, métricas e tabelas |
+| **Storage** | Buckets, upload, multipart upload, download privado autenticado e CDN pública |
 
 ## Tratamento de erros
 
-Todos os erros de API retornam uma instância de `NivoError` com status HTTP, mensagem e detalhe.
+Todos os erros da API retornam uma instância de `NivoError` com status HTTP, mensagem e detalhe opcional.
 
 ```typescript
 import { NivoAPI, NivoError } from '@nivo-lat/sdk'
 
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
 
 try {
   const app = await nivo.apps.get('app-id')

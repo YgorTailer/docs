@@ -35,15 +35,14 @@
               "sdk/apps",
               "sdk/databases",
               "sdk/storage",
-              "sdk/files",
-              "sdk/auth"
+              "sdk/files"
             ]
           },
           {
             "group": "CLI",
             "pages": [
               "cli/overview",
-              "cli/auth",
+              "cli/login",
               "cli/language",
               "cli/deploy",
               "cli/link",
@@ -54,7 +53,7 @@
           },
           {
             "group": "Referencia",
-            "pages": ["config", "billing", "changelog"]
+            "pages": ["config", "billing"]
           }
         ]
       }

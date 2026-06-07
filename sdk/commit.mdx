@@ -54,7 +54,9 @@ await nivo.apps.deployAndWait('app-id', {
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
 
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!)
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
 
 const app = await nivo.apps.create({
   name: 'cliente-vendas',
