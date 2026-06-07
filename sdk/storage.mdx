@@ -4,7 +4,7 @@ description: "Gerencie buckets, arquivos públicos, arquivos privados e uploads 
 ---
 
 <Note>
-Use storage pelo backend com `NivoAPI` e API key da conta. Buckets públicos geram URL CDN direta. Buckets privados só podem ser lidos pelo backend, SDK ou API key.
+Use storage pelo backend com `NivoAPI`. Buckets públicos geram URL CDN direta. Buckets privados usam download autenticado.
 </Note>
 
 ## Status e uso
@@ -19,7 +19,7 @@ console.log(stats.usedBytes, stats.totalFiles)
 
 ## Buckets
 
-Crie buckets públicos para assets que podem ser acessados por qualquer pessoa:
+Crie buckets públicos para assets servidos diretamente pelo CDN:
 
 ```typescript
 const publicBucket = await nivo.storage.createBucket({
@@ -31,7 +31,7 @@ const publicBucket = await nivo.storage.createBucket({
 })
 ```
 
-Crie buckets privados para arquivos que só devem ser lidos via backend/API key:
+Crie buckets privados para arquivos entregues pela sua própria API:
 
 ```typescript
 const privateBucket = await nivo.storage.createBucket({
@@ -55,11 +55,11 @@ const { file } = await nivo.storage.upload(publicBucket.id, './avatar.png', {
   folder: 'customers/client_123'
 })
 
-// Em bucket público, file.url contém a URL CDN direta.
+// Em bucket público, file.url contém a URL CDN.
 console.log(file.url)
 ```
 
-Em bucket privado, `file.url` vem como `null`. Isso é esperado: o arquivo não tem URL pública.
+Em bucket privado, use `downloadFile()` para ler o conteúdo pelo backend.
 
 ## Listar e deletar arquivos
 
@@ -76,13 +76,13 @@ await nivo.storage.deleteBucket(privateBucket.id)
 
 ## Download privado
 
-Arquivos privados são baixados com autenticação pelo SDK/API key.
+Arquivos privados são baixados pelo SDK.
 
 ```typescript
 const buffer = await nivo.storage.downloadFile('file-id')
 ```
 
-Se você precisa mostrar o arquivo em um site, faça isso pelo seu backend:
+Para entregar o arquivo em um site:
 
 1. Autentique o usuário da sua aplicação.
 2. Verifique se ele pode acessar o arquivo.
@@ -90,7 +90,7 @@ Se você precisa mostrar o arquivo em um site, faça isso pelo seu backend:
 4. Responda o conteúdo com o `Content-Type` correto.
 
 <Warning>
-Não coloque API key no browser para acessar arquivo privado. Bucket privado não tem URL pública.
+Mantenha a API key no backend.
 </Warning>
 
 ## Multipart upload

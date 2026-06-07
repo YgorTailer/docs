@@ -26,18 +26,17 @@ const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
 
 ## API key
 
-A Nivo usa uma única API key da conta, criada em **Minha conta → Configurações → API Keys**.
+A API key é criada em **Minha conta → Configurações → API Keys** e usada junto com `projectId`.
 
 | Item | Valor |
 |------|-------|
 | Prefixo | `nivo_key_...` |
 | Escopo | Conta do usuário |
 | Projeto | Informado no SDK por `projectId` |
-| Uso seguro | Backend, workers, scripts e CI/CD |
-| Uso proibido | Browser, app mobile ou código acessível ao usuário final |
+| Ambiente | Backend, workers, scripts e CI/CD |
 
 <Warning>
-Não existe mais chave publicável e chave secreta separadas. Trate toda API key da Nivo como segredo de servidor.
+Mantenha a API key em variáveis de ambiente do servidor.
 </Warning>
 
 ## Variáveis de ambiente recomendadas
@@ -50,10 +49,10 @@ NIVO_PROJECT_ID=seu-project-id
 
 ## Acesso a arquivos privados
 
-Arquivos em bucket privado não recebem URL pública. Use o SDK no backend:
+Arquivos em bucket privado são lidos pelo backend:
 
 ```typescript
 const buffer = await nivo.storage.downloadFile('file-id')
 ```
 
-Se sua aplicação precisar mostrar o arquivo para um usuário final, seu backend deve autenticar esse usuário, chamar o SDK e responder o conteúdo.
+Depois do download, responda o conteúdo pela rota da sua aplicação.

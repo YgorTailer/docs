@@ -21,7 +21,7 @@ pnpm add @nivo-lat/sdk
 
 ## Cliente oficial
 
-O SDK usa uma única API key da conta. A key deve ficar somente no servidor, worker, script ou CI/CD. Ela não deve ser enviada para browser, aplicativo mobile ou qualquer ambiente público.
+Use `NivoAPI` em ambientes de servidor com uma API key da conta e o `projectId` do projeto que será gerenciado.
 
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
@@ -32,7 +32,7 @@ const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
 ```
 
 <Warning>
-Nunca exponha `NIVO_API_KEY` no frontend. Para arquivos privados, faça o download pelo seu backend usando o SDK/API key e entregue a resposta ao usuário final conforme a regra da sua aplicação.
+Mantenha `NIVO_API_KEY` em variáveis de ambiente do servidor.
 </Warning>
 
 ## Operações de infraestrutura
@@ -75,7 +75,7 @@ await nivo.apps.deployAndWait(app.id, {
 
 ## Storage privado
 
-Buckets públicos retornam URL CDN direta. Buckets privados não geram URL pública; o acesso é feito pelo backend/SDK/API key.
+Buckets públicos retornam URL CDN direta. Buckets privados usam download autenticado pelo SDK.
 
 ```typescript
 const buffer = await nivo.storage.downloadFile('file-id')
