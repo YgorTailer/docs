@@ -9,6 +9,7 @@ description: "Crie, atualize, reinicie, monitore e remova aplicacoes pelo SDK."
 const app = await nivo.apps.create({
   name: 'sales-bot',
   sourceType: 'zip',
+  buildSystem: 'nivopack',
   runtime: 'node20',
   startCmd: 'npm start',
   installCmd: 'npm ci',
@@ -28,8 +29,36 @@ const app = await nivo.apps.create({
   sourceType: 'github',
   repoFullName: 'empresa/sales-bot',
   repoBranch: 'main',
+  buildSystem: 'nivopack',
   runtime: 'node20',
   startCmd: 'npm start'
+})
+```
+
+Para Dockerfile:
+
+```typescript
+const app = await nivo.apps.create({
+  name: 'sales-bot',
+  sourceType: 'github',
+  repoFullName: 'empresa/sales-bot',
+  repoBranch: 'main',
+  buildSystem: 'dockerfile',
+  dockerfilePath: 'Dockerfile',
+  startCmd: 'npm start'
+})
+```
+
+Para imagem Docker pública:
+
+```typescript
+const app = await nivo.apps.create({
+  name: 'sales-bot',
+  sourceType: 'image',
+  dockerImage: 'ghcr.io/empresa/sales-bot:latest',
+  type: 'site',
+  startCmd: 'npm start',
+  ramMb: 256
 })
 ```
 
@@ -58,6 +87,8 @@ console.log(logs.log)
 ```typescript
 await nivo.apps.update('app-id', {
   runtime: 'node20',
+  buildSystem: 'dockerfile',
+  dockerfilePath: 'Dockerfile',
   startCmd: 'npm start',
   buildCmd: 'npm run build',
   ramMb: 512,
@@ -115,7 +146,7 @@ await nivo.apps.delete('app-id')
 |--------|-----------|
 | `list()` | Lista apps. |
 | `get(id)` | Retorna app e status. |
-| `create(opts)` | Cria app ZIP ou GitHub. |
+| `create(opts)` | Cria app ZIP, GitHub ou imagem Docker. |
 | `update(id, opts)` | Atualiza configuracao. |
 | `updateRam(id, ramMb)` | Atalho para alterar RAM. |
 | `delete(id)` | Remove app e recursos. |

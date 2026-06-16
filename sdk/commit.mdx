@@ -1,6 +1,6 @@
 ---
 title: "Commit & Deploy"
-description: "Envie codigo ZIP ou dispare redeploy GitHub pelo SDK."
+description: "Envie codigo ZIP ou dispare redeploy pelo SDK."
 ---
 
 ## ZIP upload
@@ -37,9 +37,9 @@ const result = await nivo.apps.commitAndWait('app-id', './app.zip', 'app.zip', {
 console.log(result.status)
 ```
 
-## GitHub redeploy
+## Redeploy GitHub ou imagem Docker
 
-Para apps com `sourceType: 'github'`, use `deploy()` ou `deployAndWait()`.
+Para apps com `sourceType: 'github'` ou `sourceType: 'image'`, use `deploy()` ou `deployAndWait()`.
 
 ```typescript
 const { deploymentId } = await nivo.apps.deploy('app-id')

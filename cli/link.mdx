@@ -11,6 +11,8 @@ nivo link
 
 Se nao existir `.nivo`, o CLI abre um wizard com `@inquirer/prompts`: nome do app, projeto, fonte do codigo, runtime, comandos, RAM e subdominio. Se o `.nivo` ja existir, o CLI valida o arquivo, atualiza o app e mantem o `appId`.
 
+O build de codigo usa `nivopack` por padrao. Se o projeto tiver Dockerfile, use `buildSystem: "dockerfile"` e, opcionalmente, `dockerfilePath`.
+
 ## `.nivo` para ZIP
 
 ```json
@@ -26,6 +28,23 @@ Se nao existir `.nivo`, o CLI abre um wizard com `@inquirer/prompts`: nome do ap
   "startCmd": "npm start",
   "ramMb": 256,
   "subdomain": "sales-bot"
+}
+```
+
+## `.nivo` com Dockerfile
+
+```json
+{
+  "name": "sales-bot",
+  "projectId": "proj_123",
+  "sourceType": "github",
+  "repoFullName": "empresa/sales-bot",
+  "repoBranch": "main",
+  "type": "site",
+  "buildSystem": "dockerfile",
+  "dockerfilePath": "Dockerfile",
+  "startCmd": "npm start",
+  "ramMb": 256
 }
 ```
 
@@ -54,6 +73,22 @@ Ao rodar `nivo link`, o CLI cria o app, envia o codigo inicial e grava o `appId`
   "startCmd": "npm start"
 }
 ```
+
+## `.nivo` para imagem Docker
+
+```json
+{
+  "name": "sales-bot",
+  "projectId": "proj_123",
+  "sourceType": "image",
+  "dockerImage": "ghcr.io/empresa/sales-bot:latest",
+  "type": "site",
+  "startCmd": "npm start",
+  "ramMb": 256
+}
+```
+
+Imagens Docker precisam estar publicamente acessíveis. Autenticação de registry privado ainda não faz parte desse fluxo.
 
 ## O que nunca vai no `.nivo`
 

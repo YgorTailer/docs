@@ -15,6 +15,7 @@ O arquivo `.nivo` fica na raiz do seu projeto e define como o CLI deve criar e f
   "type": "site",
   "buildSystem": "nivopack",
   "runtime": "node20",
+  "dockerfilePath": "Dockerfile",
   "installCmd": "npm install",
   "buildCmd": "npm run build",
   "startCmd": "npm start",
@@ -29,10 +30,12 @@ O arquivo `.nivo` fica na raiz do seu projeto e define como o CLI deve criar e f
 |-------|------|-------------|--------|-----------|
 | `name` | string | Sim | — | Nome do app. |
 | `projectId` | string | Sim | — | ID do projeto no dashboard. |
-| `sourceType` | string | Não | `zip` | `zip` ou `github`. |
+| `sourceType` | string | Não | `zip` | `zip`, `github` ou `image`. |
 | `type` | string | Não | `site` | `site` ou `worker`. |
-| `buildSystem` | string | Não | `nivopack` | `nivopack`, `nixpacks` ou `dockerfile`. |
+| `buildSystem` | string | Não | `nivopack` | `nivopack` ou `dockerfile` para código. Apps com `sourceType: "image"` usam `dockerimage`. |
 | `runtime` | string | Não | `node20` | Runtime (ex: `node20`, `python3.11`). |
+| `dockerfilePath` | string | Não | `Dockerfile` | Caminho do Dockerfile quando `buildSystem` for `dockerfile`. |
+| `dockerImage` | string | Sim para `image` | — | Imagem Docker pública quando `sourceType` for `image` (ex: `ghcr.io/org/app:latest`). |
 | `installCmd` | string | Não | — | Comando de instalação (ex: `npm install`). |
 | `buildCmd` | string | Não | — | Comando de build (ex: `npm run build`). |
 | `startCmd` | string | Não | `npm start` | Comando de inicialização. |
