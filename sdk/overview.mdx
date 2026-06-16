@@ -1,112 +1,37 @@
 ---
-title: "Visão Geral"
-description: "SDK oficial da Nivo para apps, bancos de dados, deploys e storage."
+title: SDK Overview
+description: Nivo SDK API versioning and authentication
 ---
 
-## Instalação
+# Nivo SDK Overview
 
-<CodeGroup>
-```bash npm
-npm install @nivo-lat/sdk
+The official SDK is published as [`@nivo-lat/sdk`](https://www.npmjs.com/package/@nivo-lat/sdk).
+
+## Base URL
+
+All SDK endpoints live under your API base URL (default `https://api.nivo.lat/api`).
+
+## API versioning
+
+| Prefix | Status |
+|--------|--------|
+| `/api/sdk/v1/*` | **Current** — use this for new integrations |
+| `/api/sdk/*` (no version) | **Deprecated** — still works, unchanged behavior |
+
+The `NivoAPI` client defaults to `apiVersion: 'v1'`, which calls `/api/sdk/v1/*`.
+
+For legacy integrations that must keep using unversioned routes:
+
+```ts
+const nivo = new NivoAPI(apiKey, { projectId, apiVersion: null })
 ```
 
-```bash yarn
-yarn add @nivo-lat/sdk
-```
+Direct `NivoClient` usage without `apiVersion` continues to target `/api/sdk/*` (legacy).
 
-```bash pnpm
-pnpm add @nivo-lat/sdk
-```
-</CodeGroup>
+## Authentication
 
-## Cliente oficial
+SDK routes require a **secret** project API key (`x-api-key` header) and project scope (`x-project-id` header). The client sets both automatically.
 
-Use `NivoAPI` em ambientes de servidor com uma API key da conta e o `projectId` do projeto que será gerenciado.
+## Rate limits
 
-```typescript
-import { NivoAPI } from '@nivo-lat/sdk'
-
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
-  projectId: process.env.NIVO_PROJECT_ID!
-})
-```
-
-<Warning>
-Mantenha `NIVO_API_KEY` em variáveis de ambiente do servidor.
-</Warning>
-
-## Operações de infraestrutura
-
-Use `NivoAPI` para gerenciar recursos do projeto informado em `projectId`.
-
-```typescript
-const app = await nivo.apps.create({
-  name: 'minha-api',
-  runtime: 'node20',
-  startCmd: 'node dist/server.js',
-  buildCmd: 'npm run build',
-  installCmd: 'npm ci',
-  ramMb: 512,
-})
-
-await nivo.apps.commitAndWait(app.id, './build.zip', 'build.zip', {
-  onLog: (chunk) => process.stdout.write(chunk),
-})
-
-console.log(`App disponível em: https://${app.subdomain}.nivo.lat`)
-```
-
-## Deploy via GitHub
-
-```typescript
-const app = await nivo.apps.create({
-  name: 'minha-api',
-  sourceType: 'github',
-  repoFullName: 'empresa/minha-api',
-  repoBranch: 'main',
-  runtime: 'node20',
-  startCmd: 'node dist/server.js',
-})
-
-await nivo.apps.deployAndWait(app.id, {
-  onLog: (chunk) => process.stdout.write(chunk),
-})
-```
-
-## Storage privado
-
-Buckets públicos retornam URL CDN direta. Buckets privados usam download autenticado pelo SDK.
-
-```typescript
-const buffer = await nivo.storage.downloadFile('file-id')
-```
-
-## Recursos disponíveis
-
-| Recurso | Operações |
-|---------|-----------|
-| **Apps** | Criar, atualizar, iniciar, parar, reiniciar, deploy, commit, logs e métricas |
-| **Arquivos do app** | Listar, ler, escrever e remover arquivos dentro do container |
-| **Bancos de dados** | Criar, consultar, iniciar, parar, reiniciar, logs, métricas e tabelas |
-| **Storage** | Buckets, upload, multipart upload, download privado autenticado e CDN pública |
-
-## Tratamento de erros
-
-Todos os erros da API retornam uma instância de `NivoError` com status HTTP, mensagem e detalhe opcional.
-
-```typescript
-import { NivoAPI, NivoError } from '@nivo-lat/sdk'
-
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
-  projectId: process.env.NIVO_PROJECT_ID!
-})
-
-try {
-  const app = await nivo.apps.get('app-id')
-} catch (err) {
-  if (err instanceof NivoError) {
-    console.error(`[${err.status}] ${err.message}`)
-    if (err.detail) console.error(err.detail)
-  }
-}
-```
+SDK routes (`/api/sdk` and `/api/sdk/v1`) have a dedicated limit of **1000 requests/minute** per API key (fallback: client IP). This is separate from the global API limit (500/minute).
