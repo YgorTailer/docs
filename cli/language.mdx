@@ -1,35 +1,45 @@
 ---
-title: "Idioma"
-description: "Configure a ajuda e os prompts do CLI em portugues ou ingles."
+title: "Idioma do CLI"
+description: "Configure a ajuda e os prompts do CLI em português ou inglês."
 ---
 
-## Salvar idioma padrao
+## nivo lang
 
-```bash
-nivo lang set pt
-nivo lang set en
-```
+O CLI suporta português e inglês. O idioma afeta mensagens de ajuda, prompts interativos e saídas do terminal.
 
-O idioma fica salvo no mesmo storage local do CLI, separado do arquivo `.nivo` do projeto.
+### Definir idioma
 
-## Ver idioma atual
+<Tabs>
+  <Tab title="Português">
+    ```bash
+    nivo lang set pt
+    ```
+  </Tab>
+  <Tab title="English">
+    ```bash
+    nivo lang set en
+    ```
+  </Tab>
+</Tabs>
+
+### Ver idioma atual
 
 ```bash
 nivo lang get
 ```
 
-## Idioma por ambiente
+Saída exemplo:
 
-Para sobrescrever temporariamente sem alterar a configuracao local:
-
-```bash
-NIVO_LANG=en nivo --help
-NIVO_LANG=pt nivo --help
+```
+Idioma atual: pt (Português)
 ```
 
-No Windows PowerShell:
+---
 
-```powershell
-$env:NIVO_LANG = "en"
-nivo --help
-```
+## Onde é salvo
+
+O idioma fica salvo em `~/.config/nivo/config.json` junto com a API key. A configuração persiste entre sessões e projetos.
+
+<Note>
+  O idioma é uma preferência por máquina, não por projeto. Todos os projetos no mesmo computador usam o mesmo idioma configurado.
+</Note>

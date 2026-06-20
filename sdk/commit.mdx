@@ -1,93 +1,98 @@
 ---
 title: "Commit & Deploy"
-description: "Envie codigo ZIP ou dispare redeploy pelo SDK."
+description: "Envie código ZIP ou dispare redeploy pelo SDK."
 ---
 
-## ZIP upload
+## Deploy por ZIP
 
-Para apps com `sourceType: 'zip'`, `commit()` envia um arquivo ZIP e cria um deployment.
-
-```typescript
-const { deploymentId } = await nivo.apps.commit(
-  'app-id',
-  './app.zip',
-  'app.zip'
-)
-```
-
-Tambem aceita `Buffer` e `Readable`.
+Envie o código diretamente pelo SDK sem usar o CLI:
 
 ```typescript
-import { readFileSync, createReadStream } from 'node:fs'
+import { createReadStream, statSync } from 'fs'
 
-await nivo.apps.commit('app-id', readFileSync('./app.zip'), 'app.zip')
-await nivo.apps.commit('app-id', createReadStream('./app.zip'), 'app.zip')
-```
+// Criar ZIP do projeto primeiro (use archiver, jszip, etc.)
+const zipPath = './dist/meu-app.zip'
 
-## Commit e aguardar
-
-```typescript
-const result = await nivo.apps.commitAndWait('app-id', './app.zip', 'app.zip', {
-  intervalMs: 3000,
-  timeoutMs: 30 * 60 * 1000,
-  onLog: (chunk) => process.stdout.write(chunk),
-  onStatus: (status) => console.log(status)
+const deployment = await nivo.apps.deploy('app_id', {
+  source: createReadStream(zipPath),
+  size: statSync(zipPath).size
 })
 
-console.log(result.status)
+console.log(`Deployment ID: ${deployment.id}`)
+console.log(`Status: ${deployment.status}`)
 ```
 
-## Redeploy GitHub ou imagem Docker
-
-Para apps com `sourceType: 'github'` ou `sourceType: 'image'`, use `deploy()` ou `deployAndWait()`.
+## Acompanhar o deploy
 
 ```typescript
-const { deploymentId } = await nivo.apps.deploy('app-id')
+// Polling simples
+async function aguardarDeploy(deploymentId: string) {
+  while (true) {
+    const dep = await nivo.apps.getDeployment('app_id', deploymentId)
 
-await nivo.apps.deployAndWait('app-id', {
-  onLog: (chunk) => process.stdout.write(chunk)
-})
+    console.log(`Status: ${dep.status}`)
+
+    if (dep.status === 'success') {
+      console.log('✔ Deploy concluído!')
+      return dep
+    }
+
+    if (dep.status === 'error') {
+      throw new Error(`Deploy falhou: ${dep.error}`)
+    }
+
+    await new Promise(r => setTimeout(r, 3000))  // aguarda 3s
+  }
+}
+
+const deployment = await nivo.apps.deploy('app_id', { source, size })
+await aguardarDeploy(deployment.id)
 ```
 
-## Fluxo completo para managers
+## Listar deployments
+
+```typescript
+const deployments = await nivo.apps.listDeployments('app_id')
+
+for (const dep of deployments) {
+  console.log(`${dep.id} — ${dep.status} — ${dep.createdAt}`)
+}
+```
+
+## Logs de build
+
+```typescript
+const logs = await nivo.apps.getDeploymentLogs('app_id', 'deployment_id')
+console.log(logs.output)
+```
+
+---
+
+## Caso de uso: CI/CD personalizado
 
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
+import { createZip } from './utils/zip'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
   projectId: process.env.NIVO_PROJECT_ID!
 })
 
-const app = await nivo.apps.create({
-  name: 'cliente-vendas',
-  sourceType: 'zip',
-  runtime: 'node20',
-  installCmd: 'npm ci',
-  buildCmd: 'npm run build',
-  startCmd: 'npm start',
-  ramMb: 256,
-  envVars: {
-    CLIENT_ID: 'client_123'
-  }
-})
+async function deploy() {
+  console.log('Criando ZIP...')
+  const { path, size } = await createZip('./dist')
 
-await nivo.apps.commitAndWait(app.id, './release.zip', 'release.zip', {
-  onLog: (chunk) => process.stdout.write(chunk)
-})
+  console.log('Fazendo deploy...')
+  const deployment = await nivo.apps.deploy(process.env.NIVO_APP_ID!, {
+    source: createReadStream(path),
+    size
+  })
 
-await nivo.apps.updateEnv(app.id, {
-  PLAN: 'enterprise'
-})
-```
+  console.log(`Aguardando deploy ${deployment.id}...`)
+  await aguardarDeploy(deployment.id)
 
-## Status final
-
-`waitForDeployment()`, `commitAndWait()` e `deployAndWait()` retornam os logs do deployment com status final.
-
-```typescript
-const logs = await nivo.apps.waitForDeployment('app-id', 'deployment-id')
-
-if (logs.status !== 'success') {
-  throw new Error(`Deploy falhou: ${logs.status}`)
+  console.log('Deploy concluído com sucesso!')
 }
+
+deploy().catch(console.error)
 ```

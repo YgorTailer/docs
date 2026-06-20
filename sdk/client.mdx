@@ -1,58 +1,86 @@
 ---
 title: "Configuração do Cliente"
-description: "Configure o NivoAPI com API key da conta e projectId."
+description: "Todas as opções de configuração do NivoAPI."
 ---
 
-## NivoAPI
-
-Use `NivoAPI` exclusivamente no servidor: backends, workers, scripts e pipelines de CI/CD.
+## Construtor
 
 ```typescript
-import { NivoAPI } from '@nivo-lat/sdk'
-
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
-  projectId: process.env.NIVO_PROJECT_ID!
-})
+new NivoAPI(apiKey: string, options: NivoClientOptions)
 ```
 
-Para apontar para uma API customizada:
+### Opções
+
+<ParamField body="apiKey" type="string" required>
+  API key secreta do projeto. Obtida no dashboard em **Configurações → API Keys**.
+</ParamField>
+
+<ParamField body="options.projectId" type="string" required>
+  ID do projeto. Encontrado na URL do dashboard ou nas configurações do projeto.
+</ParamField>
+
+<ParamField body="options.baseUrl" type="string" default="https://api.nivo.lat/api">
+  URL base da API. Altere apenas em ambientes de desenvolvimento local.
+</ParamField>
+
+<ParamField body="options.apiVersion" type="string | null" default="v1">
+  Versão da API. Use `null` para a rota legada sem versão (`/api/sdk/*`).
+</ParamField>
+
+---
+
+## Exemplos
+
+<Tabs>
+  <Tab title="Produção">
+    ```typescript
+    import { NivoAPI } from '@nivo-lat/sdk'
+
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!
+    })
+    ```
+  </Tab>
+  <Tab title="Desenvolvimento local">
+    ```typescript
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!,
+      baseUrl: 'http://localhost:3001/api'
+    })
+    ```
+  </Tab>
+  <Tab title="API legada">
+    ```typescript
+    const nivo = new NivoAPI(apiKey, {
+      projectId,
+      apiVersion: null  // usa /api/sdk/* sem versão
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Tratamento de erros
+
+O SDK lança exceções com detalhes do erro da API:
 
 ```typescript
-const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
-  baseUrl: 'https://api.nivo.lat/api',
-  projectId: process.env.NIVO_PROJECT_ID!
-})
+try {
+  const app = await nivo.apps.get('app_inexistente')
+} catch (error) {
+  if (error.status === 404) {
+    console.log('App não encontrado')
+  } else if (error.status === 401) {
+    console.log('API key inválida')
+  } else {
+    throw error
+  }
+}
 ```
 
-## API key
+---
 
-A API key é criada em **Minha conta → Configurações → API** e usada junto com `projectId`.
-
-| Item | Valor |
-|------|-------|
-| Prefixo | `nivo_key_...` |
-| Escopo | Conta do usuário |
-| Projeto | Informado no SDK por `projectId` |
-| Ambiente | Backend, workers, scripts e CI/CD |
-
-<Warning>
-Mantenha a API key em variáveis de ambiente do servidor.
-</Warning>
-
-## Variáveis de ambiente recomendadas
-
-```bash
-# .env do servidor
-NIVO_API_KEY=nivo_key_...
-NIVO_PROJECT_ID=seu-project-id
-```
-
-## Acesso a arquivos privados
-
-Arquivos em bucket privado são lidos pelo backend:
-
-```typescript
-const buffer = await nivo.storage.downloadFile('file-id')
-```
-
-Depois do download, responda o conteúdo pela rota da sua aplicação.
+<Note>
+  Use sempre variáveis de ambiente para a API key. Nunca exponha a chave no código client-side (browser) ou em repositórios públicos.
+</Note>

@@ -1,100 +1,60 @@
 ---
-title: "Linkar Projeto"
-description: "Crie ou conecte um app Nivo a pasta atual sem salvar segredos no repositorio."
+title: "nivo link"
+description: "Crie ou conecte um app Nivo ao diretório atual."
 ---
 
-## Uso
+## nivo link
 
 ```bash
 nivo link
 ```
 
-Se nao existir `.nivo`, o CLI abre um wizard com `@inquirer/prompts`: nome do app, projeto, fonte do codigo, runtime, comandos, RAM e subdominio. Se o `.nivo` ja existir, o CLI valida o arquivo, atualiza o app e mantem o `appId`.
+O comando `link` inicia um wizard interativo que:
 
-O build de codigo usa `nivopack` por padrao. Se o projeto tiver Dockerfile, use `buildSystem: "dockerfile"` e, opcionalmente, `dockerfilePath`.
+1. Pergunta o nome do app
+2. Lista os projetos do workspace para seleção
+3. Permite criar um app novo ou conectar a um app existente
+4. Salva o `appId` e `projectId` no arquivo `.nivo`
 
-## `.nivo` para ZIP
+---
 
-```json
+## O que é gravado no .nivo
+
+Após o `link`, o arquivo `.nivo` recebe os campos automáticos:
+
+```json .nivo
 {
-  "name": "sales-bot",
-  "projectId": "proj_123",
-  "sourceType": "zip",
-  "type": "site",
-  "buildSystem": "nivopack",
-  "runtime": "node20",
-  "installCmd": "npm ci",
-  "buildCmd": "npm run build",
-  "startCmd": "npm start",
-  "ramMb": 256,
-  "subdomain": "sales-bot"
-}
-```
-
-## `.nivo` com Dockerfile
-
-```json
-{
-  "name": "sales-bot",
-  "projectId": "proj_123",
-  "sourceType": "github",
-  "repoFullName": "empresa/sales-bot",
-  "repoBranch": "main",
-  "type": "site",
-  "buildSystem": "dockerfile",
-  "dockerfilePath": "Dockerfile",
-  "startCmd": "npm start",
-  "ramMb": 256
-}
-```
-
-Ao rodar `nivo link`, o CLI cria o app, envia o codigo inicial e grava o `appId`:
-
-```json
-{
-  "appId": "app_123",
-  "name": "sales-bot",
-  "projectId": "proj_123",
-  "sourceType": "zip",
-  "linkedAt": "2026-05-20T12:00:00.000Z"
-}
-```
-
-## `.nivo` para GitHub
-
-```json
-{
-  "name": "sales-bot",
-  "projectId": "proj_123",
-  "sourceType": "github",
-  "repoFullName": "empresa/sales-bot",
-  "repoBranch": "main",
+  "name": "meu-app",
+  "projectId": "proj_abc123",
+  "appId": "app_xyz789",
+  "linkedAt": "2024-01-15T10:30:00.000Z",
   "runtime": "node20",
   "startCmd": "npm start"
 }
 ```
 
-## `.nivo` para imagem Docker
+<Note>
+  Os campos `appId` e `linkedAt` são preenchidos automaticamente pelo CLI. Não os edite manualmente.
+</Note>
 
-```json
-{
-  "name": "sales-bot",
-  "projectId": "proj_123",
-  "sourceType": "image",
-  "dockerImage": "ghcr.io/empresa/sales-bot:latest",
-  "type": "site",
-  "startCmd": "npm start",
-  "ramMb": 256
-}
-```
+---
 
-Imagens Docker precisam estar publicamente acessíveis. Autenticação de registry privado ainda não faz parte desse fluxo.
+## Quando usar
 
-## O que nunca vai no `.nivo`
+<AccordionGroup>
+  <Accordion title="Primeira vez no projeto">
+    Execute `nivo link` antes do primeiro `nivo deploy`. O link cria o app na plataforma e configura o `.nivo`.
+  </Accordion>
+  <Accordion title="Conectar a um app existente">
+    Se o app já existe no dashboard, o wizard permite selecionar um app existente em vez de criar um novo.
+  </Accordion>
+  <Accordion title="Relinkar após clonar o repositório">
+    Se você clonou um repositório que tem `.nivo` mas sem `appId`, execute `nivo link` para reconectar.
+  </Accordion>
+</AccordionGroup>
 
-- API key
-- Token de usuario
-- Senhas de banco
-- Variaveis `.env`
+---
 
-O `.nivo` e somente configuracao de projeto/app.
+<Tip>
+  Você pode commitar o `.nivo` no repositório. O `appId` é um identificador público — não é um segredo.
+</Tip>

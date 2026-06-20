@@ -1,167 +1,170 @@
 ---
 title: "Apps"
-description: "Crie, atualize, reinicie, monitore e remova aplicacoes pelo SDK."
+description: "Crie, liste, monitore, reinicie e remova aplicações pelo SDK."
 ---
+
+## Listar apps
+
+```typescript
+const apps = await nivo.apps.list()
+// App[]
+```
+
+## Buscar app
+
+```typescript
+const app = await nivo.apps.get('app_id')
+```
 
 ## Criar app
 
 ```typescript
 const app = await nivo.apps.create({
-  name: 'sales-bot',
-  sourceType: 'zip',
-  buildSystem: 'nivopack',
+  name: 'minha-api',
+  type: 'site',          // 'site' | 'worker'
   runtime: 'node20',
   startCmd: 'npm start',
-  installCmd: 'npm ci',
   buildCmd: 'npm run build',
-  ramMb: 256,
-  envVars: {
-    CUSTOMER_ID: 'cus_123'
-  }
+  installCmd: 'npm install',
+  ramMb: 512
 })
 ```
 
-Para GitHub:
+### Tipos de app
+
+<Tabs>
+  <Tab title="Site (HTTP)">
+    Recebe tráfego HTTP/HTTPS. Recebe uma URL pública automaticamente.
+
+    ```typescript
+    const app = await nivo.apps.create({
+      name: 'minha-api',
+      type: 'site',
+      runtime: 'node20',
+      port: 3000,
+      startCmd: 'node dist/index.js'
+    })
+    console.log(app.url) // https://minha-api.nivo.lat
+    ```
+  </Tab>
+  <Tab title="Worker (background)">
+    Roda em background sem porta HTTP. Ideal para filas, cron jobs e processamento.
+
+    ```typescript
+    const worker = await nivo.apps.create({
+      name: 'worker-emails',
+      type: 'worker',
+      runtime: 'node20',
+      startCmd: 'node worker.js'
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Variáveis de ambiente
 
 ```typescript
-const app = await nivo.apps.create({
-  name: 'sales-bot',
-  sourceType: 'github',
-  repoFullName: 'empresa/sales-bot',
-  repoBranch: 'main',
-  buildSystem: 'nivopack',
-  runtime: 'node20',
-  startCmd: 'npm start'
+// Definir variáveis
+await nivo.apps.setEnvVars('app_id', {
+  DATABASE_URL: 'postgres://...',
+  REDIS_URL: 'redis://...',
+  SECRET_KEY: 'super-secreto'
 })
+
+// Listar variáveis (valores mascarados)
+const envVars = await nivo.apps.getEnvVars('app_id')
 ```
 
-Para Dockerfile:
+<Warning>
+  Após alterar variáveis de ambiente, um novo deploy é necessário para que as mudanças entrem em vigor.
+</Warning>
 
-```typescript
-const app = await nivo.apps.create({
-  name: 'sales-bot',
-  sourceType: 'github',
-  repoFullName: 'empresa/sales-bot',
-  repoBranch: 'main',
-  buildSystem: 'dockerfile',
-  dockerfilePath: 'Dockerfile',
-  startCmd: 'npm start'
-})
-```
-
-Para imagem Docker pública:
-
-```typescript
-const app = await nivo.apps.create({
-  name: 'sales-bot',
-  sourceType: 'image',
-  dockerImage: 'ghcr.io/empresa/sales-bot:latest',
-  type: 'site',
-  startCmd: 'npm start',
-  ramMb: 256
-})
-```
+---
 
 ## Ciclo de vida
 
 ```typescript
-await nivo.apps.start(app.id)
-await nivo.apps.stop(app.id)
-await nivo.apps.restart(app.id)
+// Parar
+await nivo.apps.stop('app_id')
+
+// Iniciar
+await nivo.apps.start('app_id')
+
+// Reiniciar
+await nivo.apps.restart('app_id')
 ```
 
-## Status e logs
+---
+
+## Atualizar configuração
 
 ```typescript
-const app = await nivo.apps.get('app-id')
-const stats = await nivo.apps.stats('app-id')
-const logs = await nivo.apps.logs('app-id', { tail: 300 })
-
-console.log(app.status)
-console.log(stats.memUsageMb, stats.cpuPct)
-console.log(logs.log)
-```
-
-## Atualizar configuracao
-
-```typescript
-await nivo.apps.update('app-id', {
-  runtime: 'node20',
-  buildSystem: 'dockerfile',
-  dockerfilePath: 'Dockerfile',
-  startCmd: 'npm start',
-  buildCmd: 'npm run build',
-  ramMb: 512,
-  autoRestart: true
-})
-
-await nivo.apps.updateRam('app-id', 512)
-```
-
-## Variaveis de ambiente
-
-`updateEnv()` faz merge: adiciona ou altera somente as chaves enviadas.
-
-```typescript
-await nivo.apps.updateEnv('app-id', {
-  STRIPE_KEY: 'sk_live_...',
-  PLAN: 'pro'
+await nivo.apps.update('app_id', {
+  ramMb: 1024,
+  startCmd: 'node dist/server.js'
 })
 ```
 
-`replaceEnv()` substitui tudo de forma explicita.
+---
+
+## Domínio personalizado
 
 ```typescript
-await nivo.apps.replaceEnv('app-id', {
-  NODE_ENV: 'production'
-})
+// Adicionar domínio
+const result = await nivo.apps.addDomain('app_id', 'meusite.com.br')
+
+// Verificar DNS (retorna instruções)
+console.log(result.instructions)
+
+// Remover domínio
+await nivo.apps.removeDomain('app_id', 'meusite.com.br')
 ```
 
-Para remover chaves:
+---
+
+## Logs e métricas
 
 ```typescript
-await nivo.apps.removeEnv('app-id', ['OLD_KEY'])
+// Logs de runtime
+const logs = await nivo.apps.logs('app_id', { tail: 200 })
+
+// Métricas (CPU, RAM, uptime)
+const metrics = await nivo.apps.metrics('app_id')
+console.log(`CPU: ${metrics.cpuPercent}%`)
+console.log(`RAM: ${metrics.memMb} MB`)
 ```
 
-## Deployments
-
-```typescript
-const deployments = await nivo.apps.deployments('app-id')
-const logs = await nivo.apps.deploymentLogs('app-id', 'deployment-id')
-
-await nivo.apps.deployAndWait('app-id', {
-  onLog: (chunk) => process.stdout.write(chunk)
-})
-```
+---
 
 ## Deletar app
 
 ```typescript
-await nivo.apps.delete('app-id')
+await nivo.apps.delete('app_id')
 ```
 
-## Referencia
+<Warning>
+  A deleção é permanente. O app, seus logs e deployments são removidos imediatamente.
+</Warning>
 
-| Metodo | Descricao |
+---
+
+## Referência completa
+
+| Método | Descrição |
 |--------|-----------|
-| `list()` | Lista apps. |
-| `get(id)` | Retorna app e status. |
-| `create(opts)` | Cria app ZIP, GitHub ou imagem Docker. |
-| `update(id, opts)` | Atualiza configuracao. |
-| `updateRam(id, ramMb)` | Atalho para alterar RAM. |
-| `delete(id)` | Remove app e recursos. |
-| `upload(id, file)` | Envia ZIP e cria deployment. |
-| `uploadAndWait(id, file)` | Envia ZIP e espera terminar. |
-| `commit(id, file)` | Alias profissional para upload de codigo. |
-| `commitAndWait(id, file)` | Upload de codigo e espera deployment. |
-| `deploy(id)` | Redeploy do ultimo codigo ou repo GitHub. |
-| `deployAndWait(id)` | Redeploy e espera terminar. |
-| `start(id)` | Inicia app. |
-| `stop(id)` | Para app. |
-| `restart(id)` | Reinicia app. |
-| `logs(id, { tail })` | Logs de runtime. |
-| `stats(id)` | CPU, memoria, rede, uptime e imagem. |
-| `getEnv(id)` | Lista env vars. |
-| `updateEnv(id, vars)` | Merge de env vars. |
-| `replaceEnv(id, vars)` | Substitui env vars. |
-| `removeEnv(id, keys)` | Remove env vars. |
+| `apps.list()` | Lista todos os apps do projeto. |
+| `apps.get(id)` | Busca um app por ID. |
+| `apps.create(opts)` | Cria um novo app. |
+| `apps.update(id, opts)` | Atualiza configurações do app. |
+| `apps.delete(id)` | Remove o app permanentemente. |
+| `apps.start(id)` | Inicia o app. |
+| `apps.stop(id)` | Para o app. |
+| `apps.restart(id)` | Reinicia o app. |
+| `apps.setEnvVars(id, vars)` | Define variáveis de ambiente. |
+| `apps.getEnvVars(id)` | Lista variáveis de ambiente. |
+| `apps.logs(id, opts)` | Retorna logs do container. |
+| `apps.metrics(id)` | Retorna métricas de CPU e RAM. |
+| `apps.addDomain(id, domain)` | Adiciona domínio personalizado. |
+| `apps.removeDomain(id, domain)` | Remove domínio personalizado. |

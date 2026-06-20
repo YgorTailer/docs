@@ -1,109 +1,240 @@
 ---
 title: "Bancos de Dados"
-description: "Provisione, consulte, reinicie, redimensione e remova bancos pelo SDK."
+description: "Provisione, consulte, reinicie, redimensione e remova bancos de dados pelo SDK."
 ---
 
-## Criar banco
+## Engines suportadas
 
-```typescript
-const db = await nivo.databases.create({
-  name: 'cliente_123',
-  password: process.env.DB_PASSWORD!,
-  engine: 'postgresql',
-  ramMb: 512
-})
+<CardGroup cols={4}>
+  <Card title="PostgreSQL" icon="database">
+    Versões: 14, 15, 16
+  </Card>
+  <Card title="MySQL" icon="database">
+    Versões: 8.0, 8.4
+  </Card>
+  <Card title="MongoDB" icon="database">
+    Versões: 6, 7
+  </Card>
+  <Card title="Redis" icon="database">
+    Versões: 7, 7.2
+  </Card>
+</CardGroup>
 
-console.log(db.connectionString)
-```
+---
+
+## Criar banco de dados
+
+<Tabs>
+  <Tab title="PostgreSQL">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'db-producao',
+      engine: 'postgres',
+      version: '16'
+    })
+
+    console.log(`Host: ${db.host}`)
+    console.log(`Porta: ${db.port}`)
+    console.log(`Usuário: ${db.user}`)
+    console.log(`Senha: ${db.password}`)
+    console.log(`Database: ${db.database}`)
+
+    // String de conexão completa
+    const url = `postgres://${db.user}:${db.password}@${db.host}:${db.port}/${db.database}`
+    ```
+  </Tab>
+  <Tab title="MySQL">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'mysql-producao',
+      engine: 'mysql',
+      version: '8.4'
+    })
+
+    const url = `mysql://${db.user}:${db.password}@${db.host}:${db.port}/${db.database}`
+    ```
+  </Tab>
+  <Tab title="MongoDB">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'mongo-eventos',
+      engine: 'mongodb',
+      version: '7'
+    })
+
+    const url = `mongodb://${db.user}:${db.password}@${db.host}:${db.port}/${db.database}`
+    ```
+  </Tab>
+  <Tab title="Redis">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'cache',
+      engine: 'redis',
+      version: '7.2'
+    })
+
+    const url = `redis://:${db.password}@${db.host}:${db.port}`
+    ```
+  </Tab>
+</Tabs>
+
+---
 
 ## Listar e buscar
 
 ```typescript
+// Listar todos os bancos do projeto
 const databases = await nivo.databases.list()
-const db = await nivo.databases.get('db-id')
+
+// Buscar por ID
+const db = await nivo.databases.get('db_id')
+
+// Status atual
+console.log(db.status) // 'running' | 'stopped' | 'starting' | 'error'
 ```
+
+---
 
 ## Ciclo de vida
 
 ```typescript
-await nivo.databases.start('db-id')
-await nivo.databases.stop('db-id')
-await nivo.databases.restart('db-id')
+// Parar (para cobrança de compute enquanto parado)
+await nivo.databases.stop('db_id')
+
+// Iniciar
+await nivo.databases.start('db_id')
+
+// Reiniciar
+await nivo.databases.restart('db_id')
 ```
 
-## Atualizar configuracao
+---
+
+## Queries SQL
+
+Execute queries diretamente pelo SDK (apenas PostgreSQL e MySQL):
+
+<Tabs>
+  <Tab title="SELECT">
+    ```typescript
+    const result = await nivo.databases.query('db_id', {
+      sql: 'SELECT * FROM usuarios WHERE ativo = $1 LIMIT 10',
+      params: [true]
+    })
+
+    console.log(result.rows)
+    console.log(`${result.rowCount} linhas retornadas`)
+    ```
+  </Tab>
+  <Tab title="INSERT">
+    ```typescript
+    const result = await nivo.databases.query('db_id', {
+      sql: 'INSERT INTO pedidos (usuario_id, total) VALUES ($1, $2) RETURNING id',
+      params: ['user_123', 99.90]
+    })
+
+    console.log(result.rows[0].id)
+    ```
+  </Tab>
+  <Tab title="Transação">
+    ```typescript
+    await nivo.databases.query('db_id', {
+      sql: 'BEGIN'
+    })
+
+    try {
+      await nivo.databases.query('db_id', {
+        sql: 'UPDATE contas SET saldo = saldo - $1 WHERE id = $2',
+        params: [100, 'conta_origem']
+      })
+      await nivo.databases.query('db_id', {
+        sql: 'UPDATE contas SET saldo = saldo + $1 WHERE id = $2',
+        params: [100, 'conta_destino']
+      })
+      await nivo.databases.query('db_id', { sql: 'COMMIT' })
+    } catch (err) {
+      await nivo.databases.query('db_id', { sql: 'ROLLBACK' })
+      throw err
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Queries SQL estão sujeitas ao rate limit de 60 req/min.
+</Note>
+
+---
+
+## Métricas e estatísticas
 
 ```typescript
-await nivo.databases.update('db-id', {
-  ramMb: 1024
+const stats = await nivo.databases.stats('db_id')
+
+console.log(`CPU: ${stats.cpuPercent}%`)
+console.log(`RAM: ${stats.memMb} MB`)
+console.log(`Disk: ${stats.diskMb} MB`)
+console.log(`Conexões ativas: ${stats.connections}`)
+```
+
+---
+
+## Backups
+
+```typescript
+// Listar backups disponíveis
+const backups = await nivo.databases.listBackups('db_id')
+
+// Criar backup manual
+const backup = await nivo.databases.createBackup('db_id')
+
+// Restaurar de um backup
+await nivo.databases.restoreBackup('db_id', backup.id)
+```
+
+<Note>
+  Backups automáticos diários estão disponíveis nos planos Pro e Builder.
+</Note>
+
+---
+
+## Redimensionar
+
+```typescript
+// Alterar tier de compute
+await nivo.databases.resize('db_id', {
+  computeTier: 'ORBIT'  // mais RAM e vCPU
 })
-
-await nivo.databases.updateRam('db-id', 1024)
 ```
 
-## Status e logs
+---
+
+## Deletar
 
 ```typescript
-const stats = await nivo.databases.stats('db-id')
-const logs = await nivo.databases.logs('db-id', { tail: 300 })
-
-console.log(stats.memoryUsageMB, stats.cpuUsagePct)
-console.log(logs.log)
+await nivo.databases.delete('db_id')
 ```
 
-## Query SQL
+<Warning>
+  A deleção é permanente e imediata. Todos os dados são perdidos. Crie um backup antes de deletar.
+</Warning>
 
-Disponivel para PostgreSQL.
+---
 
-```typescript
-const result = await nivo.databases.query(
-  'db-id',
-  'SELECT * FROM customers LIMIT 10'
-)
+## Referência completa
 
-console.log(result.columns)
-console.log(result.rows)
-```
-
-## Tabelas e CRUD
-
-```typescript
-const tables = await nivo.databases.tables('db-id')
-
-const rows = await nivo.databases.tableRows('db-id', 'customers', {
-  page: 1,
-  limit: 50
-})
-
-await nivo.databases.insertRow('db-id', 'customers', {
-  name: 'Cliente exemplo'
-})
-```
-
-## Deletar banco
-
-```typescript
-await nivo.databases.delete('db-id')
-```
-
-## Referencia
-
-| Metodo | Descricao |
+| Método | Descrição |
 |--------|-----------|
-| `list()` | Lista bancos. |
-| `get(id)` | Retorna banco e connection string. |
-| `create(opts)` | Cria banco. |
-| `update(id, opts)` | Atualiza configuracao. |
-| `updateRam(id, ramMb)` | Atalho para alterar RAM. |
-| `delete(id)` | Remove banco. |
-| `start(id)` | Inicia banco. |
-| `stop(id)` | Para banco. |
-| `restart(id)` | Reinicia banco. |
-| `stats(id)` | CPU, memoria, rede, uptime e imagem. |
-| `logs(id, { tail })` | Logs do container. |
-| `query(id, sql)` | Executa SQL em PostgreSQL. |
-| `tables(id)` | Lista tabelas. |
-| `tableRows(id, table, opts)` | Lista linhas. |
-| `insertRow(id, table, data)` | Insere linha. |
-| `updateRow(id, table, pkValue, opts)` | Atualiza valor. |
-| `deleteRows(id, table, opts)` | Remove linhas. |
+| `databases.list()` | Lista bancos do projeto. |
+| `databases.get(id)` | Busca banco por ID. |
+| `databases.create(opts)` | Provisiona novo banco. |
+| `databases.delete(id)` | Remove banco permanentemente. |
+| `databases.start(id)` | Inicia o banco. |
+| `databases.stop(id)` | Para o banco. |
+| `databases.restart(id)` | Reinicia o banco. |
+| `databases.query(id, opts)` | Executa SQL. |
+| `databases.stats(id)` | Métricas de CPU, RAM e disco. |
+| `databases.resize(id, opts)` | Altera tier de compute. |
+| `databases.listBackups(id)` | Lista backups disponíveis. |
+| `databases.createBackup(id)` | Cria backup manual. |
+| `databases.restoreBackup(id, backupId)` | Restaura de backup. |

@@ -1,49 +1,76 @@
 ---
 title: "Login"
-description: "Como fazer login, ver a conta atual e remover a API key local."
+description: "Como autenticar, verificar a conta e remover a API key local."
 ---
 
-## Login
+## nivo login
 
 ```bash
 nivo login
-nivo login --manual
 ```
 
-`nivo login` inicia um device flow, abre o navegador e mostra um código no terminal. Depois da autorização, a API key fica salva no storage local do usuário.
+O CLI inicia o device flow:
 
-`nivo login --manual` pede a API key em um prompt mascarado. Use isso em máquinas onde o browser não está disponível.
+<Steps>
+  <Step title="Código exibido no terminal">
+    Um código de 8 caracteres aparece no terminal. Ex: `NIVO-A1B2`.
+  </Step>
+  <Step title="Navegador abre automaticamente">
+    A página de confirmação do Nivo abre no navegador padrão.
+  </Step>
+  <Step title="Confirme o código">
+    Cole ou confirme o código exibido no terminal na página do navegador.
+  </Step>
+  <Step title="API key salva localmente">
+    Após confirmação, a API key é salva em `~/.config/nivo/config.json`.
+  </Step>
+</Steps>
 
 <Warning>
-A API key nunca é gravada em `.nivo` e nunca é exibida inteira no terminal.
+  Se o navegador não abrir automaticamente, copie e acesse manualmente a URL exibida no terminal.
 </Warning>
 
-## Onde a chave fica salva
+---
 
-| Sistema | Caminho |
-|---------|---------|
-| Windows | `%APPDATA%\nivo\config.json` |
-| macOS/Linux | `~/.config/nivo/config.json` |
+## nivo me
 
-Você pode trocar a API usada no login:
-
-```bash
-nivo login --api-url https://api.nivo.lat/api
-```
-
-## Ver conta
+Verifica a conta autenticada atualmente:
 
 ```bash
 nivo me
 ```
 
-A saída mostra a conta, o ID, o tipo de usuário e a API key mascarada.
+Saída exemplo:
 
-## Logout
+```
+✔ Autenticado como: joao@exemplo.com
+  Chave: nivo_**********************8f3a
+  Workspace: minha-empresa
+```
+
+---
+
+## nivo logout
+
+Remove a API key do armazenamento local:
 
 ```bash
 nivo logout
-nivo logout --yes
 ```
 
-`logout` remove a chave local. Para revogar a chave no servidor, use **Minha conta → Configurações → CLI**.
+<Note>
+  O logout não revoga a API key nos servidores do Nivo — apenas remove do armazenamento local. Para revogar a chave, acesse as configurações do dashboard.
+</Note>
+
+---
+
+## Onde a chave é salva
+
+| Sistema | Caminho |
+|---------|---------|
+| Linux / macOS | `~/.config/nivo/config.json` |
+| Windows | `%APPDATA%\nivo\config.json` |
+
+<Warning>
+  Nunca commite nem compartilhe o arquivo de config — ele contém sua API key pessoal.
+</Warning>

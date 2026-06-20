@@ -1,27 +1,38 @@
 ---
-title: "Apps"
-description: "Liste os apps acessiveis pela conta autenticada."
+title: "nivo apps"
+description: "Liste os apps do projeto pelo terminal."
 ---
 
-## Uso
+## nivo apps
 
 ```bash
 nivo apps
 ```
 
-## Saida
+Lista todos os apps do projeto vinculado em uma tabela formatada no terminal.
 
-A saida usa tabela Unicode com colunas para nome, status, fonte, runtime, URL e ID.
+### Saída exemplo
 
-```text
-Name       Status    Source   Runtime   URL                         ID
-sales-bot  running   zip      node20    https://sales-bot.nivo.lat   app_123
+```
+┌──────────────────┬────────────┬──────────┬─────────────────────────┐
+│ Nome             │ Status     │ Runtime  │ URL                     │
+├──────────────────┼────────────┼──────────┼─────────────────────────┤
+│ api-producao     │ ● running  │ node20   │ api-producao.nivo.lat   │
+│ worker-emails    │ ● running  │ node20   │ —                       │
+│ dashboard-v2     │ ○ stopped  │ node20   │ dashboard-v2.nivo.lat   │
+└──────────────────┴────────────┴──────────┴─────────────────────────┘
 ```
 
-Use o ID com:
+### Status possíveis
 
-```bash
-nivo deploy --app app_123 --watch
-nivo deployments --app app_123
-nivo logs --app app_123
-```
+| Status | Descrição |
+|--------|-----------|
+| `running` | App em execução e respondendo. |
+| `stopped` | App parado manualmente. |
+| `building` | Build em andamento. |
+| `error` | Falha no deploy ou crash do container. |
+| `starting` | Container inicializando. |
+
+<Note>
+  O comando usa o `projectId` do arquivo `.nivo` do diretório atual. Certifique-se de estar no diretório do projeto.
+</Note>

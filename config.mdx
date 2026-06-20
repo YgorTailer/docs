@@ -1,70 +1,200 @@
 ---
 title: "Arquivo .nivo"
-description: "Referência completa do arquivo de configuração .nivo usado pelo CLI."
+description: "Todos os campos de configuração do arquivo .nivo de um projeto Nivo."
 ---
 
-O arquivo `.nivo` fica na raiz do seu projeto e define como o CLI deve criar e fazer deploy do app.
-
-## Exemplo completo
-
-```json .nivo
-{
-  "name": "meu-app",
-  "projectId": "proj_abc123",
-  "sourceType": "zip",
-  "type": "site",
-  "buildSystem": "nivopack",
-  "runtime": "node20",
-  "dockerfilePath": "Dockerfile",
-  "installCmd": "npm install",
-  "buildCmd": "npm run build",
-  "startCmd": "npm start",
-  "ramMb": 256,
-  "subdomain": "meu-app"
-}
-```
-
-## Referência de campos
-
-| Campo | Tipo | Obrigatório | Padrão | Descrição |
-|-------|------|-------------|--------|-----------|
-| `name` | string | Sim | — | Nome do app. |
-| `projectId` | string | Sim | — | ID do projeto no dashboard. |
-| `sourceType` | string | Não | `zip` | `zip`, `github` ou `image`. |
-| `type` | string | Não | `site` | `site` ou `worker`. |
-| `buildSystem` | string | Não | `nivopack` | `nivopack` ou `dockerfile` para código. Apps com `sourceType: "image"` usam `dockerimage`. |
-| `runtime` | string | Não | `node20` | Runtime (ex: `node20`, `python3.11`). |
-| `dockerfilePath` | string | Não | `Dockerfile` | Caminho do Dockerfile quando `buildSystem` for `dockerfile`. |
-| `dockerImage` | string | Sim para `image` | — | Imagem Docker pública quando `sourceType` for `image` (ex: `ghcr.io/org/app:latest`). |
-| `installCmd` | string | Não | — | Comando de instalação (ex: `npm install`). |
-| `buildCmd` | string | Não | — | Comando de build (ex: `npm run build`). |
-| `startCmd` | string | Não | `npm start` | Comando de inicialização. |
-| `ramMb` | number | Não | `256` | RAM em MB. Mínimo: `100`. |
-| `subdomain` | string | Não | — | Subdomínio personalizado (minúsculas, números, hífens). |
-| `repoFullName` | string | Não | — | Repositório GitHub no formato `owner/repo`. |
-| `repoBranch` | string | Não | `main` | Branch do Git para deploy. |
-| `appId` | string | — | — | **Preenchido automaticamente** pelo `nivo link`. Não edite. |
-| `linkedAt` | string | — | — | **Timestamp automático** do `nivo link`. Não edite. |
-
-## Como usar
-
-<Steps>
-  <Step title="Crie o .nivo">
-    Crie o arquivo na raiz do projeto com pelo menos `name` e `projectId`.
-  </Step>
-  <Step title="Execute nivo link">
-    ```bash
-    nivo link
-    ```
-    Cria o app e preenche o `appId` automaticamente.
-  </Step>
-  <Step title="Faça o deploy">
-    ```bash
-    nivo deploy .
-    ```
-  </Step>
-</Steps>
+O arquivo `.nivo` fica na raiz do projeto e diz ao CLI como o app deve ser criado, buildado e implantado na plataforma.
 
 <Note>
-  Você pode commitar o `.nivo` no repositório. Nunca commite o arquivo local do CLI em `~/.config/nivo/config.json`, porque ele contém a API key da sua conta.
+  Você pode commitar o `.nivo` no repositório. Ele não contém segredos — apenas metadados do app.
 </Note>
+
+---
+
+## Campos
+
+### Identificação
+
+<ParamField body="name" type="string" required>
+  Nome do app exibido no dashboard. Usado para gerar a URL pública `nome.nivo.lat`.
+</ParamField>
+
+<ParamField body="projectId" type="string" required>
+  ID do projeto ao qual o app pertence. Obtido no dashboard.
+</ParamField>
+
+<ParamField body="appId" type="string">
+  ID do app gerado pelo `nivo link`. Preenchido automaticamente — não edite.
+</ParamField>
+
+---
+
+### Runtime & Build
+
+<ParamField body="runtime" type="string">
+  Runtime utilizado no build e execução. Ignorado se `buildSystem` for `dockerfile` ou `dockerimage`.
+
+  | Valor | Versão |
+  |-------|--------|
+  | `node18` | Node.js 18 LTS |
+  | `node20` | Node.js 20 LTS |
+  | `node22` | Node.js 22 |
+  | `bun1` | Bun 1.x |
+  | `python3.11` | Python 3.11 |
+  | `python3.12` | Python 3.12 |
+  | `go1.22` | Go 1.22 |
+  | `deno2` | Deno 2.x |
+</ParamField>
+
+<ParamField body="buildSystem" type="string" default="nivopack">
+  Sistema de build a usar.
+
+  | Valor | Descrição |
+  |-------|-----------|
+  | `nivopack` | Build automático por runtime (padrão). |
+  | `dockerfile` | Usa o `Dockerfile` no repositório. |
+  | `dockerimage` | Usa uma imagem Docker pública. |
+</ParamField>
+
+<ParamField body="installCmd" type="string">
+  Comando para instalar dependências. Ex: `npm install`, `pip install -r requirements.txt`.
+</ParamField>
+
+<ParamField body="buildCmd" type="string">
+  Comando para compilar o projeto. Ex: `npm run build`, `go build ./...`.
+</ParamField>
+
+<ParamField body="startCmd" type="string">
+  Comando para iniciar o app em produção. Ex: `npm start`, `python main.py`.
+</ParamField>
+
+---
+
+### Docker
+
+<ParamField body="dockerfilePath" type="string" default="Dockerfile">
+  Caminho para o Dockerfile relativo à raiz do projeto. Usado quando `buildSystem: "dockerfile"`.
+</ParamField>
+
+<ParamField body="dockerImage" type="string">
+  URL da imagem Docker pública. Usado quando `buildSystem: "dockerimage"`.
+
+  ```json
+  "dockerImage": "ghcr.io/minha-org/meu-app:latest"
+  ```
+</ParamField>
+
+---
+
+### Fonte do código
+
+<ParamField body="sourceType" type="string" default="zip">
+  Como o código chega ao servidor.
+
+  | Valor | Descrição |
+  |-------|-----------|
+  | `zip` | Upload via CLI (padrão). |
+  | `github` | Clone do repositório GitHub. |
+  | `image` | Imagem Docker pública. |
+</ParamField>
+
+<ParamField body="repoFullName" type="string">
+  Repositório no GitHub no formato `org/repo`. Usado quando `sourceType: "github"`.
+</ParamField>
+
+<ParamField body="repoBranch" type="string" default="main">
+  Branch a ser usado no clone. Usado quando `sourceType: "github"`.
+</ParamField>
+
+---
+
+### Rede & Compute
+
+<ParamField body="port" type="number" default="3000">
+  Porta em que o app escuta. O Nivo encaminha o tráfego HTTP para esta porta.
+</ParamField>
+
+<ParamField body="ramMb" type="number" default="512">
+  RAM alocada em MB. Valores comuns: `256`, `512`, `1024`, `2048`.
+</ParamField>
+
+---
+
+## Exemplos completos
+
+<Tabs>
+  <Tab title="Node.js (nivopack)">
+    ```json .nivo
+    {
+      "name": "minha-api",
+      "projectId": "proj_abc123",
+      "appId": "app_xyz789",
+      "runtime": "node20",
+      "buildSystem": "nivopack",
+      "installCmd": "npm install",
+      "buildCmd": "npm run build",
+      "startCmd": "npm start",
+      "port": 3000,
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```json .nivo
+    {
+      "name": "minha-api-python",
+      "projectId": "proj_abc123",
+      "appId": "app_xyz789",
+      "runtime": "python3.11",
+      "buildSystem": "nivopack",
+      "installCmd": "pip install -r requirements.txt",
+      "startCmd": "uvicorn main:app --host 0.0.0.0 --port 3000",
+      "port": 3000,
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Dockerfile">
+    ```json .nivo
+    {
+      "name": "meu-monolito",
+      "projectId": "proj_abc123",
+      "appId": "app_xyz789",
+      "buildSystem": "dockerfile",
+      "dockerfilePath": "Dockerfile",
+      "ramMb": 1024
+    }
+    ```
+  </Tab>
+  <Tab title="Imagem Docker">
+    ```json .nivo
+    {
+      "name": "meu-app-imagem",
+      "projectId": "proj_abc123",
+      "appId": "app_xyz789",
+      "sourceType": "image",
+      "buildSystem": "dockerimage",
+      "dockerImage": "ghcr.io/minha-org/meu-app:latest",
+      "port": 8080,
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="GitHub">
+    ```json .nivo
+    {
+      "name": "site-producao",
+      "projectId": "proj_abc123",
+      "appId": "app_xyz789",
+      "sourceType": "github",
+      "repoFullName": "minha-org/site",
+      "repoBranch": "main",
+      "runtime": "node20",
+      "installCmd": "npm install",
+      "buildCmd": "npm run build",
+      "startCmd": "npm start",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+</Tabs>

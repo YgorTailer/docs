@@ -1,109 +1,162 @@
 ---
 title: "Planos & Cobrança"
-description: "Como funcionam planos, saldo, compute e storage na Nivo."
+description: "Planos, saldo mensal, tiers de compute, storage e como a cobrança funciona."
 ---
 
-## Visão geral
+## Como funciona
 
-A Nivo cobra por plano de workspace e por recursos consumidos via saldo. O plano define limites, recursos disponíveis e saldo mensal concedido. Compute é cobrado por hora enquanto apps ou bancos pagos estão ativos. Storage é capacidade reservada mensal por projeto.
+A Nivo usa um modelo de **saldo mensal** + **consumo** por minuto de compute:
+
+1. Seu plano inclui um **saldo mensal** que é creditado todo mês
+2. Apps e bancos de dados consomem do saldo enquanto estão em execução
+3. Se o saldo acabar no mês, o workspace é **pausado** automaticamente
+4. Você pode adicionar **saldo adicional** a qualquer momento
+
+<Note>
+  A cobrança é **por minuto** de execução — você não paga por compute quando o app está parado.
+</Note>
+
+---
 
 ## Planos
 
-<CardGroup cols={3}>
-  <Card title="Free" icon="gift">
-    **R$0/mês**
-
-    Para começar e testar.
-    - Até 1 projeto
-    - Saldo mensal: R$0
-    - Compute permitido: VOID e SPARK
-    - Backups manuais de banco
-    - Sem snapshots de projeto
-  </Card>
-  <Card title="Pro" icon="star">
-    **R$15/mês**
-
-    Para projetos em produção.
-    - Até 5 projetos
-    - Saldo mensal: R$20
-    - Compute até ORBIT
-    - Backups automáticos diários de banco
-    - Snapshots manuais de projeto
-  </Card>
-  <Card title="Builder" icon="rocket">
-    **R$29/mês**
-
-    Para projetos em crescimento.
-    - Até 15 projetos
-    - Saldo mensal: R$30
-    - Compute até QUASAR
-    - Backups automáticos diários de banco
-    - Snapshots automáticos de projeto
-  </Card>
-</CardGroup>
+| Plano | Preço | Saldo mensal | Projetos | Suporte |
+|-------|-------|--------------|----------|---------|
+| **Free** | R$0/mês | R$0 | 1 | Comunidade |
+| **Pro** | R$15/mês | R$20 | 5 | Email |
+| **Builder** | R$29/mês | R$30 | 15 | Prioritário |
 
 <Note>
-O saldo mensal é aplicado ao workspace e cobre uso de compute, storage, backups e snapshots. Saldo não substitui o pagamento do plano.
+  O plano Free não inclui saldo mensal — você usa saldo adicional adquirido manualmente.
 </Note>
 
-## Como a cobrança funciona
-
-Compute é cobrado por tempo de execução de apps e bancos em tier pago. Storage é cobrado como capacidade reservada mensal por projeto, proporcional ao ciclo.
-
-```
-custo = compute_ativo + storage_reservado + backups + snapshots
-```
-
-Recursos pagos podem ser pausados quando o workspace fica sem saldo, atinge o Spend Cap ou entra em atraso.
+---
 
 ## Tiers de compute
 
-Cada app e database escolhe RAM e vCPU próprios. Storage não fica dentro do compute.
+Escolha o tier de compute para cada app ou banco de dados:
 
-| Tier | RAM | vCPU | Preço/hora |
-|------|-----|------|------------|
-| `VOID` | 100 MB | 0.5 | R$0,00 |
-| `SPARK` | 768 MB | 0.75 | R$0,0062 |
-| `PULSE` | 1 GB | 1 | R$0,0076 |
-| `NOVA` | 1.5 GB | 1.25 | R$0,0111 |
-| `ORBIT` | 2 GB | 1.5 | R$0,0138 |
-| `NEBULA` | 4 GB | 2 | R$0,031 |
-| `QUASAR` | 8 GB | 4 | R$0,062 |
-| `COSMOS` | 16 GB | 8 | R$0,125 |
+<Tabs>
+  <Tab title="Apps">
+    | Tier | vCPU | RAM | Preço/hora |
+    |------|------|-----|-----------|
+    | **VOID** | 0.25 vCPU | 128 MB | R$0,02 |
+    | **ATOM** | 0.5 vCPU | 256 MB | R$0,05 |
+    | **QUARK** | 1 vCPU | 512 MB | R$0,10 |
+    | **NEUTRON** | 1 vCPU | 1 GB | R$0,18 |
+    | **ORBIT** | 2 vCPU | 2 GB | R$0,35 |
+    | **COSMOS** | 4 vCPU | 4 GB | R$0,65 |
+  </Tab>
+  <Tab title="Bancos de dados">
+    | Tier | vCPU | RAM | Preço/hora |
+    |------|------|-----|-----------|
+    | **VOID** | 0.25 vCPU | 256 MB | R$0,04 |
+    | **ATOM** | 0.5 vCPU | 512 MB | R$0,08 |
+    | **QUARK** | 1 vCPU | 1 GB | R$0,15 |
+    | **NEUTRON** | 2 vCPU | 2 GB | R$0,28 |
+    | **ORBIT** | 2 vCPU | 4 GB | R$0,50 |
+    | **COSMOS** | 4 vCPU | 8 GB | R$0,90 |
+  </Tab>
+</Tabs>
 
-<Note>
-O plano do workspace define quais tiers podem ser usados. Free permite VOID e SPARK, Pro permite até ORBIT e Builder permite até QUASAR.
-</Note>
+<Tip>
+  O tier é configurado no dashboard por app/banco. Você pode alterar a qualquer momento sem interromper o serviço.
+</Tip>
+
+---
 
 ## Storage
 
-Storage é reservado por projeto e usado por bancos, buckets, backups e snapshots.
+| Recurso | Preço |
+|---------|-------|
+| Armazenamento | R$0,05 / GB / mês |
+| Transferência de saída | R$0,10 / GB |
+| CDN global (cache hit) | Incluído |
+| Requisições de listagem | R$0,001 / 1.000 req |
 
-| Tier | Capacidade | Preço mensal |
-|------|------------|--------------|
-| `S1` | 1 GB | R$0 |
-| `S5` | 5 GB | R$1,99 |
-| `S10` | 10 GB | R$3,99 |
-| `S25` | 25 GB | R$7,99 |
-| `S50` | 50 GB | R$13,99 |
-| `S100` | 100 GB | R$24,99 |
-| `S250` | 250 GB | R$49,99 |
-| `S500` | 500 GB | R$89,99 |
+<Note>
+  Os primeiros **500 MB** de storage são gratuitos em todos os planos.
+</Note>
 
-## Spend Cap
+---
 
-Spend Cap limita o gasto mensal. Quando ativado, a Nivo pausa recursos pagos antes que o uso ultrapasse o limite configurado.
+## Exemplos de custo
+
+<AccordionGroup>
+  <Accordion title="App Node.js simples (QUARK, 1 vCPU / 512 MB)">
+    - Tier QUARK: R$0,10/hora
+    - Rodando 24h/dia por 30 dias: R$0,10 × 720 = **R$72,00/mês**
+    - Com plano Builder (saldo R$30): custo adicional = **R$42,00/mês**
+
+    <Tip>
+      Para apps de desenvolvimento, considere parar o app quando não estiver usando — você paga apenas pelo tempo em execução.
+    </Tip>
+  </Accordion>
+  <Accordion title="Banco PostgreSQL (ATOM, 0.5 vCPU / 512 MB)">
+    - Tier ATOM: R$0,08/hora
+    - Rodando 24h/dia por 30 dias: R$0,08 × 720 = **R$57,60/mês**
+  </Accordion>
+  <Accordion title="Stack completa (app + banco)">
+    - App QUARK (R$0,10/h) + DB ATOM (R$0,08/h)
+    - Total/hora: R$0,18/h
+    - Total/mês (720h): **R$129,60/mês**
+    - Com saldo plano Pro (R$20): custo adicional = **R$109,60/mês**
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Pausas automáticas
+
+<Steps>
+  <Step title="Saldo baixo">
+    Quando o saldo chega a menos de R$2,00, o sistema envia um e-mail de aviso.
+  </Step>
+  <Step title="Saldo zerado">
+    Quando o saldo chega a zero, o workspace é pausado automaticamente.
+  </Step>
+  <Step title="Reativação">
+    Adicione saldo no dashboard em **Workspace → Cobrança** para reativar. Os apps sobem automaticamente.
+  </Step>
+</Steps>
+
+<Warning>
+  Apps em pausa perdem o estado de container (variáveis em memória, arquivos temporários). Use Storage ou bancos de dados para persistência.
+</Warning>
+
+---
+
+## Adicionar saldo
+
+<Tabs>
+  <Tab title="Dashboard">
+    Acesse **Workspace → Cobrança → Adicionar saldo** e escolha o valor desejado. O pagamento é processado pelo Stripe.
+  </Tab>
+  <Tab title="SDK">
+    ```typescript
+    // Verificar saldo atual
+    const balance = await nivo.workspace.balance()
+    console.log(`Saldo: R$${balance.currentBalanceBrl}`)
+    console.log(`Gasto este mês: R$${balance.monthlyUsageBrl}`)
+    ```
+  </Tab>
+</Tabs>
+
+---
 
 ## Perguntas frequentes
 
 <AccordionGroup>
-  <Accordion title="O plano Free permite criar apps?">
-    Sim. Apps podem usar tiers permitidos pelo plano. Recursos pagos exigem saldo disponível.
+  <Accordion title="O saldo mensal acumula?">
+    Não. O saldo mensal do plano é creditado a cada renovação e não acumula para o próximo mês. O saldo adicional adquirido manualmente não expira.
   </Accordion>
-  <Accordion title="O que acontece se eu ficar sem saldo?">
-    Recursos pagos podem ser pausados. Recarregue saldo, reduza tiers ou use recursos gratuitos quando couber nos limites.
+  <Accordion title="Posso ser cobrado além do meu saldo?">
+    Não. O workspace é pausado automaticamente quando o saldo chega a zero. Não há cobrança surpresa.
   </Accordion>
-  <Accordion title="Storage muda quando eu troco compute?">
-    Não. Storage é separado do compute e continua no tier reservado do projeto.
+  <Accordion title="Apps parados são cobrados?">
+    Não. A cobrança é por minuto de execução. Apps e bancos parados não consomem saldo.
+  </Accordion>
+  <Accordion title="Como alterar o tier de compute?">
+    No dashboard, abra o app ou banco de dados, vá em **Configurações → Compute** e selecione o novo tier. A mudança é aplicada na próxima inicialização.
   </Accordion>
 </AccordionGroup>

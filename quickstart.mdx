@@ -3,15 +3,20 @@ title: "Quickstart"
 description: "Do zero ao primeiro deploy em menos de 5 minutos usando o CLI do Nivo."
 ---
 
-## Pré-requisitos
-
-- Node.js 18+
-- Uma conta no [nivo.lat](https://nivo.lat) com um projeto criado
+<Note>
+  Você vai precisar de **Node.js 18+** e uma conta no [nivo.lat](https://nivo.lat) com um projeto criado.
+</Note>
 
 ## 1. Instale o CLI
 
 ```bash
 npm install -g @nivo-lat/cli
+```
+
+Confirme a instalação:
+
+```bash
+nivo --version
 ```
 
 ## 2. Faça login
@@ -20,26 +25,82 @@ npm install -g @nivo-lat/cli
 nivo login
 ```
 
-Uma janela do navegador vai abrir. Confirme o código exibido no terminal para autenticar.
+O CLI abre o navegador e exibe um código de verificação. Confirme o código para autenticar. Sua API key fica salva localmente em `~/.config/nivo/config.json`.
 
-## 3. Crie o arquivo `.nivo` no seu projeto
+<Warning>
+  Nunca compartilhe o arquivo `~/.config/nivo/config.json` — ele contém sua API key.
+</Warning>
 
-Na raiz do seu projeto, crie um arquivo `.nivo` com as configurações:
+## 3. Configure o projeto
 
-```json .nivo
-{
-  "name": "meu-app",
-  "projectId": "SEU_PROJECT_ID",
-  "runtime": "node20",
-  "startCmd": "npm start",
-  "buildCmd": "npm run build",
-  "installCmd": "npm install",
-  "ramMb": 256
-}
-```
+Crie o arquivo `.nivo` na raiz do seu projeto. Escolha o runtime conforme sua stack:
+
+<Tabs>
+  <Tab title="Node.js">
+    ```json .nivo
+    {
+      "name": "meu-app-node",
+      "projectId": "SEU_PROJECT_ID",
+      "runtime": "node20",
+      "installCmd": "npm install",
+      "buildCmd": "npm run build",
+      "startCmd": "npm start",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```json .nivo
+    {
+      "name": "meu-app-python",
+      "projectId": "SEU_PROJECT_ID",
+      "runtime": "python3.11",
+      "installCmd": "pip install -r requirements.txt",
+      "startCmd": "python main.py",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Bun">
+    ```json .nivo
+    {
+      "name": "meu-app-bun",
+      "projectId": "SEU_PROJECT_ID",
+      "runtime": "bun1",
+      "installCmd": "bun install",
+      "buildCmd": "bun run build",
+      "startCmd": "bun start",
+      "ramMb": 256
+    }
+    ```
+  </Tab>
+  <Tab title="Dockerfile">
+    ```json .nivo
+    {
+      "name": "meu-app-docker",
+      "projectId": "SEU_PROJECT_ID",
+      "buildSystem": "dockerfile",
+      "dockerfilePath": "Dockerfile",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Imagem Docker">
+    ```json .nivo
+    {
+      "name": "meu-app-imagem",
+      "projectId": "SEU_PROJECT_ID",
+      "sourceType": "image",
+      "buildSystem": "dockerimage",
+      "dockerImage": "ghcr.io/minha-org/meu-app:latest",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+</Tabs>
 
 <Tip>
-  Encontre o `projectId` no dashboard: acesse seu projeto e copie o ID na URL ou nas configurações.
+  Encontre o `projectId` no dashboard: abra seu projeto e copie o ID da URL ou nas configurações gerais.
 </Tip>
 
 ## 4. Linke o projeto
@@ -48,7 +109,7 @@ Na raiz do seu projeto, crie um arquivo `.nivo` com as configurações:
 nivo link
 ```
 
-Isso cria o app na plataforma e salva o `appId` no arquivo `.nivo` automaticamente.
+O CLI cria o app na plataforma e preenche o `appId` no `.nivo` automaticamente. Você só precisa fazer isso uma vez.
 
 ## 5. Faça o deploy
 
@@ -56,31 +117,72 @@ Isso cria o app na plataforma e salva o `appId` no arquivo `.nivo` automaticamen
 nivo deploy . --watch
 ```
 
-O CLI compacta o diretório, envia o ZIP, inicia o build e exibe os logs até o deploy terminar.
+Com `--watch`, os logs aparecem em tempo real até o deploy finalizar com sucesso ou erro.
+
+<Tip>
+  Omita `--watch` para um deploy silencioso que retorna imediatamente.
+</Tip>
 
 ---
 
 ## O que acontece por baixo
 
-1. O CLI compacta seu projeto em um `.zip`
-2. Envia para os servidores do Nivo
-3. O build roda (`installCmd` → `buildCmd`)
-4. O app sobe com o `startCmd`
-5. Uma URL pública é gerada automaticamente
+<Steps>
+  <Step title="Compactação">
+    O CLI compacta o diretório atual em um `.zip`, ignorando `node_modules`, `.git` e outros arquivos desnecessários.
+  </Step>
+  <Step title="Upload">
+    O `.zip` é enviado para os servidores do Nivo via upload multipart.
+  </Step>
+  <Step title="Build">
+    O servidor executa `installCmd` e depois `buildCmd` dentro do container de build.
+  </Step>
+  <Step title="Inicialização">
+    O app sobe com `startCmd`. O health check valida que a porta está respondendo.
+  </Step>
+  <Step title="URL pública">
+    Uma URL `*.nivo.lat` é gerada e o tráfego é roteado automaticamente.
+  </Step>
+</Steps>
+
+---
+
+## Variáveis de ambiente
+
+Configure variáveis antes do deploy pelo dashboard ou pelo SDK:
+
+```typescript
+import { NivoAPI } from '@nivo-lat/sdk'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
+
+await nivo.apps.setEnvVars('SEU_APP_ID', {
+  DATABASE_URL: 'postgres://...',
+  SECRET_KEY: 'super-secreto'
+})
+```
+
+<Warning>
+  Após alterar variáveis de ambiente, faça um novo deploy para que as mudanças entrem em vigor.
+</Warning>
+
+---
 
 ## Próximos passos
 
 <CardGroup cols={2}>
-  <Card title="Variáveis de ambiente" icon="lock" href="/sdk/apps#variáveis-de-ambiente">
-    Configure secrets e variáveis de ambiente do app.
-  </Card>
   <Card title="Banco de dados" icon="database" href="/sdk/databases">
-    Provisione um PostgreSQL para o seu app.
+    Provisione um PostgreSQL ou MySQL para o seu app.
   </Card>
-  <Card title="Domínio personalizado" icon="globe" href="/cli/deploy">
-    Configure um subdomínio personalizado.
+  <Card title="Storage" icon="hard-drive" href="/sdk/storage">
+    Crie buckets para armazenar arquivos com CDN.
   </Card>
-  <Card title="Comandos do CLI" icon="terminal" href="/cli/overview">
-    Veja todos os comandos disponíveis.
+  <Card title="Todos os comandos CLI" icon="terminal" href="/cli/overview">
+    Referência completa de comandos do CLI.
+  </Card>
+  <Card title="Arquivo .nivo" icon="file" href="/config">
+    Todos os campos de configuração disponíveis.
   </Card>
 </CardGroup>

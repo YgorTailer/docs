@@ -1,27 +1,62 @@
 ---
-title: "Logs"
-description: "Veja logs de runtime ou logs de build de um deployment."
+title: "nivo logs"
+description: "Visualize logs de runtime do app em execução."
 ---
 
-## Runtime logs
+## nivo logs
 
 ```bash
-nivo logs
-nivo logs --tail 300
-nivo logs --app APP_ID --tail 1000
+nivo logs [flags]
 ```
 
-## Deployment logs
+Exibe os logs do container em execução do app vinculado no `.nivo`.
+
+### Flags
+
+| Flag | Padrão | Descrição |
+|------|--------|-----------|
+| `--tail <n>` | `100` | Número de linhas recentes a exibir. |
+| `--follow` | `false` | Mantém a conexão aberta em streaming. |
+
+---
+
+## Exemplos
+
+<Tabs>
+  <Tab title="Últimas linhas">
+    ```bash
+    # Últimas 100 linhas (padrão)
+    nivo logs
+
+    # Últimas 500 linhas
+    nivo logs --tail 500
+    ```
+  </Tab>
+  <Tab title="Streaming ao vivo">
+    ```bash
+    # Streaming contínuo — Ctrl+C para parar
+    nivo logs --follow
+
+    # Streaming com histórico
+    nivo logs --tail 200 --follow
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Logs de build
+
+Os logs de build aparecem automaticamente durante o deploy com `--watch`:
 
 ```bash
-nivo logs --deployment DEPLOYMENT_ID
-nivo logs --app APP_ID --deployment DEPLOYMENT_ID
+nivo deploy . --watch
 ```
 
-## Opcoes
+Para acessar logs de um deployment específico, use o dashboard em [nivo.lat](https://nivo.lat).
 
-| Flag | Descricao |
-|------|-----------|
-| `--app <appId>` | App especifico. Padrao: app do `.nivo`. |
-| `--deployment <id>` | Mostra logs de build do deployment. |
-| `--tail <lines>` | Numero de linhas de runtime logs. Padrao: `300`. |
+---
+
+<Note>
+  Os logs de runtime são retidos por 7 a 30 dias dependendo do plano do workspace.
+</Note>

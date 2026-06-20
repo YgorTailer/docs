@@ -1,66 +1,137 @@
 ---
-title: "Visao Geral"
-description: "Use o CLI da Nivo para autenticar, linkar projetos, fazer deploy e acompanhar apps pelo terminal."
+title: "CLI — Visão Geral"
+description: "Referência completa de todos os comandos do CLI do Nivo."
 ---
 
-## Instalacao
+## Instalação
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install -g @nivo-lat/cli
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add -g @nivo-lat/cli
+    ```
+  </Tab>
+  <Tab title="yarn">
+    ```bash
+    yarn global add @nivo-lat/cli
+    ```
+  </Tab>
+  <Tab title="bun">
+    ```bash
+    bun add -g @nivo-lat/cli
+    ```
+  </Tab>
+</Tabs>
+
+Verifique a instalação:
 
 ```bash
-npm install -g @nivo-lat/cli
+nivo --version
 ```
 
-O pacote instala o binario `nivo`.
+---
 
-## Idioma
-
-A ajuda e os prompts do CLI tem suporte a portugues e ingles.
-
-```bash
-nivo lang set pt
-nivo lang set en
-nivo lang get
-```
-
-O idioma padrao fica salvo neste computador.
-
-## Fluxo basico
+## Fluxo básico
 
 <Steps>
   <Step title="Autentique">
     ```bash
     nivo login
     ```
-    O CLI abre o navegador, mostra um codigo e salva a API key no storage local do usuario.
+    Abre o navegador, mostra um código de verificação e salva a API key em `~/.config/nivo/config.json`.
   </Step>
   <Step title="Vincule o projeto">
     ```bash
     nivo link
     ```
-    O wizard cria ou atualiza o app e grava apenas metadados no `.nivo`.
+    O wizard interativo cria o app na plataforma e grava o `appId` no `.nivo`.
   </Step>
-  <Step title="Faca deploy">
+  <Step title="Faça deploy">
     ```bash
-    nivo deploy --watch
+    nivo deploy . --watch
     ```
-    Apps ZIP enviam a pasta atual. Apps GitHub disparam redeploy do repositorio configurado.
+    Compacta, faz upload e exibe logs em tempo real até o deploy terminar.
   </Step>
 </Steps>
 
-## Comandos
+---
 
-| Comando | Uso |
-|---------|-----|
-| `nivo login` | Login por device flow. |
-| `nivo logout` | Remove a API key local. |
-| `nivo me` | Mostra a conta logada e a chave mascarada. |
-| `nivo lang set pt` | Salva portugues como idioma padrao. |
-| `nivo lang set en` | Salva ingles como idioma padrao. |
-| `nivo link` | Cria/atualiza o app e salva `.nivo`. |
-| `nivo deploy --watch` | Cria deployment e acompanha logs. |
-| `nivo apps` | Lista apps em tabela. |
-| `nivo deployments` | Lista deploys do app. |
-| `nivo logs --tail 300` | Mostra logs de runtime. |
+## Todos os comandos
 
-## UX do terminal
+<AccordionGroup>
+  <Accordion title="🔐 Autenticação">
+    | Comando | Descrição |
+    |---------|-----------|
+    | `nivo login` | Login por device flow — abre o navegador. |
+    | `nivo logout` | Remove a API key local. |
+    | `nivo me` | Mostra conta logada e chave mascarada. |
+  </Accordion>
+  <Accordion title="🚀 Projeto & Deploy">
+    | Comando | Descrição |
+    |---------|-----------|
+    | `nivo link` | Cria ou atualiza o app e salva `.nivo`. |
+    | `nivo deploy [dir]` | Deploy do diretório (padrão: `.`). |
+    | `nivo deploy . --watch` | Deploy com streaming de logs ao vivo. |
+  </Accordion>
+  <Accordion title="📦 Apps">
+    | Comando | Descrição |
+    |---------|-----------|
+    | `nivo apps` | Lista todos os apps do projeto em tabela. |
+  </Accordion>
+  <Accordion title="📋 Deployments">
+    | Comando | Descrição |
+    |---------|-----------|
+    | `nivo deployments` | Lista os últimos deployments do app vinculado. |
+  </Accordion>
+  <Accordion title="📄 Logs">
+    | Comando | Descrição |
+    |---------|-----------|
+    | `nivo logs` | Últimos 100 logs do container. |
+    | `nivo logs --tail 300` | Aumenta o número de linhas. |
+    | `nivo logs --follow` | Streaming contínuo de logs. |
+  </Accordion>
+  <Accordion title="⚙️ Configurações">
+    | Comando | Descrição |
+    |---------|-----------|
+    | `nivo lang set pt` | Define português como idioma. |
+    | `nivo lang set en` | Define inglês como idioma. |
+    | `nivo lang get` | Exibe o idioma atual. |
+  </Accordion>
+</AccordionGroup>
 
-O CLI usa `picocolors` para destaque, `ora` para spinners curtos, `listr2` para checklist do deploy, `@inquirer/prompts` para inputs, `cli-table3` para tabelas, `boxen` para resumos e `terminal-link` para URLs clicaveis quando o terminal suporta.
+---
+
+## Onde a config é salva
+
+| Arquivo | Conteúdo | Commitar? |
+|---------|----------|-----------|
+| `~/.config/nivo/config.json` | API key da conta | ❌ Nunca |
+| `.nivo` (raiz do projeto) | Config do app | ✅ Pode |
+
+<Warning>
+  Nunca adicione `~/.config/nivo/config.json` ao git — ele contém sua API key pessoal.
+</Warning>
+
+---
+
+## Próximos passos
+
+<CardGroup cols={2}>
+  <Card title="Login" icon="key" href="/cli/login">
+    Device flow, logout e verificar conta.
+  </Card>
+  <Card title="Deploy" icon="rocket" href="/cli/deploy">
+    ZIP, GitHub e imagem Docker.
+  </Card>
+  <Card title="Logs" icon="file-text" href="/cli/logs">
+    Runtime logs e logs de build.
+  </Card>
+  <Card title="Arquivo .nivo" icon="file" href="/config">
+    Todos os campos de configuração.
+  </Card>
+</CardGroup>

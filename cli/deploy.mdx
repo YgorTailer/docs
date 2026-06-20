@@ -1,51 +1,120 @@
 ---
 title: "Deploy"
-description: "Envie codigo ZIP ou dispare redeploy GitHub com checklist visual no terminal."
+description: "Envie código ZIP, dispare redeploy GitHub ou use imagem Docker pelo CLI."
 ---
 
-## Uso
+## nivo deploy
 
 ```bash
-nivo deploy
-nivo deploy .
-nivo deploy ./dist
-nivo deploy --watch
-nivo deploy --app APP_ID --watch
+nivo deploy [diretório] [flags]
 ```
 
-## Como funciona
+### Flags
 
-O deploy roda como checklist visual com `listr2`:
-
-1. Resolve o `appId` pelo `--app` ou pelo `.nivo`
-2. Aplica as configuracoes locais do `.nivo`
-3. Busca o app
-4. Se `sourceType` for `zip`, compacta e envia o ZIP
-5. Se `sourceType` for `github`, dispara redeploy do repositorio
-6. Com `--watch`, acompanha os logs ate terminar
-
-## Opcoes
-
-| Flag | Descricao |
+| Flag | Descrição |
 |------|-----------|
-| `--app <appId>` | Faz deploy para um app especifico, sem depender do `.nivo`. |
-| `--watch` | Mostra logs de build ate o deployment terminar. |
+| `--watch` | Exibe logs em tempo real até o deploy terminar. |
+| `--help` | Ajuda do comando. |
 
-## Arquivos ignorados no ZIP
+---
 
-O CLI nao envia:
+## Modos de deploy
 
-- `.git`
-- `.nivo`
-- `.next`
-- `node_modules`
-- `.env*`
-- arquivos `.log`
+<Tabs>
+  <Tab title="ZIP (padrão)">
+    O CLI compacta o diretório e faz upload para o Nivo.
 
-## Apps GitHub
+    ```bash
+    # Deploy do diretório atual
+    nivo deploy .
 
-Para apps GitHub, `nivo deploy` nao envia ZIP. Ele chama o redeploy do app configurado:
+    # Com logs ao vivo
+    nivo deploy . --watch
+
+    # Deploy de outro diretório
+    nivo deploy ./minha-pasta --watch
+    ```
+
+    O que é ignorado automaticamente: `node_modules`, `.git`, `.env`, `*.log`.
+
+    <Note>
+      Configure `buildSystem: "nivopack"` ou `"dockerfile"` no `.nivo` para controlar como o build acontece.
+    </Note>
+  </Tab>
+  <Tab title="GitHub">
+    Se o app foi configurado com `sourceType: "github"`, o deploy dispara um redeploy do repositório configurado.
+
+    ```bash
+    nivo deploy . --watch
+    ```
+
+    O Nivo faz o clone do branch configurado no `.nivo` e inicia o build server-side.
+
+    ```json .nivo
+    {
+      "name": "meu-app",
+      "projectId": "proj_abc123",
+      "sourceType": "github",
+      "repoFullName": "minha-org/meu-repo",
+      "repoBranch": "main"
+    }
+    ```
+  </Tab>
+  <Tab title="Imagem Docker">
+    Se o app foi configurado com `sourceType: "image"`, o deploy usa a imagem Docker pública especificada.
+
+    ```bash
+    nivo deploy . --watch
+    ```
+
+    ```json .nivo
+    {
+      "name": "meu-app",
+      "projectId": "proj_abc123",
+      "sourceType": "image",
+      "buildSystem": "dockerimage",
+      "dockerImage": "ghcr.io/minha-org/meu-app:latest"
+    }
+    ```
+
+    <Note>
+      A imagem precisa ser pública. Suporte a registry privado está no roadmap.
+    </Note>
+  </Tab>
+</Tabs>
+
+---
+
+## O que acontece durante o deploy
+
+<Steps>
+  <Step title="Validação">
+    O CLI lê o `.nivo` e verifica que `appId` e `projectId` existem.
+  </Step>
+  <Step title="Compactação (ZIP)">
+    O diretório é compactado ignorando arquivos desnecessários.
+  </Step>
+  <Step title="Upload">
+    O `.zip` é enviado via multipart para os servidores do Nivo.
+  </Step>
+  <Step title="Build">
+    O servidor executa `installCmd` → `buildCmd` dentro do container de build.
+  </Step>
+  <Step title="Health check">
+    O container sobe com `startCmd` e o health check valida que a porta está respondendo.
+  </Step>
+  <Step title="URL pública">
+    O tráfego é roteado para a nova versão. A URL `*.nivo.lat` permanece a mesma.
+  </Step>
+</Steps>
+
+---
+
+## Pré-requisito
+
+O `.nivo` precisa ter o `appId` preenchido antes de fazer deploy. Execute `nivo link` primeiro se for a primeira vez.
 
 ```bash
-nivo deploy --watch
+nivo link   # só precisa fazer uma vez
+nivo deploy . --watch
 ```

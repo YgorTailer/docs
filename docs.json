@@ -12,48 +12,71 @@
     "url": "https://nivo.lat"
   },
   "topbarLinks": [
-    {
-      "name": "X",
-      "url": "https://x.com/nivocloud"
-    }
+    { "name": "Status", "url": "https://status.nivo.lat" },
+    { "name": "X", "url": "https://x.com/nivocloud" }
   ],
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentacao",
+        "tab": "Início",
         "groups": [
           {
-            "group": "Comecando",
+            "group": "Começando",
             "pages": ["index", "quickstart"]
           },
           {
-            "group": "SDK",
-            "pages": [
-              "sdk/overview",
-              "sdk/client",
-              "sdk/commit",
-              "sdk/apps",
-              "sdk/databases",
-              "sdk/storage",
-              "sdk/files"
-            ]
-          },
-          {
-            "group": "CLI",
-            "pages": [
-              "cli/overview",
-              "cli/login",
-              "cli/language",
-              "cli/deploy",
-              "cli/link",
-              "cli/apps",
-              "cli/deployments",
-              "cli/logs"
-            ]
-          },
-          {
-            "group": "Referencia",
+            "group": "Referência",
             "pages": ["config", "billing"]
+          }
+        ]
+      },
+      {
+        "tab": "CLI",
+        "groups": [
+          {
+            "group": "Visão Geral",
+            "pages": ["cli/overview"]
+          },
+          {
+            "group": "Autenticação",
+            "pages": ["cli/login"]
+          },
+          {
+            "group": "Deploy",
+            "pages": ["cli/deploy", "cli/link"]
+          },
+          {
+            "group": "Gerenciamento",
+            "pages": ["cli/apps", "cli/deployments", "cli/logs"]
+          },
+          {
+            "group": "Configurações",
+            "pages": ["cli/language"]
+          }
+        ]
+      },
+      {
+        "tab": "SDK",
+        "groups": [
+          {
+            "group": "Visão Geral",
+            "pages": ["sdk/overview", "sdk/client"]
+          },
+          {
+            "group": "Apps",
+            "pages": ["sdk/apps"]
+          },
+          {
+            "group": "Bancos de Dados",
+            "pages": ["sdk/databases"]
+          },
+          {
+            "group": "Storage",
+            "pages": ["sdk/storage", "sdk/files"]
+          },
+          {
+            "group": "Avançado",
+            "pages": ["sdk/commit"]
           }
         ]
       }

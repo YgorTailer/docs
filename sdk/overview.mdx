@@ -1,37 +1,126 @@
 ---
-title: SDK Overview
-description: Nivo SDK API versioning and authentication
+title: "SDK — Visão Geral"
+description: "Autenticação, versionamento e estrutura do SDK oficial do Nivo."
 ---
 
-# Nivo SDK Overview
+## Instalação
 
-The official SDK is published as [`@nivo-lat/sdk`](https://www.npmjs.com/package/@nivo-lat/sdk).
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install @nivo-lat/sdk
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add @nivo-lat/sdk
+    ```
+  </Tab>
+  <Tab title="yarn">
+    ```bash
+    yarn add @nivo-lat/sdk
+    ```
+  </Tab>
+</Tabs>
 
-## Base URL
+O SDK é publicado como [`@nivo-lat/sdk`](https://www.npmjs.com/package/@nivo-lat/sdk) com suporte a **ESM** e **CJS** e tipagem TypeScript completa.
 
-All SDK endpoints live under your API base URL (default `https://api.nivo.lat/api`).
+---
 
-## API versioning
+## Início rápido
 
-| Prefix | Status |
-|--------|--------|
-| `/api/sdk/v1/*` | **Current** — use this for new integrations |
-| `/api/sdk/*` (no version) | **Deprecated** — still works, unchanged behavior |
+```typescript
+import { NivoAPI } from '@nivo-lat/sdk'
 
-The `NivoAPI` client defaults to `apiVersion: 'v1'`, which calls `/api/sdk/v1/*`.
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
 
-For legacy integrations that must keep using unversioned routes:
+// Apps
+const apps = await nivo.apps.list()
 
-```ts
-const nivo = new NivoAPI(apiKey, { projectId, apiVersion: null })
+// Bancos de dados
+const databases = await nivo.databases.list()
+
+// Storage
+const buckets = await nivo.storage.listBuckets()
 ```
 
-Direct `NivoClient` usage without `apiVersion` continues to target `/api/sdk/*` (legacy).
+---
 
-## Authentication
+## Autenticação
 
-SDK routes require a **secret** project API key (`x-api-key` header) and project scope (`x-project-id` header). The client sets both automatically.
+O SDK usa uma **API key secreta de projeto** enviada via header `x-api-key`. O `projectId` é enviado via header `x-project-id`. O cliente configura ambos automaticamente.
+
+<Tabs>
+  <Tab title="Variável de ambiente (recomendado)">
+    ```typescript
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!
+    })
+    ```
+
+    No seu `.env`:
+    ```bash .env
+    NIVO_API_KEY=nivo_sk_prod_xxxxxxxxxxxxxxxxxxxx
+    NIVO_PROJECT_ID=proj_abc123
+    ```
+  </Tab>
+  <Tab title="Direto no código (não recomendado)">
+    ```typescript
+    const nivo = new NivoAPI('nivo_sk_prod_xxxx', {
+      projectId: 'proj_abc123'
+    })
+    ```
+
+    <Warning>
+      Nunca exponha a API key no código client-side ou em repositórios públicos.
+    </Warning>
+  </Tab>
+</Tabs>
+
+---
+
+## Versionamento da API
+
+| Prefixo | Status |
+|---------|--------|
+| `/api/sdk/v1/*` | **Atual** — use para novas integrações |
+| `/api/sdk/*` (sem versão) | **Depreciado** — ainda funciona, sem mudanças |
+
+O cliente `NivoAPI` usa `v1` por padrão. Para usar a versão legada:
+
+```typescript
+const nivo = new NivoAPI(apiKey, {
+  projectId,
+  apiVersion: null  // usa /api/sdk/* sem versão
+})
+```
+
+---
 
 ## Rate limits
 
-SDK routes (`/api/sdk` and `/api/sdk/v1`) have a dedicated limit of **1000 requests/minute** per API key (fallback: client IP). This is separate from the global API limit (500/minute).
+| Rota | Limite |
+|------|--------|
+| `/api/sdk/v1/*` | 1.000 req/min por API key |
+| Fallback (sem API key) | 500 req/min por IP |
+
+---
+
+## Módulos disponíveis
+
+<CardGroup cols={2}>
+  <Card title="Apps" icon="rocket" href="/sdk/apps">
+    Criar, listar, parar, reiniciar e remover apps.
+  </Card>
+  <Card title="Bancos de Dados" icon="database" href="/sdk/databases">
+    Provisionar e gerenciar PostgreSQL, MySQL, MongoDB e Redis.
+  </Card>
+  <Card title="Storage" icon="hard-drive" href="/sdk/storage">
+    Buckets públicos/privados, upload, download e multipart.
+  </Card>
+  <Card title="Arquivos do App" icon="file" href="/sdk/files">
+    Ler e escrever arquivos dentro do container em execução.
+  </Card>
+</CardGroup>

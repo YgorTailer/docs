@@ -3,71 +3,193 @@ title: "O que é o Nivo?"
 description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos — com SDK e CLI oficial."
 ---
 
-O Nivo é uma plataforma de infraestrutura para times que precisam hospedar aplicações, bancos de dados e arquivos de forma simples, sem gerenciar servidores.
-
-## O que você pode fazer
-
 <CardGroup cols={3}>
-  <Card title="Hospedar Apps" icon="rocket">
-    Deploy de aplicações Node.js, Python e outras runtimes com um comando.
+  <Card title="Deploy de Apps" icon="rocket" href="/quickstart">
+    Node.js, Python, Go e mais. Um comando para ir ao ar.
   </Card>
-  <Card title="Bancos de Dados" icon="database">
+  <Card title="Bancos de Dados" icon="database" href="/sdk/databases">
     PostgreSQL, MySQL, MongoDB e Redis prontos em segundos.
   </Card>
-  <Card title="Storage & CDN" icon="cloud">
-    Buckets de arquivos com URLs públicas e CDN global.
+  <Card title="Storage & CDN" icon="cloud" href="/sdk/storage">
+    Buckets públicos e privados com CDN global.
   </Card>
 </CardGroup>
 
-## Como começar
-
-<Steps>
-  <Step title="Crie sua conta">
-    Acesse [nivo.lat](https://nivo.lat) e crie um projeto.
-  </Step>
-  <Step title="Escolha sua ferramenta">
-    Use o **CLI** para deploy direto do terminal, ou o **SDK** para controlar tudo via código.
-  </Step>
-  <Step title="Faça seu primeiro deploy">
-    Siga o [Quickstart](/quickstart) e tenha sua aplicação no ar em menos de 5 minutos.
-  </Step>
-</Steps>
+---
 
 ## Escolha seu caminho
 
+<Tabs>
+  <Tab title="🚀 Deploy pelo terminal">
+    Use o CLI — do terminal ao ar em menos de 5 minutos.
+
+    ```bash
+    npm install -g @nivo-lat/cli
+    nivo login
+    nivo link
+    nivo deploy . --watch
+    ```
+
+    <Card title="Quickstart completo" icon="terminal" href="/quickstart">
+      Guia passo a passo do primeiro deploy.
+    </Card>
+  </Tab>
+  <Tab title="⚙️ Controlar via código">
+    Use o SDK para gerenciar apps, bancos e storage em Node.js/TypeScript.
+
+    ```bash
+    npm install @nivo-lat/sdk
+    ```
+
+    ```typescript
+    import { NivoAPI } from '@nivo-lat/sdk'
+
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!
+    })
+
+    const apps = await nivo.apps.list()
+    console.log(apps)
+    ```
+
+    <Card title="SDK Overview" icon="code" href="/sdk/overview">
+      Autenticação, versionamento e todos os métodos.
+    </Card>
+  </Tab>
+  <Tab title="💳 Entender os planos">
+    Compute por hora, storage por mês, saldo mensal por plano.
+
+    | Plano | Preço | Saldo mensal | Projetos |
+    |-------|-------|--------------|----------|
+    | Free | R$0/mês | R$0 | 1 |
+    | Pro | R$15/mês | R$20 | 5 |
+    | Builder | R$29/mês | R$30 | 15 |
+
+    <Card title="Planos & Cobrança" icon="credit-card" href="/billing">
+      Tabela completa de tiers de compute e storage.
+    </Card>
+  </Tab>
+</Tabs>
+
+---
+
+## Como funciona
+
+<Steps>
+  <Step title="Crie um projeto no dashboard">
+    Acesse [nivo.lat](https://nivo.lat), crie seu workspace e abra um projeto. Copie o `projectId` na URL ou nas configurações.
+  </Step>
+  <Step title="Instale o CLI ou SDK">
+    <CodeGroup>
+      ```bash CLI
+      npm install -g @nivo-lat/cli
+      ```
+      ```bash SDK
+      npm install @nivo-lat/sdk
+      ```
+    </CodeGroup>
+  </Step>
+  <Step title="Autentique">
+    <CodeGroup>
+      ```bash CLI
+      nivo login
+      # Abre o navegador — confirme o código exibido no terminal
+      ```
+      ```typescript SDK
+      import { NivoAPI } from '@nivo-lat/sdk'
+
+      const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+        projectId: process.env.NIVO_PROJECT_ID!
+      })
+      ```
+    </CodeGroup>
+  </Step>
+  <Step title="Deploy ou crie recursos">
+    <CodeGroup>
+      ```bash CLI — App
+      nivo link        # cria o app e salva o appId no .nivo
+      nivo deploy . --watch
+      ```
+      ```typescript SDK — Banco de dados
+      const db = await nivo.databases.create({
+        name: 'producao',
+        engine: 'postgres',
+        version: '16'
+      })
+      console.log(`${db.host}:${db.port}`)
+      ```
+      ```typescript SDK — Storage
+      const bucket = await nivo.storage.createBucket({
+        name: 'uploads',
+        public: true
+      })
+      const { file } = await nivo.storage.upload(bucket.id, './logo.png')
+      console.log(file.url)
+      ```
+    </CodeGroup>
+  </Step>
+</Steps>
+
+---
+
+## Recursos disponíveis
+
 <CardGroup cols={2}>
-  <Card title="Quero fazer deploy pelo terminal" icon="terminal" href="/quickstart">
-    Use o CLI para autenticar, linkar o projeto e fazer deploy com um comando.
+  <Card title="CLI" icon="terminal" href="/cli/overview">
+    Deploy pelo terminal. Suporte a Node.js, Python, Go, Bun e mais.
   </Card>
-  <Card title="Quero controlar via código" icon="code" href="/sdk/overview">
-    Instale o SDK e gerencie apps, bancos e storage diretamente do Node.js/TypeScript.
+  <Card title="SDK TypeScript" icon="code" href="/sdk/overview">
+    Controle total via código. Tipagem completa, suporte a ESM e CJS.
+  </Card>
+  <Card title="Storage & CDN" icon="hard-drive" href="/sdk/storage">
+    Buckets públicos/privados, multipart upload, download autenticado.
+  </Card>
+  <Card title="Bancos de Dados" icon="database" href="/sdk/databases">
+    Provisione, gerencie e consulte bancos diretamente pelo SDK.
   </Card>
 </CardGroup>
 
+---
+
 ## Erros da API
 
-Todos os erros retornam JSON com o campo `error` e o HTTP status correspondente.
-
-| Status | Significado |
-|--------|-------------|
-| `200` | OK — requisição concluída |
-| `201` | Criado — recurso criado com sucesso |
-| `400` | Requisição inválida — parâmetros incorretos |
-| `401` | Não autorizado — API key ausente ou inválida |
-| `403` | Proibido — plano não permite esta ação |
-| `404` | Não encontrado — recurso não existe |
-| `409` | Conflito — recurso já existe |
-| `500` | Erro interno do servidor |
+<AccordionGroup>
+  <Accordion title="2xx — Sucesso">
+    | Status | Significado |
+    |--------|-------------|
+    | `200` | OK — requisição concluída |
+    | `201` | Criado — recurso criado com sucesso |
+    | `204` | Sem conteúdo — operação sem body de resposta |
+  </Accordion>
+  <Accordion title="4xx — Erros do cliente">
+    | Status | Significado |
+    |--------|-------------|
+    | `400` | Requisição inválida — parâmetros incorretos |
+    | `401` | Não autorizado — API key ausente ou inválida |
+    | `403` | Proibido — plano não permite esta ação |
+    | `404` | Não encontrado — recurso não existe |
+    | `409` | Conflito — recurso já existe |
+    | `429` | Rate limit atingido — aguarde `Retry-After` |
+  </Accordion>
+  <Accordion title="5xx — Erros do servidor">
+    | Status | Significado |
+    |--------|-------------|
+    | `500` | Erro interno do servidor |
+    | `502` | Bad gateway — node temporariamente indisponível |
+    | `503` | Serviço indisponível — tente novamente |
+  </Accordion>
+</AccordionGroup>
 
 ## Rate limits
 
-| Limite | Endpoints |
-|--------|-----------|
-| `1.000 req/min` | Leitura (GET) |
-| `300 req/min` | Escrita (POST, PATCH, DELETE) |
-| `60 req/min` | Queries SQL diretas |
-| `100 MB/arquivo` | Upload de arquivos |
+| Tipo | Limite |
+|------|--------|
+| Leitura `GET` | 1.000 req/min |
+| Escrita `POST / PATCH / DELETE` | 300 req/min |
+| Queries SQL diretas | 60 req/min |
+| Upload de arquivos | 100 MB/arquivo |
+| SDK `/api/sdk/v1` | 1.000 req/min por API key |
 
 <Note>
-  Quando o limite é atingido, a API retorna `429 Too Many Requests` com o header `Retry-After`.
+  Quando o limite é atingido, a API retorna `429 Too Many Requests` com o header `Retry-After` indicando quantos segundos aguardar.
 </Note>
