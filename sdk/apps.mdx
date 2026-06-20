@@ -66,16 +66,23 @@ const app = await nivo.apps.create({
 ## Variáveis de ambiente
 
 ```typescript
-// Definir variáveis
-await nivo.apps.setEnvVars('app_id', {
+// Define/atualiza variáveis (faz merge com as existentes)
+await nivo.apps.updateEnv('app_id', {
   DATABASE_URL: 'postgres://...',
   REDIS_URL: 'redis://...',
   SECRET_KEY: 'super-secreto'
 })
 
-// Listar variáveis (valores mascarados)
-const envVars = await nivo.apps.getEnvVars('app_id')
+// Substitui TODAS as variáveis pelo conjunto informado
+await nivo.apps.replaceEnv('app_id', { NODE_ENV: 'production' })
+
+// Remove variáveis por chave
+await nivo.apps.removeEnv('app_id', ['SECRET_KEY'])
 ```
+
+<Note>
+  Por segurança, o SDK **não** expõe leitura das variáveis de ambiente — secrets nunca trafegam de volta pela API. Gerencie os valores na sua própria fonte de verdade.
+</Note>
 
 <Warning>
   Após alterar variáveis de ambiente, um novo deploy é necessário para que as mudanças entrem em vigor.
@@ -112,14 +119,15 @@ await nivo.apps.update('app_id', {
 ## Domínio personalizado
 
 ```typescript
-// Adicionar domínio
-const result = await nivo.apps.addDomain('app_id', 'meusite.com.br')
+// Adicionar domínio (retorna instruções de DNS)
+const result = await nivo.apps.domains.add('app_id', 'meusite.com.br')
+console.log(result.verification)   // { type, name, value }
 
-// Verificar DNS (retorna instruções)
-console.log(result.instructions)
+// Listar domínios
+const domains = await nivo.apps.domains.list('app_id')
 
-// Remover domínio
-await nivo.apps.removeDomain('app_id', 'meusite.com.br')
+// Remover domínio (por id do domínio)
+await nivo.apps.domains.remove('app_id', 'domain_id')
 ```
 
 ---
@@ -130,10 +138,11 @@ await nivo.apps.removeDomain('app_id', 'meusite.com.br')
 // Logs de runtime
 const logs = await nivo.apps.logs('app_id', { tail: 200 })
 
-// Métricas (CPU, RAM, uptime)
-const metrics = await nivo.apps.metrics('app_id')
-console.log(`CPU: ${metrics.cpuPercent}%`)
-console.log(`RAM: ${metrics.memMb} MB`)
+// Métricas do container
+const stats = await nivo.apps.stats('app_id')
+console.log(`CPU: ${stats.cpuPct}%`)
+console.log(`RAM: ${stats.memUsageMb} / ${stats.memLimitMb} MB`)
+console.log(`Uptime: ${stats.uptimeSeconds}s`)
 ```
 
 ---
@@ -162,9 +171,14 @@ await nivo.apps.delete('app_id')
 | `apps.start(id)` | Inicia o app. |
 | `apps.stop(id)` | Para o app. |
 | `apps.restart(id)` | Reinicia o app. |
-| `apps.setEnvVars(id, vars)` | Define variáveis de ambiente. |
-| `apps.getEnvVars(id)` | Lista variáveis de ambiente. |
+| `apps.deploy(id)` | Dispara um novo deploy. |
+| `apps.upload(id, file)` | Faz deploy enviando um ZIP. |
+| `apps.updateEnv(id, vars)` | Define/atualiza variáveis (merge). |
+| `apps.replaceEnv(id, vars)` | Substitui todas as variáveis. |
+| `apps.removeEnv(id, keys)` | Remove variáveis por chave. |
 | `apps.logs(id, opts)` | Retorna logs do container. |
-| `apps.metrics(id)` | Retorna métricas de CPU e RAM. |
-| `apps.addDomain(id, domain)` | Adiciona domínio personalizado. |
-| `apps.removeDomain(id, domain)` | Remove domínio personalizado. |
+| `apps.stats(id)` | Retorna métricas de CPU, RAM e uptime. |
+| `apps.deployments(id)` | Lista deployments do app. |
+| `apps.domains.add(id, domain)` | Adiciona domínio personalizado. |
+| `apps.domains.list(id)` | Lista domínios do app. |
+| `apps.domains.remove(id, domainId)` | Remove domínio personalizado. |

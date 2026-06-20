@@ -158,7 +158,7 @@ const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
   projectId: process.env.NIVO_PROJECT_ID!
 })
 
-await nivo.apps.setEnvVars('SEU_APP_ID', {
+await nivo.apps.updateEnv('SEU_APP_ID', {
   DATABASE_URL: 'postgres://...',
   SECRET_KEY: 'super-secreto'
 })

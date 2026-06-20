@@ -24,23 +24,21 @@ description: "Provisione, consulte, reinicie, redimensione e remova bancos de da
 
 ## Criar banco de dados
 
+O `create` retorna o banco já provisionado com a **connection string** completa no campo `connectionString`.
+
 <Tabs>
   <Tab title="PostgreSQL">
     ```typescript
     const db = await nivo.databases.create({
       name: 'db-producao',
-      engine: 'postgres',
-      version: '16'
+      engine: 'postgresql',
+      password: 'uma-senha-forte'
     })
 
     console.log(`Host: ${db.host}`)
     console.log(`Porta: ${db.port}`)
-    console.log(`Usuário: ${db.user}`)
-    console.log(`Senha: ${db.password}`)
-    console.log(`Database: ${db.database}`)
-
-    // String de conexão completa
-    const url = `postgres://${db.user}:${db.password}@${db.host}:${db.port}/${db.database}`
+    console.log(`Database: ${db.dbName}`)
+    console.log(`Conexão: ${db.connectionString}`)
     ```
   </Tab>
   <Tab title="MySQL">
@@ -48,10 +46,10 @@ description: "Provisione, consulte, reinicie, redimensione e remova bancos de da
     const db = await nivo.databases.create({
       name: 'mysql-producao',
       engine: 'mysql',
-      version: '8.4'
+      password: 'uma-senha-forte'
     })
 
-    const url = `mysql://${db.user}:${db.password}@${db.host}:${db.port}/${db.database}`
+    console.log(db.connectionString)
     ```
   </Tab>
   <Tab title="MongoDB">
@@ -59,10 +57,10 @@ description: "Provisione, consulte, reinicie, redimensione e remova bancos de da
     const db = await nivo.databases.create({
       name: 'mongo-eventos',
       engine: 'mongodb',
-      version: '7'
+      password: 'uma-senha-forte'
     })
 
-    const url = `mongodb://${db.user}:${db.password}@${db.host}:${db.port}/${db.database}`
+    console.log(db.connectionString)
     ```
   </Tab>
   <Tab title="Redis">
@@ -70,10 +68,10 @@ description: "Provisione, consulte, reinicie, redimensione e remova bancos de da
     const db = await nivo.databases.create({
       name: 'cache',
       engine: 'redis',
-      version: '7.2'
+      password: 'uma-senha-forte'
     })
 
-    const url = `redis://:${db.password}@${db.host}:${db.port}`
+    console.log(db.connectionString)
     ```
   </Tab>
 </Tabs>
@@ -110,59 +108,29 @@ await nivo.databases.restart('db_id')
 
 ---
 
-## Queries SQL
+## Executar queries
 
-Execute queries diretamente pelo SDK (apenas PostgreSQL e MySQL):
+Para rodar SQL, use a **connection string** do banco com o driver nativo da sua linguagem (`pg`, `mysql2`, `mongoose`, `ioredis`). Esse é o mesmo padrão de AWS RDS, Railway e Render — o SDK não embute um ORM nem um executor de queries.
 
-<Tabs>
-  <Tab title="SELECT">
-    ```typescript
-    const result = await nivo.databases.query('db_id', {
-      sql: 'SELECT * FROM usuarios WHERE ativo = $1 LIMIT 10',
-      params: [true]
-    })
+```typescript
+import { Pool } from 'pg'
 
-    console.log(result.rows)
-    console.log(`${result.rowCount} linhas retornadas`)
-    ```
-  </Tab>
-  <Tab title="INSERT">
-    ```typescript
-    const result = await nivo.databases.query('db_id', {
-      sql: 'INSERT INTO pedidos (usuario_id, total) VALUES ($1, $2) RETURNING id',
-      params: ['user_123', 99.90]
-    })
+// Pegue a connection string pelo SDK
+const connectionString = await nivo.databases.getConnectionString('db_id')
 
-    console.log(result.rows[0].id)
-    ```
-  </Tab>
-  <Tab title="Transação">
-    ```typescript
-    await nivo.databases.query('db_id', {
-      sql: 'BEGIN'
-    })
+// Use o driver nativo
+const pool = new Pool({ connectionString })
 
-    try {
-      await nivo.databases.query('db_id', {
-        sql: 'UPDATE contas SET saldo = saldo - $1 WHERE id = $2',
-        params: [100, 'conta_origem']
-      })
-      await nivo.databases.query('db_id', {
-        sql: 'UPDATE contas SET saldo = saldo + $1 WHERE id = $2',
-        params: [100, 'conta_destino']
-      })
-      await nivo.databases.query('db_id', { sql: 'COMMIT' })
-    } catch (err) {
-      await nivo.databases.query('db_id', { sql: 'ROLLBACK' })
-      throw err
-    }
-    ```
-  </Tab>
-</Tabs>
+const { rows } = await pool.query(
+  'SELECT * FROM usuarios WHERE ativo = $1 LIMIT 10',
+  [true]
+)
+console.log(rows)
+```
 
-<Note>
-  Queries SQL estão sujeitas ao rate limit de 60 req/min.
-</Note>
+<Tip>
+  A connection string também vem no retorno de `databases.create()` no campo `connectionString`. Guarde-a como secret na sua aplicação.
+</Tip>
 
 ---
 
@@ -171,41 +139,24 @@ Execute queries diretamente pelo SDK (apenas PostgreSQL e MySQL):
 ```typescript
 const stats = await nivo.databases.stats('db_id')
 
-console.log(`CPU: ${stats.cpuPercent}%`)
-console.log(`RAM: ${stats.memMb} MB`)
-console.log(`Disk: ${stats.diskMb} MB`)
-console.log(`Conexões ativas: ${stats.connections}`)
+console.log(`CPU: ${stats.cpuUsagePct}% de ${stats.cpuLimitVcpu} vCPU`)
+console.log(`RAM: ${stats.memoryUsageMB} / ${stats.memoryLimitMB} MB`)
+console.log(`Tamanho: ${stats.sizePretty}`)
+console.log(`Conexões: ${stats.activeConnections}/${stats.totalConnections}`)
 ```
 
 ---
 
-## Backups
+## Logs
 
 ```typescript
-// Listar backups disponíveis
-const backups = await nivo.databases.listBackups('db_id')
-
-// Criar backup manual
-const backup = await nivo.databases.createBackup('db_id')
-
-// Restaurar de um backup
-await nivo.databases.restoreBackup('db_id', backup.id)
+const { log, status } = await nivo.databases.logs('db_id', { tail: 200 })
+console.log(log)
 ```
 
 <Note>
-  Backups automáticos diários estão disponíveis nos planos Pro e Builder.
+  Backups automáticos diários estão disponíveis nos planos Pro e Builder e são gerenciados pelo dashboard.
 </Note>
-
----
-
-## Redimensionar
-
-```typescript
-// Alterar tier de compute
-await nivo.databases.resize('db_id', {
-  computeTier: 'ORBIT'  // mais RAM e vCPU
-})
-```
 
 ---
 
@@ -216,7 +167,7 @@ await nivo.databases.delete('db_id')
 ```
 
 <Warning>
-  A deleção é permanente e imediata. Todos os dados são perdidos. Crie um backup antes de deletar.
+  A deleção é permanente e imediata. Todos os dados são perdidos. Faça um backup pelo dashboard antes de deletar.
 </Warning>
 
 ---
@@ -232,9 +183,6 @@ await nivo.databases.delete('db_id')
 | `databases.start(id)` | Inicia o banco. |
 | `databases.stop(id)` | Para o banco. |
 | `databases.restart(id)` | Reinicia o banco. |
-| `databases.query(id, opts)` | Executa SQL. |
-| `databases.stats(id)` | Métricas de CPU, RAM e disco. |
-| `databases.resize(id, opts)` | Altera tier de compute. |
-| `databases.listBackups(id)` | Lista backups disponíveis. |
-| `databases.createBackup(id)` | Cria backup manual. |
-| `databases.restoreBackup(id, backupId)` | Restaura de backup. |
+| `databases.getConnectionString(id)` | Retorna a connection string. |
+| `databases.stats(id)` | Métricas de CPU, RAM, tamanho e conexões. |
+| `databases.logs(id, opts)` | Retorna logs do banco. |

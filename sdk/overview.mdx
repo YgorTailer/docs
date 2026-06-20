@@ -43,7 +43,7 @@ const apps = await nivo.apps.list()
 const databases = await nivo.databases.list()
 
 // Storage
-const buckets = await nivo.storage.listBuckets()
+const buckets = await nivo.storage.buckets.list()
 ```
 
 ---
@@ -117,10 +117,7 @@ const nivo = new NivoAPI(apiKey, {
   <Card title="Bancos de Dados" icon="database" href="/sdk/databases">
     Provisionar e gerenciar PostgreSQL, MySQL, MongoDB e Redis.
   </Card>
-  <Card title="Storage" icon="hard-drive" href="/sdk/storage">
-    Buckets públicos/privados, upload, download e multipart.
-  </Card>
-  <Card title="Arquivos do App" icon="file" href="/sdk/files">
-    Ler e escrever arquivos dentro do container em execução.
+  <Card title="Storage & CDN" icon="hard-drive" href="/sdk/storage">
+    Buckets públicos/privados, signed URLs, upload direto e CDN.
   </Card>
 </CardGroup>

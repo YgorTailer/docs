@@ -71,8 +71,8 @@
             "pages": ["sdk/databases"]
           },
           {
-            "group": "Storage",
-            "pages": ["sdk/storage", "sdk/files"]
+            "group": "Storage & CDN",
+            "pages": ["sdk/storage"]
           },
           {
             "group": "Avançado",

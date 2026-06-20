@@ -113,17 +113,19 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
       ```typescript SDK — Banco de dados
       const db = await nivo.databases.create({
         name: 'producao',
-        engine: 'postgres',
-        version: '16'
+        engine: 'postgresql',
+        password: 'uma-senha-forte'
       })
-      console.log(`${db.host}:${db.port}`)
+      console.log(db.connectionString)
       ```
       ```typescript SDK — Storage
-      const bucket = await nivo.storage.createBucket({
+      await nivo.storage.buckets.create({
         name: 'uploads',
         public: true
       })
-      const { file } = await nivo.storage.upload(bucket.id, './logo.png')
+      const file = await nivo.storage.from('uploads').upload('./logo.png', {
+        filename: 'logo.png'
+      })
       console.log(file.url)
       ```
     </CodeGroup>

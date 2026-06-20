@@ -5,65 +5,65 @@ description: "Envie código ZIP ou dispare redeploy pelo SDK."
 
 ## Deploy por ZIP
 
-Envie o código diretamente pelo SDK sem usar o CLI:
+Envie o código diretamente pelo SDK sem usar o CLI. O `upload` recebe um ZIP (Buffer, caminho ou stream) e retorna o `deploymentId`.
 
 ```typescript
-import { createReadStream, statSync } from 'fs'
+import { readFileSync } from 'fs'
 
-// Criar ZIP do projeto primeiro (use archiver, jszip, etc.)
-const zipPath = './dist/meu-app.zip'
+// Gere o ZIP do projeto primeiro (archiver, jszip, etc.)
+const zip = readFileSync('./dist/meu-app.zip')
 
-const deployment = await nivo.apps.deploy('app_id', {
-  source: createReadStream(zipPath),
-  size: statSync(zipPath).size
-})
-
-console.log(`Deployment ID: ${deployment.id}`)
-console.log(`Status: ${deployment.status}`)
+const { deploymentId } = await nivo.apps.upload('app_id', zip, 'app.zip')
+console.log(`Deployment: ${deploymentId}`)
 ```
 
-## Acompanhar o deploy
+## Deploy + espera com logs ao vivo
+
+O `uploadAndWait` envia o ZIP e acompanha o build até terminar, com callbacks de log e status.
 
 ```typescript
-// Polling simples
-async function aguardarDeploy(deploymentId: string) {
-  while (true) {
-    const dep = await nivo.apps.getDeployment('app_id', deploymentId)
+const result = await nivo.apps.uploadAndWait('app_id', zip, 'app.zip', {
+  onLog: (chunk) => process.stdout.write(chunk),
+  onStatus: (status) => console.log(`→ ${status}`),
+})
 
-    console.log(`Status: ${dep.status}`)
+console.log(`Status final: ${result.status}`)  // success | error | cancelled
+```
 
-    if (dep.status === 'success') {
-      console.log('✔ Deploy concluído!')
-      return dep
-    }
+## Redeploy (GitHub / imagem Docker)
 
-    if (dep.status === 'error') {
-      throw new Error(`Deploy falhou: ${dep.error}`)
-    }
+Para apps com `sourceType: "github"` ou `"image"`, dispare um novo deploy sem reenviar arquivos:
 
-    await new Promise(r => setTimeout(r, 3000))  // aguarda 3s
-  }
-}
-
-const deployment = await nivo.apps.deploy('app_id', { source, size })
-await aguardarDeploy(deployment.id)
+```typescript
+const { deploymentId } = await nivo.apps.deploy('app_id')
+await nivo.apps.waitForDeployment('app_id', deploymentId, {
+  onLog: (chunk) => process.stdout.write(chunk),
+})
 ```
 
 ## Listar deployments
 
 ```typescript
-const deployments = await nivo.apps.listDeployments('app_id')
+const { data } = await nivo.apps.deployments('app_id', { limit: 20 })
 
-for (const dep of deployments) {
+for (const dep of data) {
   console.log(`${dep.id} — ${dep.status} — ${dep.createdAt}`)
 }
 ```
 
-## Logs de build
+## Logs de um deployment
 
 ```typescript
-const logs = await nivo.apps.getDeploymentLogs('app_id', 'deployment_id')
-console.log(logs.output)
+const logs = await nivo.apps.deploymentLogs('app_id', 'deployment_id')
+console.log(logs.log)
+```
+
+## Cancelar, repetir e reverter
+
+```typescript
+await nivo.apps.cancelDeployment('app_id', 'deployment_id')
+await nivo.apps.retryDeployment('app_id', 'deployment_id')
+await nivo.apps.rollbackDeployment('app_id', 'deployment_id')
 ```
 
 ---
@@ -72,6 +72,7 @@ console.log(logs.output)
 
 ```typescript
 import { NivoAPI } from '@nivo-lat/sdk'
+import { readFileSync } from 'fs'
 import { createZip } from './utils/zip'
 
 const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
@@ -80,19 +81,41 @@ const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
 
 async function deploy() {
   console.log('Criando ZIP...')
-  const { path, size } = await createZip('./dist')
+  const zipPath = await createZip('./dist')
 
   console.log('Fazendo deploy...')
-  const deployment = await nivo.apps.deploy(process.env.NIVO_APP_ID!, {
-    source: createReadStream(path),
-    size
-  })
+  const result = await nivo.apps.uploadAndWait(
+    process.env.NIVO_APP_ID!,
+    readFileSync(zipPath),
+    'app.zip',
+    { onLog: (chunk) => process.stdout.write(chunk) },
+  )
 
-  console.log(`Aguardando deploy ${deployment.id}...`)
-  await aguardarDeploy(deployment.id)
-
+  if (result.status !== 'success') {
+    throw new Error(`Deploy falhou com status: ${result.status}`)
+  }
   console.log('Deploy concluído com sucesso!')
 }
 
-deploy().catch(console.error)
+deploy().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
 ```
+
+---
+
+## Referência
+
+| Método | Descrição |
+|--------|-----------|
+| `apps.upload(id, file, filename?)` | Envia ZIP e inicia o deploy. |
+| `apps.uploadAndWait(id, file, filename?, opts?)` | Envia ZIP e aguarda o build. |
+| `apps.deploy(id)` | Dispara redeploy (GitHub/imagem). |
+| `apps.deployAndWait(id, opts?)` | Redeploy e aguarda o build. |
+| `apps.waitForDeployment(id, deploymentId, opts?)` | Acompanha um deploy em andamento. |
+| `apps.deployments(id, opts?)` | Lista deployments. |
+| `apps.deploymentLogs(id, deploymentId)` | Logs de um deployment. |
+| `apps.cancelDeployment(id, deploymentId)` | Cancela um deploy. |
+| `apps.retryDeployment(id, deploymentId)` | Repete um deploy. |
+| `apps.rollbackDeployment(id, deploymentId)` | Reverte para um deploy anterior. |
