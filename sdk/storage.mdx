@@ -1,6 +1,6 @@
 ---
-title: "Storage & CDN"
-description: "Buckets públicos e privados, signed URLs, upload direto do cliente e CDN — tudo pelo SDK."
+title: "Storage"
+description: "Buckets públicos e privados, signed URLs e upload direto do cliente — tudo pelo SDK."
 ---
 
 <Note>
@@ -13,8 +13,6 @@ No Nivo, **CDN não é um destino separado** — é a camada de entrega dos buck
 
 - **Bucket público** → arquivos servidos automaticamente pela **CDN global** com URL permanente.
 - **Bucket privado** → sem URL pública; o acesso é feito por **signed URL** temporária ou download pelo backend.
-
-Isso segue o mesmo modelo de AWS S3 + CloudFront, Cloudflare R2 e Supabase Storage.
 
 ---
 
@@ -60,31 +58,37 @@ await nivo.storage.buckets.delete('bucket_id')
 
 ## A API fluente `from()`
 
-A forma recomendada de trabalhar com arquivos é pelo handle `from('nome-do-bucket')`, no estilo Supabase. O bucket é resolvido pelo nome automaticamente.
+A forma recomendada de trabalhar com arquivos é pelo handle `from('nome-do-bucket')`. O bucket é resolvido pelo nome automaticamente e os arquivos são endereçados por **path**.
 
 ```typescript
 const avatares = nivo.storage.from('avatares')
 
-// Upload
-const file = await avatares.upload(buffer, { filename: 'foto.jpg' })
+// Upload para um path exato
+const file = await avatares.upload('users/123/foto.jpg', buffer)
 console.log(file.url)   // URL da CDN se o bucket for público
 
 // Listar
 const files = await avatares.list({ search: 'foto', limit: 50 })
 
-// Remover (em lote)
+// Remover (em lote, por id)
 await avatares.remove([file.id])
 ```
+
+<Note>
+  O upload por path **rejeita** se já existir um objeto naquele caminho. Para substituir, use `move` ou remova o antigo antes.
+</Note>
 
 ---
 
 ## Upload
 
+O primeiro argumento é sempre o **path** do objeto dentro do bucket.
+
 <Tabs>
   <Tab title="Arquivo local">
     ```typescript
     const bucket = nivo.storage.from('avatares')
-    const file = await bucket.upload('./foto.jpg', { filename: 'foto.jpg' })
+    const file = await bucket.upload('users/123/foto.jpg', './foto.jpg')
     console.log(file.url)
     ```
   </Tab>
@@ -95,8 +99,7 @@ await avatares.remove([file.id])
     const buffer = readFileSync('./relatorio.pdf')
     const bucket = nivo.storage.from('relatorios')
 
-    const file = await bucket.upload(buffer, {
-      filename: 'relatorio-jan-2024.pdf',
+    const file = await bucket.upload('2024/jan/relatorio.pdf', buffer, {
       mimeType: 'application/pdf'
     })
     ```
@@ -111,15 +114,40 @@ await avatares.remove([file.id])
     const bucket = nivo.storage.from('uploads')
 
     app.post('/upload', upload.single('file'), async (req, res) => {
-      const file = await bucket.upload(req.file!.buffer, {
-        filename: req.file!.originalname,
-        mimeType: req.file!.mimetype
-      })
+      const file = await bucket.upload(
+        `users/${req.user.id}/${req.file!.originalname}`,
+        req.file!.buffer,
+        { mimeType: req.file!.mimetype }
+      )
       res.json({ id: file.id, url: file.url })
     })
     ```
   </Tab>
 </Tabs>
+
+<Tip>
+  O path aceita pastas (`users/123/avatar.jpg`). Segmentos `..`, barras iniciais e caracteres inválidos são removidos automaticamente — não há risco de path traversal.
+</Tip>
+
+---
+
+## Mover e copiar
+
+Operações por path dentro do mesmo bucket.
+
+```typescript
+const bucket = nivo.storage.from('avatares')
+
+// Mover/renomear (preserva o mesmo id do arquivo)
+await bucket.move('temp/upload.jpg', 'users/123/avatar.jpg')
+
+// Copiar (cria um novo arquivo)
+await bucket.copy('templates/default.jpg', 'users/456/avatar.jpg')
+```
+
+<Note>
+  `from` e `to` são paths dentro do bucket. Tanto o path puro (`users/1/a.jpg`) quanto a key completa (`avatares/users/1/a.jpg`) são aceitos. Mover/copiar para um path já existente retorna `409`.
+</Note>
 
 ---
 
@@ -171,7 +199,7 @@ Para deixar o navegador ou app enviar o arquivo **direto ao storage** sem passar
 
     const { uploadUrl, key, expiresAt } = await bucket.createSignedUploadUrl(
       'video.mp4',
-      { maxBytes: 500 * 1024 * 1024, expiresIn: 600 }
+      { path: 'users/123/video.mp4', maxBytes: 500 * 1024 * 1024, expiresIn: 600 }
     )
 
     res.json({ uploadUrl, key })
@@ -187,6 +215,10 @@ Para deixar o navegador ou app enviar o arquivo **direto ao storage** sem passar
     ```
   </Step>
 </Steps>
+
+<ParamField path="path" type="string">
+  Path exato do objeto no bucket. Omita para uma key gerada automaticamente.
+</ParamField>
 
 <ParamField path="maxBytes" type="number">
   Limite máximo de bytes aceito no upload.
@@ -267,22 +299,6 @@ Para arquivos grandes (acima de 50 MB):
 
 ---
 
-## CDN (somente leitura)
-
-O namespace `cdn` permite **inspecionar** arquivos enviados pela CDN legada. Para novos assets públicos, use um bucket público com `from()`.
-
-```typescript
-const stats = await nivo.storage.cdn.stats()
-const files = await nivo.storage.cdn.files()
-const file  = await nivo.storage.cdn.get('file_id')
-```
-
-<Warning>
-  `cdn` não tem mais `upload` nem `delete`. Assets públicos agora vivem em buckets públicos — faça upload com `nivo.storage.from('meu-bucket-publico').upload(...)`.
-</Warning>
-
----
-
 ## Referência completa
 
 | Método | Descrição |
@@ -295,7 +311,9 @@ const file  = await nivo.storage.cdn.get('file_id')
 | `storage.buckets.get(id)` | Busca bucket por ID. |
 | `storage.buckets.update(id, opts)` | Atualiza configurações. |
 | `storage.buckets.delete(id)` | Deleta bucket e seus arquivos. |
-| `from(nome).upload(file, opts)` | Faz upload para o bucket. |
+| `from(nome).upload(path, file, opts)` | Faz upload para um path exato. |
+| `from(nome).move(from, to)` | Move/renomeia um objeto por path. |
+| `from(nome).copy(from, to)` | Copia um objeto por path. |
 | `from(nome).list(opts)` | Lista arquivos do bucket. |
 | `from(nome).remove(ids)` | Remove arquivos em lote. |
 | `from(nome).createSignedUrl(fileId, opts)` | Gera URL de download temporária. |
@@ -305,4 +323,3 @@ const file  = await nivo.storage.cdn.get('file_id')
 | `storage.files.deleteMany(ids)` | Deleta arquivos em lote. |
 | `storage.files.download(id)` | Baixa os bytes pelo backend. |
 | `storage.files.createSignedUrl(id, opts)` | Gera URL de download temporária. |
-| `storage.cdn.stats() / files() / get(id)` | Inspeção da CDN legada (somente leitura). |

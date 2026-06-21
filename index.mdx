@@ -10,8 +10,8 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
   <Card title="Bancos de Dados" icon="database" href="/sdk/databases">
     PostgreSQL, MySQL, MongoDB e Redis prontos em segundos.
   </Card>
-  <Card title="Storage & CDN" icon="cloud" href="/sdk/storage">
-    Buckets públicos e privados com CDN global.
+  <Card title="Storage" icon="cloud" href="/sdk/storage">
+    Buckets públicos e privados com upload, signed URLs e multipart.
   </Card>
 </CardGroup>
 
@@ -123,9 +123,7 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
         name: 'uploads',
         public: true
       })
-      const file = await nivo.storage.from('uploads').upload('./logo.png', {
-        filename: 'logo.png'
-      })
+      const file = await nivo.storage.from('uploads').upload('logo.png', './logo.png')
       console.log(file.url)
       ```
     </CodeGroup>
@@ -143,7 +141,7 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
   <Card title="SDK TypeScript" icon="code" href="/sdk/overview">
     Controle total via código. Tipagem completa, suporte a ESM e CJS.
   </Card>
-  <Card title="Storage & CDN" icon="hard-drive" href="/sdk/storage">
+  <Card title="Storage" icon="hard-drive" href="/sdk/storage">
     Buckets públicos/privados, multipart upload, download autenticado.
   </Card>
   <Card title="Bancos de Dados" icon="database" href="/sdk/databases">
@@ -188,7 +186,6 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
 |------|--------|
 | Leitura `GET` | 1.000 req/min |
 | Escrita `POST / PATCH / DELETE` | 300 req/min |
-| Queries SQL diretas | 60 req/min |
 | Upload de arquivos | 100 MB/arquivo |
 | SDK `/api/sdk/v1` | 1.000 req/min por API key |
 

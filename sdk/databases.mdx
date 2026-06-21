@@ -110,7 +110,7 @@ await nivo.databases.restart('db_id')
 
 ## Executar queries
 
-Para rodar SQL, use a **connection string** do banco com o driver nativo da sua linguagem (`pg`, `mysql2`, `mongoose`, `ioredis`). Esse é o mesmo padrão de AWS RDS, Railway e Render — o SDK não embute um ORM nem um executor de queries.
+Para rodar SQL, use a **connection string** do banco com o driver nativo da sua linguagem (`pg`, `mysql2`, `mongoose`, `ioredis`). O SDK não embute um ORM nem um executor de queries.
 
 ```typescript
 import { Pool } from 'pg'
