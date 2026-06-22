@@ -90,6 +90,41 @@ await nivo.apps.removeEnv('app_id', ['SECRET_KEY'])
 
 ---
 
+## Rede privada (app ↔ app)
+
+Apps do mesmo projeto se enxergam por uma rede privada e podem se chamar **pelo nome**, sem passar pela internet. Cada app expõe um endereço interno:
+
+```typescript
+const app = await nivo.apps.get('app_id')
+
+console.log(app.internalHost) // ex.: minha-api
+console.log(app.internalUrl)  // ex.: http://minha-api:3000
+```
+
+Para um app chamar outro, basta usar o `internalUrl` do destino:
+
+```typescript
+// Dentro do "app-web", chamando o "minha-api" do mesmo projeto
+const res = await fetch('http://minha-api:3000/usuarios')
+const data = await res.json()
+```
+
+<CardGroup cols={2}>
+  <Card title="Sites" icon="globe">
+    O endereço interno é o subdomínio do app. Continuam recebendo tráfego público normalmente.
+  </Card>
+  <Card title="Workers" icon="gear">
+    Não têm URL pública — só são alcançáveis pela rede privada do projeto, pelo nome.
+  </Card>
+</CardGroup>
+
+<Note>
+  O endereço interno só resolve entre apps e bancos do **mesmo projeto**. Para
+  expor um app ao público, use um domínio (site) — workers permanecem privados.
+</Note>
+
+---
+
 ## Ciclo de vida
 
 ```typescript

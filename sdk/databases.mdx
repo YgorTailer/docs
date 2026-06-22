@@ -134,6 +134,36 @@ console.log(rows)
 
 ---
 
+## Rede privada
+
+Todo banco fica acessível de duas formas dentro de um projeto:
+
+<CardGroup cols={2}>
+  <Card title="Conexão pública" icon="globe">
+    Endereço externo (host + porta mapeada). Use para acessar de fora do projeto — sua máquina, ferramentas de migração, BI.
+  </Card>
+  <Card title="Conexão privada" icon="lock">
+    Endereço interno do projeto. Apps no **mesmo projeto** alcançam o banco pelo nome, sem passar pela internet — mais rápido e sem expor a porta.
+  </Card>
+</CardGroup>
+
+O endpoint de conexão devolve os dois:
+
+```typescript
+const conn = await nivo.databases.getConnection('db_id')
+
+console.log(conn.connectionString)          // público
+console.log(conn.internalConnectionString)  // privado (apps do projeto)
+console.log(`${conn.internalHost}:${conn.internalPort}`)
+```
+
+<Note>
+  Use a `internalConnectionString` como `DATABASE_URL` dos apps que rodam no
+  mesmo projeto. Ela só resolve dentro da rede privada do projeto.
+</Note>
+
+---
+
 ## Métricas e estatísticas
 
 ```typescript
@@ -183,6 +213,7 @@ await nivo.databases.delete('db_id')
 | `databases.start(id)` | Inicia o banco. |
 | `databases.stop(id)` | Para o banco. |
 | `databases.restart(id)` | Reinicia o banco. |
-| `databases.getConnectionString(id)` | Retorna a connection string. |
+| `databases.getConnectionString(id)` | Retorna a connection string pública. |
+| `databases.getConnection(id)` | Retorna conexão pública + privada (rede do projeto). |
 | `databases.stats(id)` | Métricas de CPU, RAM, tamanho e conexões. |
 | `databases.logs(id, opts)` | Retorna logs do banco. |

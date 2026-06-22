@@ -1,0 +1,69 @@
+---
+title: "Atualizações"
+description: "Novidades, melhorias e correções da plataforma Nivo."
+---
+
+Acompanhe aqui a evolução da Nivo. Publicamos as principais novidades, melhorias
+de confiabilidade e ajustes que impactam o seu dia a dia na plataforma.
+
+<Update label="Junho de 2026" description="Rede privada, Storage aprimorado e mais">
+
+## Novidades
+
+**Rede privada entre serviços**
+
+Aplicações e bancos de dados do mesmo projeto agora se comunicam por uma rede
+privada, alcançando-se **pelo nome** — sem expor portas à internet pública.
+
+- Bancos passam a oferecer uma **connection string interna**, ideal para usar
+  como `DATABASE_URL` dos seus apps.
+- Cada aplicação ganha um **endereço interno** (`internalUrl`) para chamadas
+  diretas entre serviços do projeto.
+- Workers permanecem totalmente privados, acessíveis apenas dentro do projeto.
+
+**Storage mais completo**
+
+O módulo de armazenamento ganhou uma API fluente e novos recursos:
+
+- API `from()` para trabalhar com buckets de forma mais natural.
+- **URLs assinadas** para conceder acesso temporário a arquivos privados.
+- Upload por caminho, além de **mover, copiar e excluir em lote**.
+- Buckets públicos servem conteúdo diretamente, com entrega otimizada.
+
+**Gerador de senhas seguras**
+
+Ao criar um banco de dados ou trocar a senha, agora é possível gerar uma senha
+forte com um clique — usando apenas caracteres compatíveis com connection
+strings, variáveis de ambiente e linha de comando.
+
+## Melhorias
+
+<AccordionGroup>
+  <Accordion title="Maior precisão no consumo de créditos" icon="coins">
+    Aprimoramos o cálculo de consumo e os créditos do workspace para garantir
+    ainda mais exatidão na cobrança por minuto dos seus recursos.
+  </Accordion>
+  <Accordion title="Retomada de projetos mais confiável" icon="play">
+    Projetos pausados — inclusive por limite de armazenamento — voltam a ficar
+    disponíveis de forma automática assim que as condições são normalizadas,
+    preservando integralmente os dados dos bancos.
+  </Accordion>
+  <Accordion title="Exclusão de recursos mais robusta" icon="trash">
+    O processo de remoção de aplicações ficou mais resiliente, concluindo de
+    forma confiável mesmo em cenários de rede instável.
+  </Accordion>
+  <Accordion title="Deploy via imagem Docker" icon="docker">
+    O fluxo de deploy a partir de imagens Docker ficou mais consistente,
+    incluindo a opção de refazer o deploy quando necessário.
+  </Accordion>
+  <Accordion title="Logs de deploy mais claros" icon="scroll">
+    As mensagens de build e deploy foram refinadas para destacar o que é
+    relevante e facilitar o acompanhamento.
+  </Accordion>
+  <Accordion title="SDK mais enxuto e consistente" icon="code">
+    A API do SDK foi padronizada e simplificada, oferecendo uma experiência
+    mais previsível e alinhada às melhores práticas.
+  </Accordion>
+</AccordionGroup>
+
+</Update>
