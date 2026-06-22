@@ -8,12 +8,12 @@ description: "Planos, saldo mensal, tiers de compute e como a cobrança por minu
 A Nivo usa **saldo pré-pago + consumo por minuto**:
 
 1. Seu plano inclui um **saldo mensal** creditado automaticamente todo mês
-2. Apps e bancos de dados consomem do saldo enquanto estão em execução — **cobrado por minuto**
+2. Cada **projeto ativo** consome do saldo pelo seu tier de compute — **cobrado por minuto**
 3. Se o saldo acabar, o workspace é **pausado** automaticamente (sem cobrança surpresa)
 4. Você pode adicionar **saldo adicional** a qualquer momento para reativar
 
 <Note>
-  A cobrança é **por minuto** de execução. Apps parados não consomem saldo.
+  A cobrança de compute é **por projeto**, por minuto em que o projeto está ativo — não por app ou banco. Pause o projeto para parar de consumir saldo.
 </Note>
 
 ---
@@ -71,7 +71,6 @@ Todos os tiers estão disponíveis em qualquer plano. A cobrança é por minuto 
 
 | Tier | vCPU | RAM | Preço/hora | Ideal para |
 |------|------|-----|-----------|-----------|
-| **VOID** | 0,5 | 100 MB | Grátis | VOID não cobra — usado quando nenhum recurso está rodando |
 | **SPARK** | 0,75 | 768 MB | R$0,0062/h | Testes e projetos hobby |
 | **PULSE** | 1 | 1 GB | R$0,0076/h | Websites e APIs leves |
 | **NOVA** | 1,25 | 1,5 GB | R$0,0111/h | Aplicações em crescimento |
@@ -88,32 +87,36 @@ Todos os tiers estão disponíveis em qualquer plano. A cobrança é por minuto 
 
 ## Exemplos de custo
 
+O compute é cobrado **por projeto**, pelo tier do projeto, por minuto em que o projeto está ativo — **não** por app ou banco. Vários recursos no mesmo projeto compartilham o tier e o custo.
+
 <AccordionGroup>
-  <Accordion title="App SPARK (0,75 vCPU / 768 MB RAM)">
-    - Tier SPARK: R$0,0062/h → R$0,0001033/min
-    - Rodando 24h/dia por 30 dias: R$0,0062 × 720h = **R$4,46/mês**
-    - Coberto pelo saldo Pro (R$20): **sobram R$15,54 de saldo**
+  <Accordion title="Projeto no tier SPARK (0,75 vCPU / 768 MB)">
+    - SPARK: R$0,0062/h
+    - Projeto ativo 24h/dia por 30 dias: R$0,0062 × 720h = **R$4,46/mês**
+    - Coberto pelo saldo Pro (R$20): **sobram R$15,54**
   </Accordion>
-  <Accordion title="App ORBIT (1,5 vCPU / 2 GB RAM)">
-    - Tier ORBIT: R$0,0138/h
-    - Rodando 24h/dia por 30 dias: R$0,0138 × 720h = **R$9,94/mês**
-    - Com plano Pro (R$20 saldo): **sobram R$10,06 de saldo**
+  <Accordion title="Projeto no tier ORBIT (1,5 vCPU / 2 GB)">
+    - ORBIT: R$0,0138/h
+    - Projeto ativo 24h/dia por 30 dias: R$0,0138 × 720h = **R$9,94/mês**
+    - Com saldo Pro (R$20): **sobram R$10,06**
   </Accordion>
-  <Accordion title="Stack completa: app ORBIT + banco NEBULA">
-    - Ambos no mesmo projeto compartilham o tier do projeto
-    - Se o projeto está no tier ORBIT: R$0,0138/h por projeto inteiro
-    - 30 dias rodando: **R$9,94/mês**
+  <Accordion title="Vários recursos no mesmo projeto">
+    - O compute é cobrado **uma vez por projeto**, pelo tier do projeto.
+    - Um projeto ORBIT com 3 apps + 1 banco custa o mesmo que um projeto ORBIT com 1 app: **R$0,0138/h**.
 
     <Tip>
-      Apps e bancos de dados dentro do mesmo projeto compartilham o tier. Você paga pelo tier do projeto, não por recurso individual.
+      Você paga pelo tier do projeto, não por recurso individual. Apps e bancos do mesmo projeto compartilham o tier e o custo de compute.
     </Tip>
   </Accordion>
-  <Accordion title="Desenvolvimento (uso esporádico)">
-    - App SPARK parado a maior parte do tempo
-    - Rodando apenas 4h/dia para testes: R$0,0062 × (4h × 30) = **R$0,74/mês**
-    - Cobrança só enquanto estiver em execução
+  <Accordion title="Uso esporádico">
+    - Pause o projeto quando não estiver usando — o compute só é cobrado enquanto o projeto está ativo.
+    - Projeto SPARK ativo apenas 4h/dia por 30 dias: R$0,0062 × (4h × 30) = **R$0,74/mês**
   </Accordion>
 </AccordionGroup>
+
+<Note>
+  O **storage** é cobrado à parte, pela capacidade reservada do tier de storage do projeto — independente do compute.
+</Note>
 
 ---
 
@@ -159,8 +162,8 @@ Quando o saldo chega a **R$0,00**, o workspace é pausado automaticamente.
   <Accordion title="Posso ser cobrado além do meu saldo?">
     Não. O workspace é pausado automaticamente quando o saldo chega a zero. Não há cobrança surpresa — a Nivo nunca cobra além do saldo disponível.
   </Accordion>
-  <Accordion title="Apps parados são cobrados?">
-    Não. A cobrança é por minuto de execução. Apps e bancos parados manualmente não consomem saldo.
+  <Accordion title="Parar um app individual interrompe a cobrança?">
+    Não. O compute é cobrado pelo tier do **projeto** enquanto o projeto está ativo. Parar um app ou banco isolado não reduz o custo de compute — para interromper a cobrança, **pause o projeto**. Os dados são preservados durante a pausa.
   </Accordion>
   <Accordion title="Backups automáticos consomem saldo?">
     Não. Backups automáticos e snapshots do projeto nos planos Pro e Builder não consomem saldo adicional — estão inclusos no plano.

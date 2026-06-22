@@ -29,29 +29,18 @@ O arquivo `.nivo` fica na raiz do projeto e diz ao CLI como o app deve ser criad
 
 ---
 
-### Runtime & Build
+### Build
 
-<ParamField body="runtime" type="string">
-  Runtime utilizado no build e execução. Ignorado se `buildSystem` for `dockerfile` ou `dockerimage`.
-
-  | Valor | Versão |
-  |-------|--------|
-  | `node18` | Node.js 18 LTS |
-  | `node20` | Node.js 20 LTS |
-  | `node22` | Node.js 22 |
-  | `bun1` | Bun 1.x |
-  | `python3.11` | Python 3.11 |
-  | `python3.12` | Python 3.12 |
-  | `go1.22` | Go 1.22 |
-  | `deno2` | Deno 2.x |
-</ParamField>
+<Note>
+  No build padrão (`nivopack`), o stack é **detectado automaticamente** a partir dos seus arquivos (`package.json`, `requirements.txt`, `go.mod`, etc.). Você não precisa declarar a linguagem ou a versão.
+</Note>
 
 <ParamField body="buildSystem" type="string" default="nivopack">
   Sistema de build a usar.
 
   | Valor | Descrição |
   |-------|-----------|
-  | `nivopack` | Build automático por runtime (padrão). |
+  | `nivopack` | Build automático com detecção do stack (padrão). |
   | `dockerfile` | Usa o `Dockerfile` no repositório. |
   | `dockerimage` | Usa uma imagem Docker pública. |
 </ParamField>
@@ -129,7 +118,6 @@ O arquivo `.nivo` fica na raiz do projeto e diz ao CLI como o app deve ser criad
       "name": "minha-api",
       "projectId": "proj_abc123",
       "appId": "app_xyz789",
-      "runtime": "node20",
       "buildSystem": "nivopack",
       "installCmd": "npm install",
       "buildCmd": "npm run build",
@@ -145,7 +133,6 @@ O arquivo `.nivo` fica na raiz do projeto e diz ao CLI como o app deve ser criad
       "name": "minha-api-python",
       "projectId": "proj_abc123",
       "appId": "app_xyz789",
-      "runtime": "python3.11",
       "buildSystem": "nivopack",
       "installCmd": "pip install -r requirements.txt",
       "startCmd": "uvicorn main:app --host 0.0.0.0 --port 3000",
@@ -189,7 +176,6 @@ O arquivo `.nivo` fica na raiz do projeto e diz ao CLI como o app deve ser criad
       "sourceType": "github",
       "repoFullName": "minha-org/site",
       "repoBranch": "main",
-      "runtime": "node20",
       "installCmd": "npm install",
       "buildCmd": "npm run build",
       "startCmd": "npm start",

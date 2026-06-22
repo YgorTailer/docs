@@ -33,7 +33,7 @@ The CLI opens your browser and shows a verification code. Confirm the code to au
 
 ## 3. Configure the project
 
-Create a `.nivo` file at the root of your project. Pick the runtime that matches your stack:
+Create a `.nivo` file at the root of your project. The stack is auto-detected — pick the example that matches yours:
 
 <Tabs>
   <Tab title="Node.js">
@@ -41,7 +41,6 @@ Create a `.nivo` file at the root of your project. Pick the runtime that matches
     {
       "name": "my-node-app",
       "projectId": "YOUR_PROJECT_ID",
-      "runtime": "node20",
       "installCmd": "npm install",
       "buildCmd": "npm run build",
       "startCmd": "npm start",
@@ -54,7 +53,6 @@ Create a `.nivo` file at the root of your project. Pick the runtime that matches
     {
       "name": "my-python-app",
       "projectId": "YOUR_PROJECT_ID",
-      "runtime": "python3.11",
       "installCmd": "pip install -r requirements.txt",
       "startCmd": "python main.py",
       "ramMb": 512
@@ -66,7 +64,6 @@ Create a `.nivo` file at the root of your project. Pick the runtime that matches
     {
       "name": "my-bun-app",
       "projectId": "YOUR_PROJECT_ID",
-      "runtime": "bun1",
       "installCmd": "bun install",
       "buildCmd": "bun run build",
       "startCmd": "bun start",

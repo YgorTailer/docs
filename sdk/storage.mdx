@@ -9,9 +9,9 @@ description: "Buckets públicos e privados, signed URLs e upload direto do clien
 
 ## Como funciona
 
-No Nivo, **CDN não é um destino separado** — é a camada de entrega dos buckets públicos. Você cria um bucket, define se é público ou privado, e:
+Você cria um bucket, define se é público ou privado, e:
 
-- **Bucket público** → arquivos servidos automaticamente pela **CDN global** com URL permanente.
+- **Bucket público** → arquivos servidos diretamente com URL permanente e cache imutável.
 - **Bucket privado** → sem URL pública; o acesso é feito por **signed URL** temporária ou download pelo backend.
 
 ---
@@ -19,8 +19,8 @@ No Nivo, **CDN não é um destino separado** — é a camada de entrega dos buck
 ## Buckets
 
 <Tabs>
-  <Tab title="Público (CDN)">
-    Arquivos públicos são servidos pela CDN com URL permanente e cache imutável.
+  <Tab title="Público">
+    Arquivos públicos são servidos com URL permanente e cache imutável.
 
     ```typescript
     const bucket = await nivo.storage.buckets.create({
@@ -65,7 +65,7 @@ const avatares = nivo.storage.from('avatares')
 
 // Upload para um path exato
 const file = await avatares.upload('users/123/foto.jpg', buffer)
-console.log(file.url)   // URL da CDN se o bucket for público
+console.log(file.url)   // URL pública se o bucket for público
 
 // Listar
 const files = await avatares.list({ search: 'foto', limit: 50 })

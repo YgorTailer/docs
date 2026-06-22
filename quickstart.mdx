@@ -33,7 +33,7 @@ O CLI abre o navegador e exibe um código de verificação. Confirme o código p
 
 ## 3. Configure o projeto
 
-Crie o arquivo `.nivo` na raiz do seu projeto. Escolha o runtime conforme sua stack:
+Crie o arquivo `.nivo` na raiz do seu projeto. O stack é detectado automaticamente — escolha o exemplo conforme o seu:
 
 <Tabs>
   <Tab title="Node.js">
@@ -41,7 +41,6 @@ Crie o arquivo `.nivo` na raiz do seu projeto. Escolha o runtime conforme sua st
     {
       "name": "meu-app-node",
       "projectId": "SEU_PROJECT_ID",
-      "runtime": "node20",
       "installCmd": "npm install",
       "buildCmd": "npm run build",
       "startCmd": "npm start",
@@ -54,7 +53,6 @@ Crie o arquivo `.nivo` na raiz do seu projeto. Escolha o runtime conforme sua st
     {
       "name": "meu-app-python",
       "projectId": "SEU_PROJECT_ID",
-      "runtime": "python3.11",
       "installCmd": "pip install -r requirements.txt",
       "startCmd": "python main.py",
       "ramMb": 512
@@ -66,7 +64,6 @@ Crie o arquivo `.nivo` na raiz do seu projeto. Escolha o runtime conforme sua st
     {
       "name": "meu-app-bun",
       "projectId": "SEU_PROJECT_ID",
-      "runtime": "bun1",
       "installCmd": "bun install",
       "buildCmd": "bun run build",
       "startCmd": "bun start",
@@ -177,7 +174,7 @@ await nivo.apps.updateEnv('SEU_APP_ID', {
     Provisione um PostgreSQL ou MySQL para o seu app.
   </Card>
   <Card title="Storage" icon="hard-drive" href="/sdk/storage">
-    Crie buckets para armazenar arquivos com CDN.
+    Crie buckets para armazenar arquivos.
   </Card>
   <Card title="Todos os comandos CLI" icon="terminal" href="/cli/overview">
     Referência completa de comandos do CLI.

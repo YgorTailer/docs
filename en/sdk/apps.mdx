@@ -22,7 +22,6 @@ const app = await nivo.apps.get('app_id')
 const app = await nivo.apps.create({
   name: 'my-api',
   type: 'site',          // 'site' | 'worker'
-  runtime: 'node20',
   startCmd: 'npm start',
   buildCmd: 'npm run build',
   installCmd: 'npm install',
@@ -40,7 +39,6 @@ const app = await nivo.apps.create({
     const app = await nivo.apps.create({
       name: 'my-api',
       type: 'site',
-      runtime: 'node20',
       port: 3000,
       startCmd: 'node dist/index.js'
     })
@@ -54,7 +52,6 @@ const app = await nivo.apps.create({
     const worker = await nivo.apps.create({
       name: 'worker-emails',
       type: 'worker',
-      runtime: 'node20',
       startCmd: 'node worker.js'
     })
     ```

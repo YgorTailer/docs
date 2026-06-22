@@ -29,29 +29,18 @@ The `.nivo` file lives at the root of your project and tells the CLI how the app
 
 ---
 
-### Runtime & Build
+### Build
 
-<ParamField body="runtime" type="string">
-  Runtime used to build and run the app. Ignored when `buildSystem` is `dockerfile` or `dockerimage`.
-
-  | Value | Version |
-  |-------|---------|
-  | `node18` | Node.js 18 LTS |
-  | `node20` | Node.js 20 LTS |
-  | `node22` | Node.js 22 |
-  | `bun1` | Bun 1.x |
-  | `python3.11` | Python 3.11 |
-  | `python3.12` | Python 3.12 |
-  | `go1.22` | Go 1.22 |
-  | `deno2` | Deno 2.x |
-</ParamField>
+<Note>
+  With the default build (`nivopack`), the stack is **detected automatically** from your files (`package.json`, `requirements.txt`, `go.mod`, etc.). You don't need to declare the language or version.
+</Note>
 
 <ParamField body="buildSystem" type="string" default="nivopack">
   Build system to use.
 
   | Value | Description |
   |-------|-------------|
-  | `nivopack` | Automatic build by runtime (default). |
+  | `nivopack` | Automatic build with stack detection (default). |
   | `dockerfile` | Uses the `Dockerfile` in the repository. |
   | `dockerimage` | Uses a public Docker image. |
 </ParamField>
@@ -129,7 +118,6 @@ The `.nivo` file lives at the root of your project and tells the CLI how the app
       "name": "my-api",
       "projectId": "proj_abc123",
       "appId": "app_xyz789",
-      "runtime": "node20",
       "buildSystem": "nivopack",
       "installCmd": "npm install",
       "buildCmd": "npm run build",
@@ -145,7 +133,6 @@ The `.nivo` file lives at the root of your project and tells the CLI how the app
       "name": "my-python-api",
       "projectId": "proj_abc123",
       "appId": "app_xyz789",
-      "runtime": "python3.11",
       "buildSystem": "nivopack",
       "installCmd": "pip install -r requirements.txt",
       "startCmd": "uvicorn main:app --host 0.0.0.0 --port 3000",
@@ -189,7 +176,6 @@ The `.nivo` file lives at the root of your project and tells the CLI how the app
       "sourceType": "github",
       "repoFullName": "my-org/site",
       "repoBranch": "main",
-      "runtime": "node20",
       "installCmd": "npm install",
       "buildCmd": "npm run build",
       "startCmd": "npm start",

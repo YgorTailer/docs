@@ -8,12 +8,12 @@ description: "Plans, monthly balance, compute tiers and how per-minute billing w
 Nivo uses a **prepaid balance + per-minute usage** model:
 
 1. Your plan includes a **monthly balance** credited automatically every month
-2. Apps and databases draw from your balance while running — **billed per minute**
+2. Each **active project** draws from your balance at its compute tier — **billed per minute**
 3. If the balance runs out, the workspace is **paused** automatically (no surprise charges)
 4. You can add **extra balance** at any time to reactivate
 
 <Note>
-  Billing is **per minute** of runtime. Stopped apps don't consume balance.
+  Compute billing is **per project**, per minute the project is active — not per app or database. Pause the project to stop consuming balance.
 </Note>
 
 ---
@@ -71,7 +71,6 @@ All tiers are available on any plan. Billing is per minute of usage from your ba
 
 | Tier | vCPU | RAM | Price/hour | Best for |
 |------|------|-----|-----------|----------|
-| **VOID** | 0.5 | 100 MB | Free | VOID is not billed — used when no resource is running |
 | **SPARK** | 0.75 | 768 MB | R$0.0062/h | Tests and hobby projects |
 | **PULSE** | 1 | 1 GB | R$0.0076/h | Websites and lightweight APIs |
 | **NOVA** | 1.25 | 1.5 GB | R$0.0111/h | Growing applications |
@@ -88,32 +87,36 @@ All tiers are available on any plan. Billing is per minute of usage from your ba
 
 ## Cost examples
 
+Compute is billed **per project**, at the project tier, per minute the project is active — **not** per app or database. Multiple resources in the same project share the tier and the cost.
+
 <AccordionGroup>
-  <Accordion title="SPARK app (0.75 vCPU / 768 MB RAM)">
-    - SPARK tier: R$0.0062/h → R$0.0001033/min
-    - Running 24h/day for 30 days: R$0.0062 × 720h = **R$4.46/mo**
-    - Covered by the Pro balance (R$20): **R$15.54 of balance left**
+  <Accordion title="Project on the SPARK tier (0.75 vCPU / 768 MB)">
+    - SPARK: R$0.0062/h
+    - Project active 24h/day for 30 days: R$0.0062 × 720h = **R$4.46/mo**
+    - Covered by the Pro balance (R$20): **R$15.54 left**
   </Accordion>
-  <Accordion title="ORBIT app (1.5 vCPU / 2 GB RAM)">
-    - ORBIT tier: R$0.0138/h
-    - Running 24h/day for 30 days: R$0.0138 × 720h = **R$9.94/mo**
-    - With the Pro plan (R$20 balance): **R$10.06 of balance left**
+  <Accordion title="Project on the ORBIT tier (1.5 vCPU / 2 GB)">
+    - ORBIT: R$0.0138/h
+    - Project active 24h/day for 30 days: R$0.0138 × 720h = **R$9.94/mo**
+    - With the Pro balance (R$20): **R$10.06 left**
   </Accordion>
-  <Accordion title="Full stack: ORBIT app + NEBULA database">
-    - Both in the same project share the project tier
-    - If the project is on the ORBIT tier: R$0.0138/h for the whole project
-    - Running 30 days: **R$9.94/mo**
+  <Accordion title="Multiple resources in the same project">
+    - Compute is billed **once per project**, at the project tier.
+    - An ORBIT project with 3 apps + 1 database costs the same as an ORBIT project with 1 app: **R$0.0138/h**.
 
     <Tip>
-      Apps and databases within the same project share the tier. You pay for the project tier, not per individual resource.
+      You pay for the project tier, not per individual resource. Apps and databases in the same project share the tier and compute cost.
     </Tip>
   </Accordion>
-  <Accordion title="Development (occasional use)">
-    - SPARK app stopped most of the time
-    - Running only 4h/day for tests: R$0.0062 × (4h × 30) = **R$0.74/mo**
-    - Billed only while running
+  <Accordion title="Occasional use">
+    - Pause the project when you're not using it — compute is only billed while the project is active.
+    - SPARK project active only 4h/day for 30 days: R$0.0062 × (4h × 30) = **R$0.74/mo**
   </Accordion>
 </AccordionGroup>
+
+<Note>
+  **Storage** is billed separately, by the reserved capacity of the project's storage tier — independent of compute.
+</Note>
 
 ---
 
@@ -159,8 +162,8 @@ When the balance reaches **R$0.00**, the workspace is paused automatically.
   <Accordion title="Can I be charged beyond my balance?">
     No. The workspace is paused automatically when the balance reaches zero. There are no surprise charges — Nivo never bills beyond the available balance.
   </Accordion>
-  <Accordion title="Are stopped apps billed?">
-    No. Billing is per minute of runtime. Apps and databases stopped manually don't consume balance.
+  <Accordion title="Does stopping a single app stop billing?">
+    No. Compute is billed at the **project** tier while the project is active. Stopping a single app or database does not reduce compute cost — to stop billing, **pause the project**. Data is preserved while paused.
   </Accordion>
   <Accordion title="Do automatic backups consume balance?">
     No. Automatic backups and project snapshots on the Pro and Builder plans don't consume extra balance — they're included in the plan.

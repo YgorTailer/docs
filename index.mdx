@@ -51,7 +51,7 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
 
     | Plano | Preço | Saldo mensal | Projetos |
     | --- | --- | --- | --- |
-    | Free | R\$0/mês | R\$0 | 1 |
+    | Free | R\$0/mês | R\$0 | 0 |
     | Pro | R\$15/mês | R\$20 | 5 |
     | Builder | R\$29/mês | R\$30 | 15 |
 
@@ -66,15 +66,6 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
 ## Como funciona
 
 <Steps>
-  <Step title="Crie sua conta">
-    Acesse [nivo.lat](https://nivo.lat) e crie um projeto.
-  </Step>
-  <Step title="Escolha sua ferramenta">
-    Use o **CLI** para deploy direto do terminal, ou o **SDK** para controlar tudo via código.
-  </Step>
-  <Step title="Faça seu primeiro deploy">
-    Siga o [Quickstart](/quickstart) e tenha sua aplicação no ar em menos de 5 minutos.
-  </Step>
   <Step title="Crie um projeto no dashboard">
     Acesse [nivo.lat](https://nivo.lat), crie seu workspace e abra um projeto. Copie o `projectId` na URL ou nas configurações.
   </Step>
@@ -105,36 +96,6 @@ description: "Plataforma de cloud para hospedar apps, bancos de dados e arquivos
     const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
       projectId: process.env.NIVO_PROJECT_ID!
     })
-    ```
-
-    </CodeGroup>
-  </Step>
-  <Step title="Deploy ou crie recursos">
-    <CodeGroup>
-
-    ```bash CLI — App
-    nivo link        # cria o app e salva o appId no .nivo
-    nivo deploy . --watch
-    ```
-
-    ```typescript SDK — Banco de dados
-    const db = await nivo.databases.create({
-      name: 'producao',
-      engine: 'postgresql',
-      password: 'uma-senha-forte'
-    })
-    console.log(db.connectionString)
-    ```
-
-    ```typescript SDK — Storage
-    await nivo.storage.buckets.create({
-      name: 'uploads',
-      public: true
-    })
-    const file = await nivo.storage.from('uploads').upload('./logo.png', {
-      filename: 'logo.png'
-    })
-    console.log(file.url)
     ```
 
     </CodeGroup>
