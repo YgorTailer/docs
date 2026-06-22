@@ -1,0 +1,76 @@
+---
+title: "Login"
+description: "How to authenticate, check your account and remove the local API key."
+---
+
+## nivo login
+
+```bash
+nivo login
+```
+
+The CLI starts the device flow:
+
+<Steps>
+  <Step title="Code shown in the terminal">
+    An 8-character code appears in the terminal. E.g. `NIVO-A1B2`.
+  </Step>
+  <Step title="Browser opens automatically">
+    The Nivo confirmation page opens in your default browser.
+  </Step>
+  <Step title="Confirm the code">
+    Paste or confirm the code shown in the terminal on the browser page.
+  </Step>
+  <Step title="API key saved locally">
+    After confirmation, the API key is saved to `~/.config/nivo/config.json`.
+  </Step>
+</Steps>
+
+<Warning>
+  If the browser doesn't open automatically, copy and open the URL shown in the terminal manually.
+</Warning>
+
+---
+
+## nivo me
+
+Checks the currently authenticated account:
+
+```bash
+nivo me
+```
+
+Example output:
+
+```
+✔ Authenticated as: john@example.com
+  Key: nivo_**********************8f3a
+  Workspace: my-company
+```
+
+---
+
+## nivo logout
+
+Removes the API key from local storage:
+
+```bash
+nivo logout
+```
+
+<Note>
+  Logout does not revoke the API key on Nivo's servers — it only removes it from local storage. To revoke the key, go to the dashboard settings.
+</Note>
+
+---
+
+## Where the key is stored
+
+| System | Path |
+|--------|------|
+| Linux / macOS | `~/.config/nivo/config.json` |
+| Windows | `%APPDATA%\nivo\config.json` |
+
+<Warning>
+  Never commit or share the config file — it contains your personal API key.
+</Warning>

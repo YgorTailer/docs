@@ -1,0 +1,69 @@
+---
+title: "Changelog"
+description: "New features, improvements and fixes on the Nivo platform."
+---
+
+Follow along as Nivo evolves. We publish the main new features, reliability
+improvements and changes that affect your day-to-day on the platform.
+
+<Update label="June 2026" description="Private networking, improved Storage and more">
+
+## New features
+
+**Private networking between services**
+
+Apps and databases in the same project now communicate over a private network,
+reaching each other **by name** — without exposing ports to the public internet.
+
+- Databases now offer an **internal connection string**, ideal for use as your
+  apps' `DATABASE_URL`.
+- Each app gets an **internal address** (`internalUrl`) for direct
+  service-to-service calls within the project.
+- Workers stay fully private, reachable only inside the project.
+
+**More complete Storage**
+
+The storage module gained a fluent API and new capabilities:
+
+- `from()` API to work with buckets more naturally.
+- **Signed URLs** to grant temporary access to private files.
+- Path-based uploads, plus **move, copy and batch delete**.
+- Public buckets serve content directly, with optimized delivery.
+
+**Secure password generator**
+
+When creating a database or changing a password, you can now generate a strong
+password with one click — using only characters that are safe for connection
+strings, environment variables and the command line.
+
+## Improvements
+
+<AccordionGroup>
+  <Accordion title="More accurate credit usage" icon="coins">
+    We refined usage calculation and workspace credits to ensure even greater
+    accuracy in the per-minute billing of your resources.
+  </Accordion>
+  <Accordion title="More reliable project resume" icon="play">
+    Paused projects — including those paused by storage limits — come back
+    online automatically once conditions are normalized, preserving all
+    database data intact.
+  </Accordion>
+  <Accordion title="More robust resource deletion" icon="trash">
+    The app removal process is now more resilient, completing reliably even in
+    unstable network scenarios.
+  </Accordion>
+  <Accordion title="Docker image deploys" icon="docker">
+    The deploy flow from Docker images is now more consistent, including the
+    option to redeploy when needed.
+  </Accordion>
+  <Accordion title="Clearer deploy logs" icon="scroll">
+    Build and deploy messages were refined to highlight what matters and make
+    monitoring easier.
+  </Accordion>
+  <Accordion title="Leaner, more consistent SDK" icon="code">
+    The SDK API was standardized and simplified, offering a more predictable
+    experience aligned with best practices.
+  </Accordion>
+</AccordionGroup>
+
+</Update>

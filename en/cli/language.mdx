@@ -1,0 +1,45 @@
+---
+title: "CLI language"
+description: "Set the CLI help and prompts in Portuguese or English."
+---
+
+## nivo lang
+
+The CLI supports Portuguese and English. The language affects help messages, interactive prompts and terminal output.
+
+### Set language
+
+<Tabs>
+  <Tab title="Português">
+    ```bash
+    nivo lang set pt
+    ```
+  </Tab>
+  <Tab title="English">
+    ```bash
+    nivo lang set en
+    ```
+  </Tab>
+</Tabs>
+
+### Check current language
+
+```bash
+nivo lang get
+```
+
+Example output:
+
+```
+Current language: en (English)
+```
+
+---
+
+## Where it's stored
+
+The language is saved in `~/.config/nivo/config.json` along with the API key. The setting persists across sessions and projects.
+
+<Note>
+  The language is a per-machine preference, not per-project. All projects on the same computer use the same configured language.
+</Note>

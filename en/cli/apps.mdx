@@ -1,0 +1,38 @@
+---
+title: "nivo apps"
+description: "List your project's apps from the terminal."
+---
+
+## nivo apps
+
+```bash
+nivo apps
+```
+
+Lists all apps of the linked project in a formatted table in the terminal.
+
+### Example output
+
+```
+┌──────────────────┬────────────┬──────────┬─────────────────────────┐
+│ Name             │ Status     │ Runtime  │ URL                     │
+├──────────────────┼────────────┼──────────┼─────────────────────────┤
+│ api-production   │ ● running  │ node20   │ api-production.nivo.lat │
+│ worker-emails    │ ● running  │ node20   │ —                       │
+│ dashboard-v2     │ ○ stopped  │ node20   │ dashboard-v2.nivo.lat   │
+└──────────────────┴────────────┴──────────┴─────────────────────────┘
+```
+
+### Possible statuses
+
+| Status | Description |
+|--------|-------------|
+| `running` | App running and responding. |
+| `stopped` | App stopped manually. |
+| `building` | Build in progress. |
+| `error` | Deploy failure or container crash. |
+| `starting` | Container starting up. |
+
+<Note>
+  The command uses the `projectId` from the `.nivo` file in the current directory. Make sure you're in the project directory.
+</Note>

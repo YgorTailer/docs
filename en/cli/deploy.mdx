@@ -1,0 +1,120 @@
+---
+title: "Deploy"
+description: "Ship ZIP code, trigger a GitHub redeploy or use a Docker image from the CLI."
+---
+
+## nivo deploy
+
+```bash
+nivo deploy [directory] [flags]
+```
+
+### Flags
+
+| Flag | Description |
+|------|-------------|
+| `--watch` | Streams logs in real time until the deploy finishes. |
+| `--help` | Command help. |
+
+---
+
+## Deploy modes
+
+<Tabs>
+  <Tab title="ZIP (default)">
+    The CLI compresses the directory and uploads it to Nivo.
+
+    ```bash
+    # Deploy the current directory
+    nivo deploy .
+
+    # With live logs
+    nivo deploy . --watch
+
+    # Deploy another directory
+    nivo deploy ./my-folder --watch
+    ```
+
+    Automatically ignored: `node_modules`, `.git`, `.env`, `*.log`.
+
+    <Note>
+      Set `buildSystem: "nivopack"` or `"dockerfile"` in `.nivo` to control how the build happens.
+    </Note>
+  </Tab>
+  <Tab title="GitHub">
+    If the app was configured with `sourceType: "github"`, the deploy triggers a redeploy of the configured repository.
+
+    ```bash
+    nivo deploy . --watch
+    ```
+
+    Nivo clones the branch configured in `.nivo` and starts the build server-side.
+
+    ```json .nivo
+    {
+      "name": "my-app",
+      "projectId": "proj_abc123",
+      "sourceType": "github",
+      "repoFullName": "my-org/my-repo",
+      "repoBranch": "main"
+    }
+    ```
+  </Tab>
+  <Tab title="Docker image">
+    If the app was configured with `sourceType: "image"`, the deploy uses the specified public Docker image.
+
+    ```bash
+    nivo deploy . --watch
+    ```
+
+    ```json .nivo
+    {
+      "name": "my-app",
+      "projectId": "proj_abc123",
+      "sourceType": "image",
+      "buildSystem": "dockerimage",
+      "dockerImage": "ghcr.io/my-org/my-app:latest"
+    }
+    ```
+
+    <Note>
+      The image must be public. Private registry support is on the roadmap.
+    </Note>
+  </Tab>
+</Tabs>
+
+---
+
+## What happens during a deploy
+
+<Steps>
+  <Step title="Validation">
+    The CLI reads `.nivo` and checks that `appId` and `projectId` exist.
+  </Step>
+  <Step title="Compression (ZIP)">
+    The directory is compressed, ignoring unnecessary files.
+  </Step>
+  <Step title="Upload">
+    The `.zip` is sent via multipart to Nivo's servers.
+  </Step>
+  <Step title="Build">
+    The server runs `installCmd` → `buildCmd` inside the build container.
+  </Step>
+  <Step title="Health check">
+    The container starts with `startCmd` and the health check confirms the port is responding.
+  </Step>
+  <Step title="Public URL">
+    Traffic is routed to the new version. The `*.nivo.lat` URL stays the same.
+  </Step>
+</Steps>
+
+---
+
+## Prerequisite
+
+`.nivo` must have `appId` filled in before deploying. Run `nivo link` first if it's your first time.
+
+```bash
+nivo link   # only needed once
+nivo deploy . --watch
+```

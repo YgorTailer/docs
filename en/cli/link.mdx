@@ -1,0 +1,60 @@
+---
+title: "nivo link"
+description: "Create or connect a Nivo app to the current directory."
+---
+
+## nivo link
+
+```bash
+nivo link
+```
+
+The `link` command starts an interactive wizard that:
+
+1. Asks for the app name
+2. Lists the workspace projects to choose from
+3. Lets you create a new app or connect to an existing one
+4. Saves the `appId` and `projectId` to the `.nivo` file
+
+---
+
+## What gets written to .nivo
+
+After `link`, the `.nivo` file receives the automatic fields:
+
+```json .nivo
+{
+  "name": "my-app",
+  "projectId": "proj_abc123",
+  "appId": "app_xyz789",
+  "linkedAt": "2024-01-15T10:30:00.000Z",
+  "runtime": "node20",
+  "startCmd": "npm start"
+}
+```
+
+<Note>
+  The `appId` and `linkedAt` fields are filled in automatically by the CLI. Do not edit them manually.
+</Note>
+
+---
+
+## When to use it
+
+<AccordionGroup>
+  <Accordion title="First time in the project">
+    Run `nivo link` before your first `nivo deploy`. Link creates the app on the platform and configures `.nivo`.
+  </Accordion>
+  <Accordion title="Connect to an existing app">
+    If the app already exists in the dashboard, the wizard lets you select an existing app instead of creating a new one.
+  </Accordion>
+  <Accordion title="Relink after cloning the repository">
+    If you cloned a repository that has `.nivo` but no `appId`, run `nivo link` to reconnect.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+<Tip>
+  You can commit `.nivo` to your repository. The `appId` is a public identifier — it is not a secret.
+</Tip>

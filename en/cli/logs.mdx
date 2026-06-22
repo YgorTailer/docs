@@ -1,0 +1,62 @@
+---
+title: "nivo logs"
+description: "View runtime logs of the running app."
+---
+
+## nivo logs
+
+```bash
+nivo logs [flags]
+```
+
+Shows the running container logs of the app linked in `.nivo`.
+
+### Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--tail <n>` | `100` | Number of recent lines to show. |
+| `--follow` | `false` | Keeps the connection open for streaming. |
+
+---
+
+## Examples
+
+<Tabs>
+  <Tab title="Latest lines">
+    ```bash
+    # Last 100 lines (default)
+    nivo logs
+
+    # Last 500 lines
+    nivo logs --tail 500
+    ```
+  </Tab>
+  <Tab title="Live streaming">
+    ```bash
+    # Continuous streaming — Ctrl+C to stop
+    nivo logs --follow
+
+    # Streaming with history
+    nivo logs --tail 200 --follow
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Build logs
+
+Build logs appear automatically during a deploy with `--watch`:
+
+```bash
+nivo deploy . --watch
+```
+
+To access logs of a specific deployment, use the dashboard at [nivo.lat](https://nivo.lat).
+
+---
+
+<Note>
+  Runtime logs are retained for 7 to 30 days depending on the workspace plan.
+</Note>

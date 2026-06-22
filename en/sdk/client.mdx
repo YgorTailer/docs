@@ -1,0 +1,86 @@
+---
+title: "Client Configuration"
+description: "All configuration options for NivoAPI."
+---
+
+## Constructor
+
+```typescript
+new NivoAPI(apiKey: string, options: NivoClientOptions)
+```
+
+### Options
+
+<ParamField body="apiKey" type="string" required>
+  Secret project API key. Obtained in the dashboard under **Settings → API Keys**.
+</ParamField>
+
+<ParamField body="options.projectId" type="string" required>
+  Project ID. Found in the dashboard URL or the project settings.
+</ParamField>
+
+<ParamField body="options.baseUrl" type="string" default="https://api.nivo.lat/api">
+  API base URL. Change only in local development environments.
+</ParamField>
+
+<ParamField body="options.apiVersion" type="string | null" default="v1">
+  API version. Use `null` for the legacy unversioned route (`/api/sdk/*`).
+</ParamField>
+
+---
+
+## Examples
+
+<Tabs>
+  <Tab title="Production">
+    ```typescript
+    import { NivoAPI } from '@nivo-lat/sdk'
+
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!
+    })
+    ```
+  </Tab>
+  <Tab title="Local development">
+    ```typescript
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!,
+      baseUrl: 'http://localhost:3001/api'
+    })
+    ```
+  </Tab>
+  <Tab title="Legacy API">
+    ```typescript
+    const nivo = new NivoAPI(apiKey, {
+      projectId,
+      apiVersion: null  // uses /api/sdk/* without version
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Error handling
+
+The SDK throws exceptions with the API error details:
+
+```typescript
+try {
+  const app = await nivo.apps.get('nonexistent_app')
+} catch (error) {
+  if (error.status === 404) {
+    console.log('App not found')
+  } else if (error.status === 401) {
+    console.log('Invalid API key')
+  } else {
+    throw error
+  }
+}
+```
+
+---
+
+<Note>
+  Always use environment variables for the API key. Never expose the key in client-side code (browser) or in public repositories.
+</Note>

@@ -1,0 +1,39 @@
+---
+title: "nivo deployments"
+description: "List the deployment history of the linked app."
+---
+
+## nivo deployments
+
+```bash
+nivo deployments
+```
+
+Lists the latest deployments of the app configured in `.nivo` in a formatted table.
+
+### Example output
+
+```
+┌──────────────┬─────────────┬──────────────────────────┬──────────┐
+│ ID           │ Status      │ Created at               │ Duration │
+├──────────────┼─────────────┼──────────────────────────┼──────────┤
+│ dep_a1b2c3   │ ✔ success   │ 2024-01-15 14:32:00      │ 1m 24s   │
+│ dep_d4e5f6   │ ✔ success   │ 2024-01-14 09:15:00      │ 1m 08s   │
+│ dep_g7h8i9   │ ✖ error     │ 2024-01-13 18:45:00      │ 0m 32s   │
+└──────────────┴─────────────┴──────────────────────────┴──────────┘
+```
+
+### Deployment statuses
+
+| Status | Description |
+|--------|-------------|
+| `queued` | Waiting in the build queue. |
+| `building` | Build in progress. |
+| `waiting_capacity` | Waiting for an available node. |
+| `success` | Deploy completed successfully. |
+| `error` | Build or startup failure. |
+| `cancelled` | Deploy cancelled. |
+
+<Tip>
+  To see the logs of a specific deployment, use the dashboard or follow along during the deploy with `nivo deploy . --watch`.
+</Tip>

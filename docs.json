@@ -3,9 +3,9 @@
   "name": "Nivo",
   "theme": "maple",
   "colors": {
-    "primary": "#7C3AED",
-    "light": "#a78bfa",
-    "dark": "#5b21b6"
+    "primary": "#7b7468",
+    "light": "#948c7d",
+    "dark": "#5d564b"
   },
   "topbarCtaButton": {
     "name": "Abrir Dashboard",
@@ -16,71 +16,149 @@
     { "name": "X", "url": "https://x.com/nivocloud" }
   ],
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Início",
-        "groups": [
+        "language": "pt",
+        "default": true,
+        "tabs": [
           {
-            "group": "Começando",
-            "pages": ["index", "quickstart"]
+            "tab": "Início",
+            "groups": [
+              {
+                "group": "Começando",
+                "pages": ["index", "quickstart"]
+              },
+              {
+                "group": "Referência",
+                "pages": ["config", "billing"]
+              },
+              {
+                "group": "Novidades",
+                "pages": ["changelog"]
+              }
+            ]
           },
           {
-            "group": "Referência",
-            "pages": ["config", "billing"]
+            "tab": "CLI",
+            "groups": [
+              {
+                "group": "Visão Geral",
+                "pages": ["cli/overview"]
+              },
+              {
+                "group": "Autenticação",
+                "pages": ["cli/login"]
+              },
+              {
+                "group": "Deploy",
+                "pages": ["cli/deploy", "cli/link"]
+              },
+              {
+                "group": "Gerenciamento",
+                "pages": ["cli/apps", "cli/deployments", "cli/logs"]
+              },
+              {
+                "group": "Configurações",
+                "pages": ["cli/language"]
+              }
+            ]
           },
           {
-            "group": "Novidades",
-            "pages": ["changelog"]
+            "tab": "SDK",
+            "groups": [
+              {
+                "group": "Visão Geral",
+                "pages": ["sdk/overview", "sdk/client"]
+              },
+              {
+                "group": "Apps",
+                "pages": ["sdk/apps"]
+              },
+              {
+                "group": "Bancos de Dados",
+                "pages": ["sdk/databases"]
+              },
+              {
+                "group": "Storage",
+                "pages": ["sdk/storage"]
+              },
+              {
+                "group": "Avançado",
+                "pages": ["sdk/commit"]
+              }
+            ]
           }
         ]
       },
       {
-        "tab": "CLI",
-        "groups": [
+        "language": "en",
+        "tabs": [
           {
-            "group": "Visão Geral",
-            "pages": ["cli/overview"]
+            "tab": "Home",
+            "groups": [
+              {
+                "group": "Getting Started",
+                "pages": ["en/index", "en/quickstart"]
+              },
+              {
+                "group": "Reference",
+                "pages": ["en/config", "en/billing"]
+              },
+              {
+                "group": "What's New",
+                "pages": ["en/changelog"]
+              }
+            ]
           },
           {
-            "group": "Autenticação",
-            "pages": ["cli/login"]
+            "tab": "CLI",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": ["en/cli/overview"]
+              },
+              {
+                "group": "Authentication",
+                "pages": ["en/cli/login"]
+              },
+              {
+                "group": "Deploy",
+                "pages": ["en/cli/deploy", "en/cli/link"]
+              },
+              {
+                "group": "Management",
+                "pages": ["en/cli/apps", "en/cli/deployments", "en/cli/logs"]
+              },
+              {
+                "group": "Settings",
+                "pages": ["en/cli/language"]
+              }
+            ]
           },
           {
-            "group": "Deploy",
-            "pages": ["cli/deploy", "cli/link"]
-          },
-          {
-            "group": "Gerenciamento",
-            "pages": ["cli/apps", "cli/deployments", "cli/logs"]
-          },
-          {
-            "group": "Configurações",
-            "pages": ["cli/language"]
-          }
-        ]
-      },
-      {
-        "tab": "SDK",
-        "groups": [
-          {
-            "group": "Visão Geral",
-            "pages": ["sdk/overview", "sdk/client"]
-          },
-          {
-            "group": "Apps",
-            "pages": ["sdk/apps"]
-          },
-          {
-            "group": "Bancos de Dados",
-            "pages": ["sdk/databases"]
-          },
-          {
-            "group": "Storage",
-            "pages": ["sdk/storage"]
-          },
-          {
-            "group": "Avançado",
-            "pages": ["sdk/commit"]
+            "tab": "SDK",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": ["en/sdk/overview", "en/sdk/client"]
+              },
+              {
+                "group": "Apps",
+                "pages": ["en/sdk/apps"]
+              },
+              {
+                "group": "Databases",
+                "pages": ["en/sdk/databases"]
+              },
+              {
+                "group": "Storage",
+                "pages": ["en/sdk/storage"]
+              },
+              {
+                "group": "Advanced",
+                "pages": ["en/sdk/commit"]
+              }
+            ]
           }
         ]
       }

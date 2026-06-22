@@ -1,0 +1,219 @@
+---
+title: "Apps"
+description: "Create, list, monitor, restart and remove applications via the SDK."
+---
+
+## List apps
+
+```typescript
+const apps = await nivo.apps.list()
+// App[]
+```
+
+## Get an app
+
+```typescript
+const app = await nivo.apps.get('app_id')
+```
+
+## Create an app
+
+```typescript
+const app = await nivo.apps.create({
+  name: 'my-api',
+  type: 'site',          // 'site' | 'worker'
+  runtime: 'node20',
+  startCmd: 'npm start',
+  buildCmd: 'npm run build',
+  installCmd: 'npm install',
+  ramMb: 512
+})
+```
+
+### App types
+
+<Tabs>
+  <Tab title="Site (HTTP)">
+    Receives HTTP/HTTPS traffic. Gets a public URL automatically.
+
+    ```typescript
+    const app = await nivo.apps.create({
+      name: 'my-api',
+      type: 'site',
+      runtime: 'node20',
+      port: 3000,
+      startCmd: 'node dist/index.js'
+    })
+    console.log(app.url) // https://my-api.nivo.lat
+    ```
+  </Tab>
+  <Tab title="Worker (background)">
+    Runs in the background with no HTTP port. Ideal for queues, cron jobs and processing.
+
+    ```typescript
+    const worker = await nivo.apps.create({
+      name: 'worker-emails',
+      type: 'worker',
+      runtime: 'node20',
+      startCmd: 'node worker.js'
+    })
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Environment variables
+
+```typescript
+// Set/update variables (merges with existing ones)
+await nivo.apps.updateEnv('app_id', {
+  DATABASE_URL: 'postgres://...',
+  REDIS_URL: 'redis://...',
+  SECRET_KEY: 'super-secret'
+})
+
+// Replace ALL variables with the given set
+await nivo.apps.replaceEnv('app_id', { NODE_ENV: 'production' })
+
+// Remove variables by key
+await nivo.apps.removeEnv('app_id', ['SECRET_KEY'])
+```
+
+<Note>
+  For security, the SDK does **not** expose reading environment variables — secrets never travel back through the API. Manage the values in your own source of truth.
+</Note>
+
+<Warning>
+  After changing environment variables, a new deploy is required for the changes to take effect.
+</Warning>
+
+---
+
+## Private networking (app ↔ app)
+
+Apps in the same project see each other over a private network and can call one another **by name**, without going through the internet. Each app exposes an internal address:
+
+```typescript
+const app = await nivo.apps.get('app_id')
+
+console.log(app.internalHost) // e.g. my-api
+console.log(app.internalUrl)  // e.g. http://my-api:3000
+```
+
+For one app to call another, just use the target's `internalUrl`:
+
+```typescript
+// Inside "app-web", calling "my-api" in the same project
+const res = await fetch('http://my-api:3000/users')
+const data = await res.json()
+```
+
+<CardGroup cols={2}>
+  <Card title="Sites" icon="globe">
+    The internal address is the app's subdomain. They still receive public traffic normally.
+  </Card>
+  <Card title="Workers" icon="gear">
+    No public URL — reachable only over the project's private network, by name.
+  </Card>
+</CardGroup>
+
+<Note>
+  The internal address only resolves between apps and databases in the **same
+  project**. To expose an app publicly, use a domain (site) — workers stay private.
+</Note>
+
+---
+
+## Lifecycle
+
+```typescript
+// Stop
+await nivo.apps.stop('app_id')
+
+// Start
+await nivo.apps.start('app_id')
+
+// Restart
+await nivo.apps.restart('app_id')
+```
+
+---
+
+## Update configuration
+
+```typescript
+await nivo.apps.update('app_id', {
+  ramMb: 1024,
+  startCmd: 'node dist/server.js'
+})
+```
+
+---
+
+## Custom domain
+
+```typescript
+// Add a domain (returns DNS instructions)
+const result = await nivo.apps.domains.add('app_id', 'mysite.com')
+console.log(result.verification)   // { type, name, value }
+
+// List domains
+const domains = await nivo.apps.domains.list('app_id')
+
+// Remove a domain (by domain id)
+await nivo.apps.domains.remove('app_id', 'domain_id')
+```
+
+---
+
+## Logs and metrics
+
+```typescript
+// Runtime logs
+const logs = await nivo.apps.logs('app_id', { tail: 200 })
+
+// Container metrics
+const stats = await nivo.apps.stats('app_id')
+console.log(`CPU: ${stats.cpuPct}%`)
+console.log(`RAM: ${stats.memUsageMb} / ${stats.memLimitMb} MB`)
+console.log(`Uptime: ${stats.uptimeSeconds}s`)
+```
+
+---
+
+## Delete an app
+
+```typescript
+await nivo.apps.delete('app_id')
+```
+
+<Warning>
+  Deletion is permanent. The app, its logs and deployments are removed immediately.
+</Warning>
+
+---
+
+## Full reference
+
+| Method | Description |
+|--------|-------------|
+| `apps.list()` | Lists all project apps. |
+| `apps.get(id)` | Gets an app by ID. |
+| `apps.create(opts)` | Creates a new app. |
+| `apps.update(id, opts)` | Updates app settings. |
+| `apps.delete(id)` | Removes the app permanently. |
+| `apps.start(id)` | Starts the app. |
+| `apps.stop(id)` | Stops the app. |
+| `apps.restart(id)` | Restarts the app. |
+| `apps.deploy(id)` | Triggers a new deploy. |
+| `apps.upload(id, file)` | Deploys by uploading a ZIP. |
+| `apps.updateEnv(id, vars)` | Sets/updates variables (merge). |
+| `apps.replaceEnv(id, vars)` | Replaces all variables. |
+| `apps.removeEnv(id, keys)` | Removes variables by key. |
+| `apps.logs(id, opts)` | Returns container logs. |
+| `apps.stats(id)` | Returns CPU, RAM and uptime metrics. |
+| `apps.deployments(id)` | Lists app deployments. |
+| `apps.domains.add(id, domain)` | Adds a custom domain. |
+| `apps.domains.list(id)` | Lists app domains. |
+| `apps.domains.remove(id, domainId)` | Removes a custom domain. |

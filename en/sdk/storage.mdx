@@ -1,0 +1,325 @@
+---
+title: "Storage"
+description: "Public and private buckets, signed URLs and direct client uploads — all via the SDK."
+---
+
+<Note>
+  Always use storage from the backend with `NivoAPI`. Never expose the API key client-side — for the browser, generate **signed URLs**.
+</Note>
+
+## How it works
+
+You create a bucket, set whether it's public or private, and:
+
+- **Public bucket** → files served directly with a permanent URL and immutable cache.
+- **Private bucket** → no public URL; access happens through a temporary **signed URL** or a backend download.
+
+---
+
+## Buckets
+
+<Tabs>
+  <Tab title="Public">
+    Public files are served with a permanent URL and immutable cache.
+
+    ```typescript
+    const bucket = await nivo.storage.buckets.create({
+      name: 'public-assets',
+      public: true,
+      cacheControl: 'public, max-age=31536000, immutable'
+    })
+    ```
+  </Tab>
+  <Tab title="Private">
+    Private files are only accessible via a signed URL or an authenticated download.
+
+    ```typescript
+    const bucket = await nivo.storage.buckets.create({
+      name: 'customer-documents',
+      public: false,
+      allowedMimeTypes: ['application/pdf', 'image/*'],
+      fileSizeLimit: 50 * 1024 * 1024  // 50 MB
+    })
+    ```
+  </Tab>
+</Tabs>
+
+### Manage buckets
+
+```typescript
+const buckets = await nivo.storage.buckets.list()
+const bucket  = await nivo.storage.buckets.get('bucket_id')
+
+await nivo.storage.buckets.update('bucket_id', { fileSizeLimit: 10 * 1024 * 1024 })
+await nivo.storage.buckets.delete('bucket_id')
+```
+
+---
+
+## The fluent `from()` API
+
+The recommended way to work with files is through the `from('bucket-name')` handle. The bucket is resolved by name automatically and files are addressed by **path**.
+
+```typescript
+const avatars = nivo.storage.from('avatars')
+
+// Upload to an exact path
+const file = await avatars.upload('users/123/photo.jpg', buffer)
+console.log(file.url)   // public URL if the bucket is public
+
+// List
+const files = await avatars.list({ search: 'photo', limit: 50 })
+
+// Remove (batch, by id)
+await avatars.remove([file.id])
+```
+
+<Note>
+  Path-based upload **rejects** if an object already exists at that path. To replace it, use `move` or remove the old one first.
+</Note>
+
+---
+
+## Upload
+
+The first argument is always the object **path** inside the bucket.
+
+<Tabs>
+  <Tab title="Local file">
+    ```typescript
+    const bucket = nivo.storage.from('avatars')
+    const file = await bucket.upload('users/123/photo.jpg', './photo.jpg')
+    console.log(file.url)
+    ```
+  </Tab>
+  <Tab title="Buffer / Stream">
+    ```typescript
+    import { readFileSync } from 'fs'
+
+    const buffer = readFileSync('./report.pdf')
+    const bucket = nivo.storage.from('reports')
+
+    const file = await bucket.upload('2024/jan/report.pdf', buffer, {
+      mimeType: 'application/pdf'
+    })
+    ```
+  </Tab>
+  <Tab title="Express (req.file)">
+    ```typescript
+    import express from 'express'
+    import multer from 'multer'
+
+    const upload = multer({ storage: multer.memoryStorage() })
+    const app = express()
+    const bucket = nivo.storage.from('uploads')
+
+    app.post('/upload', upload.single('file'), async (req, res) => {
+      const file = await bucket.upload(
+        `users/${req.user.id}/${req.file!.originalname}`,
+        req.file!.buffer,
+        { mimeType: req.file!.mimetype }
+      )
+      res.json({ id: file.id, url: file.url })
+    })
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+  The path accepts folders (`users/123/avatar.jpg`). `..` segments, leading slashes and invalid characters are stripped automatically — there's no path traversal risk.
+</Tip>
+
+---
+
+## Move and copy
+
+Path-based operations within the same bucket.
+
+```typescript
+const bucket = nivo.storage.from('avatars')
+
+// Move/rename (keeps the same file id)
+await bucket.move('temp/upload.jpg', 'users/123/avatar.jpg')
+
+// Copy (creates a new file)
+await bucket.copy('templates/default.jpg', 'users/456/avatar.jpg')
+```
+
+<Note>
+  `from` and `to` are paths inside the bucket. Both the bare path (`users/1/a.jpg`) and the full key (`avatars/users/1/a.jpg`) are accepted. Moving/copying to an existing path returns `409`.
+</Note>
+
+---
+
+## Signed URL — private access without a proxy
+
+To deliver a private file to the browser, generate a temporary **signed URL** on the backend. The client downloads directly from Nivo, without going through your server and without exposing the API key.
+
+```typescript
+app.get('/files/:id', authenticate, async (req, res) => {
+  // 1. Check permission in your application
+  const record = await db.files.findById(req.params.id)
+  if (record.userId !== req.user.id) {
+    return res.status(403).json({ error: 'Forbidden' })
+  }
+
+  // 2. Generate a temporary URL
+  const { signedUrl, expiresAt } = await nivo.storage.files.createSignedUrl(
+    record.nivoFileId,
+    { expiresIn: 3600 }   // expires in 1 hour
+  )
+
+  // 3. Redirect the user straight to storage
+  res.redirect(signedUrl)
+})
+```
+
+<ParamField path="expiresIn" type="number" default="3600">
+  Seconds until the URL expires. Default 1 hour, maximum 7 days.
+</ParamField>
+
+<ParamField path="inline" type="boolean" default="false">
+  When `true`, the file opens in the browser (preview) instead of downloading.
+</ParamField>
+
+<Tip>
+  Signed URLs work for both private and public buckets. Use them whenever you need a temporary, controlled link.
+</Tip>
+
+---
+
+## Direct client upload
+
+To let the browser or app send the file **straight to storage** without going through your server, generate a signed upload URL on the backend.
+
+<Steps>
+  <Step title="Backend generates the URL">
+    ```typescript
+    const bucket = nivo.storage.from('uploads')
+
+    const { uploadUrl, key, expiresAt } = await bucket.createSignedUploadUrl(
+      'video.mp4',
+      { path: 'users/123/video.mp4', maxBytes: 500 * 1024 * 1024, expiresIn: 600 }
+    )
+
+    res.json({ uploadUrl, key })
+    ```
+  </Step>
+  <Step title="Client sends directly">
+    ```typescript
+    // In the browser / app
+    const form = new FormData()
+    form.append('file', fileBlob)
+
+    await fetch(uploadUrl, { method: 'POST', body: form })
+    ```
+  </Step>
+</Steps>
+
+<ParamField path="path" type="string">
+  Exact object path in the bucket. Omit for an automatically generated key.
+</ParamField>
+
+<ParamField path="maxBytes" type="number">
+  Maximum number of bytes accepted in the upload.
+</ParamField>
+
+<ParamField path="expiresIn" type="number" default="600">
+  Seconds until the upload URL expires. Default 10 minutes, maximum 1 hour.
+</ParamField>
+
+---
+
+## List and remove
+
+```typescript
+const bucket = nivo.storage.from('avatars')
+
+// List with filters
+const files = await bucket.list({ search: 'avatar', page: 1, limit: 50 })
+
+// Remove a file
+await nivo.storage.files.delete('file_id')
+
+// Remove several at once
+const result = await bucket.remove(['file_1', 'file_2', 'file_3'])
+console.log(`${result.deleted} of ${result.requested} removed`)
+```
+
+---
+
+## Backend download
+
+When you need the **bytes** on the server (to process, re-send, etc.), use the direct download:
+
+```typescript
+const buffer = await nivo.storage.files.download('file_id')
+```
+
+<Note>
+  To deliver to the browser, prefer `createSignedUrl` — it keeps your server from becoming a bottleneck on large files.
+</Note>
+
+---
+
+## Multipart upload
+
+For large files (above 50 MB):
+
+<Steps>
+  <Step title="Start">
+    ```typescript
+    const bucket = nivo.storage.from('backups')
+    const mp = await bucket.startMultipart({
+      filename: 'backup-2024.zip',
+      mimeType: 'application/zip',
+      totalBytes: fileSize
+    })
+    ```
+  </Step>
+  <Step title="Send parts">
+    ```typescript
+    const chunkSize = 10 * 1024 * 1024  // 10 MB
+    const parts = []
+
+    for (let i = 0; i * chunkSize < fileBuffer.length; i++) {
+      const chunk = fileBuffer.slice(i * chunkSize, (i + 1) * chunkSize)
+      const part = await bucket.uploadPart(mp.fileId, mp.uploadId, i + 1, chunk)
+      parts.push(part)
+    }
+    ```
+  </Step>
+  <Step title="Complete">
+    ```typescript
+    const { file } = await bucket.completeMultipart(mp.fileId, mp.uploadId, parts)
+    console.log(file.url)
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Full reference
+
+| Method | Description |
+|--------|-------------|
+| `storage.from(name)` | Fluent handle for a bucket by name. |
+| `storage.stats()` | Overall usage (bytes and files). |
+| `storage.status()` | Storage availability. |
+| `storage.buckets.list()` | Lists buckets. |
+| `storage.buckets.create(opts)` | Creates a bucket. |
+| `storage.buckets.get(id)` | Gets a bucket by ID. |
+| `storage.buckets.update(id, opts)` | Updates settings. |
+| `storage.buckets.delete(id)` | Deletes a bucket and its files. |
+| `from(name).upload(path, file, opts)` | Uploads to an exact path. |
+| `from(name).move(from, to)` | Moves/renames an object by path. |
+| `from(name).copy(from, to)` | Copies an object by path. |
+| `from(name).list(opts)` | Lists bucket files. |
+| `from(name).remove(ids)` | Removes files in batch. |
+| `from(name).createSignedUrl(fileId, opts)` | Generates a temporary download URL. |
+| `from(name).createSignedUploadUrl(filename, opts)` | Generates a direct upload URL. |
+| `from(name).startMultipart / uploadPart / completeMultipart` | Multipart upload. |
+| `storage.files.delete(id)` | Deletes a file. |
+| `storage.files.deleteMany(ids)` | Deletes files in batch. |
+| `storage.files.download(id)` | Downloads the bytes from the backend. |
+| `storage.files.createSignedUrl(id, opts)` | Generates a temporary download URL. |

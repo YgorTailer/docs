@@ -1,0 +1,123 @@
+---
+title: "SDK — Overview"
+description: "Authentication, versioning and structure of the official Nivo SDK."
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install @nivo-lat/sdk
+    ```
+  </Tab>
+  <Tab title="pnpm">
+    ```bash
+    pnpm add @nivo-lat/sdk
+    ```
+  </Tab>
+  <Tab title="yarn">
+    ```bash
+    yarn add @nivo-lat/sdk
+    ```
+  </Tab>
+</Tabs>
+
+The SDK is published as [`@nivo-lat/sdk`](https://www.npmjs.com/package/@nivo-lat/sdk) with **ESM** and **CJS** support and complete TypeScript typings.
+
+---
+
+## Quick start
+
+```typescript
+import { NivoAPI } from '@nivo-lat/sdk'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
+
+// Apps
+const apps = await nivo.apps.list()
+
+// Databases
+const databases = await nivo.databases.list()
+
+// Storage
+const buckets = await nivo.storage.buckets.list()
+```
+
+---
+
+## Authentication
+
+The SDK uses a **secret project API key** sent via the `x-api-key` header. The `projectId` is sent via the `x-project-id` header. The client configures both automatically.
+
+<Tabs>
+  <Tab title="Environment variable (recommended)">
+    ```typescript
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!
+    })
+    ```
+
+    In your `.env`:
+    ```bash .env
+    NIVO_API_KEY=nivo_sk_prod_xxxxxxxxxxxxxxxxxxxx
+    NIVO_PROJECT_ID=proj_abc123
+    ```
+  </Tab>
+  <Tab title="Inline in code (not recommended)">
+    ```typescript
+    const nivo = new NivoAPI('nivo_sk_prod_xxxx', {
+      projectId: 'proj_abc123'
+    })
+    ```
+
+    <Warning>
+      Never expose the API key in client-side code or in public repositories.
+    </Warning>
+  </Tab>
+</Tabs>
+
+---
+
+## API versioning
+
+| Prefix | Status |
+|--------|--------|
+| `/api/sdk/v1/*` | **Current** — use for new integrations |
+| `/api/sdk/*` (no version) | **Deprecated** — still works, no changes |
+
+The `NivoAPI` client uses `v1` by default. To use the legacy version:
+
+```typescript
+const nivo = new NivoAPI(apiKey, {
+  projectId,
+  apiVersion: null  // uses /api/sdk/* without version
+})
+```
+
+---
+
+## Rate limits
+
+| Route | Limit |
+|-------|-------|
+| `/api/sdk/v1/*` | 1,000 req/min per API key |
+| Fallback (no API key) | 500 req/min per IP |
+
+---
+
+## Available modules
+
+<CardGroup cols={2}>
+  <Card title="Apps" icon="rocket" href="/en/sdk/apps">
+    Create, list, stop, restart and remove apps.
+  </Card>
+  <Card title="Databases" icon="database" href="/en/sdk/databases">
+    Provision and manage PostgreSQL, MySQL, MongoDB and Redis.
+  </Card>
+  <Card title="Storage" icon="hard-drive" href="/en/sdk/storage">
+    Public/private buckets, signed URLs and direct uploads.
+  </Card>
+</CardGroup>

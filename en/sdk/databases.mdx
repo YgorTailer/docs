@@ -1,0 +1,219 @@
+---
+title: "Databases"
+description: "Provision, query, restart, resize and remove databases via the SDK."
+---
+
+## Supported engines
+
+<CardGroup cols={4}>
+  <Card title="PostgreSQL" icon="database">
+    Versions: 14, 15, 16
+  </Card>
+  <Card title="MySQL" icon="database">
+    Versions: 8.0, 8.4
+  </Card>
+  <Card title="MongoDB" icon="database">
+    Versions: 6, 7
+  </Card>
+  <Card title="Redis" icon="database">
+    Versions: 7, 7.2
+  </Card>
+</CardGroup>
+
+---
+
+## Create a database
+
+`create` returns the already-provisioned database with the full **connection string** in the `connectionString` field.
+
+<Tabs>
+  <Tab title="PostgreSQL">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'db-production',
+      engine: 'postgresql',
+      password: 'a-strong-password'
+    })
+
+    console.log(`Host: ${db.host}`)
+    console.log(`Port: ${db.port}`)
+    console.log(`Database: ${db.dbName}`)
+    console.log(`Connection: ${db.connectionString}`)
+    ```
+  </Tab>
+  <Tab title="MySQL">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'mysql-production',
+      engine: 'mysql',
+      password: 'a-strong-password'
+    })
+
+    console.log(db.connectionString)
+    ```
+  </Tab>
+  <Tab title="MongoDB">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'mongo-events',
+      engine: 'mongodb',
+      password: 'a-strong-password'
+    })
+
+    console.log(db.connectionString)
+    ```
+  </Tab>
+  <Tab title="Redis">
+    ```typescript
+    const db = await nivo.databases.create({
+      name: 'cache',
+      engine: 'redis',
+      password: 'a-strong-password'
+    })
+
+    console.log(db.connectionString)
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## List and get
+
+```typescript
+// List all project databases
+const databases = await nivo.databases.list()
+
+// Get by ID
+const db = await nivo.databases.get('db_id')
+
+// Current status
+console.log(db.status) // 'running' | 'stopped' | 'starting' | 'error'
+```
+
+---
+
+## Lifecycle
+
+```typescript
+// Stop (stops compute billing while stopped)
+await nivo.databases.stop('db_id')
+
+// Start
+await nivo.databases.start('db_id')
+
+// Restart
+await nivo.databases.restart('db_id')
+```
+
+---
+
+## Run queries
+
+To run SQL, use the database **connection string** with your language's native driver (`pg`, `mysql2`, `mongoose`, `ioredis`). The SDK does not bundle an ORM or a query executor.
+
+```typescript
+import { Pool } from 'pg'
+
+// Get the connection string via the SDK
+const connectionString = await nivo.databases.getConnectionString('db_id')
+
+// Use the native driver
+const pool = new Pool({ connectionString })
+
+const { rows } = await pool.query(
+  'SELECT * FROM users WHERE active = $1 LIMIT 10',
+  [true]
+)
+console.log(rows)
+```
+
+<Tip>
+  The connection string is also returned by `databases.create()` in the `connectionString` field. Store it as a secret in your application.
+</Tip>
+
+---
+
+## Private networking
+
+Every database is reachable in two ways within a project:
+
+<CardGroup cols={2}>
+  <Card title="Public connection" icon="globe">
+    External address (host + mapped port). Use it to connect from outside the project — your machine, migration tools, BI.
+  </Card>
+  <Card title="Private connection" icon="lock">
+    Internal project address. Apps in the **same project** reach the database by name, without going through the internet — faster and without exposing the port.
+  </Card>
+</CardGroup>
+
+The connection endpoint returns both:
+
+```typescript
+const conn = await nivo.databases.getConnection('db_id')
+
+console.log(conn.connectionString)          // public
+console.log(conn.internalConnectionString)  // private (project apps)
+console.log(`${conn.internalHost}:${conn.internalPort}`)
+```
+
+<Note>
+  Use the `internalConnectionString` as the `DATABASE_URL` of apps running in the
+  same project. It only resolves inside the project's private network.
+</Note>
+
+---
+
+## Metrics and statistics
+
+```typescript
+const stats = await nivo.databases.stats('db_id')
+
+console.log(`CPU: ${stats.cpuUsagePct}% of ${stats.cpuLimitVcpu} vCPU`)
+console.log(`RAM: ${stats.memoryUsageMB} / ${stats.memoryLimitMB} MB`)
+console.log(`Size: ${stats.sizePretty}`)
+console.log(`Connections: ${stats.activeConnections}/${stats.totalConnections}`)
+```
+
+---
+
+## Logs
+
+```typescript
+const { log, status } = await nivo.databases.logs('db_id', { tail: 200 })
+console.log(log)
+```
+
+<Note>
+  Daily automatic backups are available on the Pro and Builder plans and are managed from the dashboard.
+</Note>
+
+---
+
+## Delete
+
+```typescript
+await nivo.databases.delete('db_id')
+```
+
+<Warning>
+  Deletion is permanent and immediate. All data is lost. Make a backup from the dashboard before deleting.
+</Warning>
+
+---
+
+## Full reference
+
+| Method | Description |
+|--------|-------------|
+| `databases.list()` | Lists project databases. |
+| `databases.get(id)` | Gets a database by ID. |
+| `databases.create(opts)` | Provisions a new database. |
+| `databases.delete(id)` | Removes a database permanently. |
+| `databases.start(id)` | Starts the database. |
+| `databases.stop(id)` | Stops the database. |
+| `databases.restart(id)` | Restarts the database. |
+| `databases.getConnectionString(id)` | Returns the public connection string. |
+| `databases.getConnection(id)` | Returns public + private connection (project network). |
+| `databases.stats(id)` | CPU, RAM, size and connection metrics. |
+| `databases.logs(id, opts)` | Returns database logs. |

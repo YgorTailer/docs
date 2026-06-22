@@ -1,0 +1,186 @@
+---
+title: "What is Nivo?"
+description: "A cloud platform to host apps, databases and files — with an official SDK and CLI."
+---
+
+<Frame>
+  <img src="/images/hero.png" alt="Nivo" />
+</Frame>
+
+---
+
+## Choose your path
+
+<Tabs>
+  <Tab title="🚀 Deploy from the terminal">
+    Use the CLI — from terminal to live in under 5 minutes.
+
+    ```bash
+    npm install -g @nivo-lat/cli
+    nivo login
+    nivo link
+    nivo deploy . --watch
+    ```
+
+    <Card title="Full quickstart" icon="terminal" href="/en/quickstart">
+      Step-by-step guide to your first deploy.
+    </Card>
+  </Tab>
+  <Tab title="⚙️ Control via code">
+    Use the SDK to manage apps, databases and storage in Node.js/TypeScript.
+
+    ```bash
+    npm install @nivo-lat/sdk
+    ```
+
+    ```typescript
+    import { NivoAPI } from '@nivo-lat/sdk'
+
+    const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+      projectId: process.env.NIVO_PROJECT_ID!
+    })
+
+    const apps = await nivo.apps.list()
+    console.log(apps)
+    ```
+
+    <Card title="SDK Overview" icon="code" href="/en/sdk/overview">
+      Authentication, versioning and every method.
+    </Card>
+  </Tab>
+  <Tab title="💳 Understand the plans">
+    Compute per hour, storage per month, monthly balance per plan.
+
+    | Plan | Price | Monthly balance | Projects |
+    |------|-------|-----------------|----------|
+    | Free | R$0/mo | R$0 | 1 |
+    | Pro | R$15/mo | R$20 | 5 |
+    | Builder | R$29/mo | R$30 | 15 |
+
+    <Card title="Plans & Billing" icon="credit-card" href="/en/billing">
+      Full table of compute and storage tiers.
+    </Card>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+<Steps>
+  <Step title="Create a project in the dashboard">
+    Go to [nivo.lat](https://nivo.lat), create your workspace and open a project. Copy the `projectId` from the URL or the project settings.
+  </Step>
+  <Step title="Install the CLI or SDK">
+    <CodeGroup>
+      ```bash CLI
+      npm install -g @nivo-lat/cli
+      ```
+      ```bash SDK
+      npm install @nivo-lat/sdk
+      ```
+    </CodeGroup>
+  </Step>
+  <Step title="Authenticate">
+    <CodeGroup>
+      ```bash CLI
+      nivo login
+      # Opens the browser — confirm the code shown in the terminal
+      ```
+      ```typescript SDK
+      import { NivoAPI } from '@nivo-lat/sdk'
+
+      const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+        projectId: process.env.NIVO_PROJECT_ID!
+      })
+      ```
+    </CodeGroup>
+  </Step>
+  <Step title="Deploy or create resources">
+    <CodeGroup>
+      ```bash CLI — App
+      nivo link        # creates the app and saves the appId in .nivo
+      nivo deploy . --watch
+      ```
+      ```typescript SDK — Database
+      const db = await nivo.databases.create({
+        name: 'production',
+        engine: 'postgresql',
+        password: 'a-strong-password'
+      })
+      console.log(db.connectionString)
+      ```
+      ```typescript SDK — Storage
+      await nivo.storage.buckets.create({
+        name: 'uploads',
+        public: true
+      })
+      const file = await nivo.storage.from('uploads').upload('logo.png', './logo.png')
+      console.log(file.url)
+      ```
+    </CodeGroup>
+  </Step>
+</Steps>
+
+---
+
+## Available tools
+
+<CardGroup cols={2}>
+  <Card title="CLI" icon="terminal" href="/en/cli/overview">
+    Deploy from the terminal. Supports Node.js, Python, Go, Bun and more.
+  </Card>
+  <Card title="TypeScript SDK" icon="code" href="/en/sdk/overview">
+    Full control via code. Complete typings, ESM and CJS support.
+  </Card>
+  <Card title="Storage" icon="hard-drive" href="/en/sdk/storage">
+    Public/private buckets, multipart upload, authenticated downloads.
+  </Card>
+  <Card title="Databases" icon="database" href="/en/sdk/databases">
+    Provision, manage and query databases directly from the SDK.
+  </Card>
+</CardGroup>
+
+---
+
+## API errors
+
+<AccordionGroup>
+  <Accordion title="2xx — Success">
+    | Status | Meaning |
+    |--------|---------|
+    | `200` | OK — request completed |
+    | `201` | Created — resource created successfully |
+    | `204` | No content — operation with no response body |
+  </Accordion>
+  <Accordion title="4xx — Client errors">
+    | Status | Meaning |
+    |--------|---------|
+    | `400` | Bad request — invalid parameters |
+    | `401` | Unauthorized — missing or invalid API key |
+    | `403` | Forbidden — your plan does not allow this action |
+    | `404` | Not found — resource does not exist |
+    | `409` | Conflict — resource already exists |
+    | `429` | Rate limit reached — wait for `Retry-After` |
+  </Accordion>
+  <Accordion title="5xx — Server errors">
+    | Status | Meaning |
+    |--------|---------|
+    | `500` | Internal server error |
+    | `502` | Bad gateway — node temporarily unavailable |
+    | `503` | Service unavailable — try again |
+  </Accordion>
+</AccordionGroup>
+
+## Rate limits
+
+| Type | Limit |
+|------|-------|
+| Reads `GET` | 1,000 req/min |
+| Writes `POST / PATCH / DELETE` | 300 req/min |
+| File uploads | 100 MB/file |
+| SDK `/api/sdk/v1` | 1,000 req/min per API key |
+
+<Note>
+  When the limit is reached, the API returns `429 Too Many Requests` with a `Retry-After` header indicating how many seconds to wait.
+</Note>

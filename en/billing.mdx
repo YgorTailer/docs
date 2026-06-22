@@ -1,0 +1,174 @@
+---
+title: "Plans & Billing"
+description: "Plans, monthly balance, compute tiers and how per-minute billing works."
+---
+
+## How it works
+
+Nivo uses a **prepaid balance + per-minute usage** model:
+
+1. Your plan includes a **monthly balance** credited automatically every month
+2. Apps and databases draw from your balance while running — **billed per minute**
+3. If the balance runs out, the workspace is **paused** automatically (no surprise charges)
+4. You can add **extra balance** at any time to reactivate
+
+<Note>
+  Billing is **per minute** of runtime. Stopped apps don't consume balance.
+</Note>
+
+---
+
+## Plans
+
+| Plan | Price | Monthly balance | Projects | Build minutes/mo |
+|------|-------|-----------------|----------|------------------|
+| **Free** | R$0/mo | R$0 | 0 projects | 100 min |
+| **Pro** | R$15/mo | R$20 | up to 5 | 1,000 min |
+| **Builder** | R$29/mo | R$30 | up to 15 | 3,000 min |
+
+<Note>
+  The Free plan gives access to the Nivo dashboard but **does not include active projects**. To create projects with apps, databases and storage, subscribe to a paid plan.
+</Note>
+
+### What each plan includes
+
+<Tabs>
+  <Tab title="Free">
+    - Access to the Nivo dashboard
+    - Account API keys
+    - Workspace settings
+    - **No monthly balance — no active projects**
+  </Tab>
+  <Tab title="Pro — R$15/mo">
+    - Everything in Free
+    - **R$20 monthly balance included**
+    - Up to 5 active projects
+    - Manual project snapshots
+    - Daily automatic backups (7-day retention)
+    - Container auto-restart on crash
+    - Spend Cap and budget alerts
+    - Database dump import/export
+    - Priority email support
+  </Tab>
+  <Tab title="Builder — R$29/mo">
+    - Everything in Pro
+    - **R$30 monthly balance included**
+    - Up to 15 active projects
+    - Unlimited manual snapshots
+    - Daily automatic backups (14-day retention)
+    - Higher-priority build/deploy queue
+    - 30-day metrics history
+    - Deployment logs kept for 90 days
+    - Fast priority email support
+  </Tab>
+</Tabs>
+
+---
+
+## Compute tiers
+
+All tiers are available on any plan. Billing is per minute of usage from your balance.
+
+| Tier | vCPU | RAM | Price/hour | Best for |
+|------|------|-----|-----------|----------|
+| **VOID** | 0.5 | 100 MB | Free | VOID is not billed — used when no resource is running |
+| **SPARK** | 0.75 | 768 MB | R$0.0062/h | Tests and hobby projects |
+| **PULSE** | 1 | 1 GB | R$0.0076/h | Websites and lightweight APIs |
+| **NOVA** | 1.25 | 1.5 GB | R$0.0111/h | Growing applications |
+| **ORBIT** | 1.5 | 2 GB | R$0.0138/h | Growing applications |
+| **NEBULA** | 2 | 4 GB | R$0.031/h | Production databases |
+| **QUASAR** | 4 | 8 GB | R$0.062/h | High-performance workloads |
+| **COSMOS** | 8 | 16 GB | R$0.125/h | Maximum workloads |
+
+<Note>
+  The compute tier is per **project** — all apps and databases within the same project share the chosen tier. Configure it in **Project → Settings → Compute**.
+</Note>
+
+---
+
+## Cost examples
+
+<AccordionGroup>
+  <Accordion title="SPARK app (0.75 vCPU / 768 MB RAM)">
+    - SPARK tier: R$0.0062/h → R$0.0001033/min
+    - Running 24h/day for 30 days: R$0.0062 × 720h = **R$4.46/mo**
+    - Covered by the Pro balance (R$20): **R$15.54 of balance left**
+  </Accordion>
+  <Accordion title="ORBIT app (1.5 vCPU / 2 GB RAM)">
+    - ORBIT tier: R$0.0138/h
+    - Running 24h/day for 30 days: R$0.0138 × 720h = **R$9.94/mo**
+    - With the Pro plan (R$20 balance): **R$10.06 of balance left**
+  </Accordion>
+  <Accordion title="Full stack: ORBIT app + NEBULA database">
+    - Both in the same project share the project tier
+    - If the project is on the ORBIT tier: R$0.0138/h for the whole project
+    - Running 30 days: **R$9.94/mo**
+
+    <Tip>
+      Apps and databases within the same project share the tier. You pay for the project tier, not per individual resource.
+    </Tip>
+  </Accordion>
+  <Accordion title="Development (occasional use)">
+    - SPARK app stopped most of the time
+    - Running only 4h/day for tests: R$0.0062 × (4h × 30) = **R$0.74/mo**
+    - Billed only while running
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Spend Cap
+
+The Pro plan includes Spend Cap enabled by default — you set a maximum monthly spend limit.
+
+<Steps>
+  <Step title="Set the limit">
+    In **Workspace → Billing → Spend Cap**, define the maximum amount that can be spent beyond the included monthly balance.
+  </Step>
+  <Step title="Automatic alerts">
+    You get notifications at 50%, 80% and 100% of the configured budget.
+  </Step>
+  <Step title="Workspace paused at the limit">
+    When the Spend Cap is reached, the workspace pauses automatically — no extra charges.
+  </Step>
+</Steps>
+
+---
+
+## Automatic pauses
+
+When the balance reaches **R$0.00**, the workspace is paused automatically.
+
+- Apps and databases go offline
+- Data is preserved
+- Reactivate by adding balance in **Workspace → Billing → Add balance**
+- Resources come back up automatically once the balance is credited
+
+<Warning>
+  Paused apps lose container state (in-memory variables, temporary files inside the container). Use Storage or databases for permanent persistence.
+</Warning>
+
+---
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Does the monthly balance roll over?">
+    No. The plan's monthly balance is credited on each renewal and does not roll over to the next month. Extra balance purchased manually **does not expire**.
+  </Accordion>
+  <Accordion title="Can I be charged beyond my balance?">
+    No. The workspace is paused automatically when the balance reaches zero. There are no surprise charges — Nivo never bills beyond the available balance.
+  </Accordion>
+  <Accordion title="Are stopped apps billed?">
+    No. Billing is per minute of runtime. Apps and databases stopped manually don't consume balance.
+  </Accordion>
+  <Accordion title="Do automatic backups consume balance?">
+    No. Automatic backups and project snapshots on the Pro and Builder plans don't consume extra balance — they're included in the plan.
+  </Accordion>
+  <Accordion title="How do I change the compute tier?">
+    In the dashboard, open the project and go to **Settings → Compute**. Select the new tier. The change applies to all project resources and is billed from the next minute.
+  </Accordion>
+  <Accordion title="Can the Free plan create projects?">
+    No. The Free plan (`maxProjects: 0`) gives dashboard access but does not allow creating active projects. Subscribe to Pro or Builder to create projects with apps, databases and storage.
+  </Accordion>
+</AccordionGroup>

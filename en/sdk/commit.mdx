@@ -1,0 +1,121 @@
+---
+title: "Commit & Deploy"
+description: "Ship ZIP code or trigger a redeploy via the SDK."
+---
+
+## ZIP deploy
+
+Ship code directly via the SDK without using the CLI. `upload` takes a ZIP (Buffer, path or stream) and returns the `deploymentId`.
+
+```typescript
+import { readFileSync } from 'fs'
+
+// Build the project ZIP first (archiver, jszip, etc.)
+const zip = readFileSync('./dist/my-app.zip')
+
+const { deploymentId } = await nivo.apps.upload('app_id', zip, 'app.zip')
+console.log(`Deployment: ${deploymentId}`)
+```
+
+## Deploy + wait with live logs
+
+`uploadAndWait` sends the ZIP and follows the build until it finishes, with log and status callbacks.
+
+```typescript
+const result = await nivo.apps.uploadAndWait('app_id', zip, 'app.zip', {
+  onLog: (chunk) => process.stdout.write(chunk),
+  onStatus: (status) => console.log(`→ ${status}`),
+})
+
+console.log(`Final status: ${result.status}`)  // success | error | cancelled
+```
+
+## Redeploy (GitHub / Docker image)
+
+For apps with `sourceType: "github"` or `"image"`, trigger a new deploy without re-sending files:
+
+```typescript
+const { deploymentId } = await nivo.apps.deploy('app_id')
+await nivo.apps.waitForDeployment('app_id', deploymentId, {
+  onLog: (chunk) => process.stdout.write(chunk),
+})
+```
+
+## List deployments
+
+```typescript
+const { data } = await nivo.apps.deployments('app_id', { limit: 20 })
+
+for (const dep of data) {
+  console.log(`${dep.id} — ${dep.status} — ${dep.createdAt}`)
+}
+```
+
+## Logs of a deployment
+
+```typescript
+const logs = await nivo.apps.deploymentLogs('app_id', 'deployment_id')
+console.log(logs.log)
+```
+
+## Cancel, retry and roll back
+
+```typescript
+await nivo.apps.cancelDeployment('app_id', 'deployment_id')
+await nivo.apps.retryDeployment('app_id', 'deployment_id')
+await nivo.apps.rollbackDeployment('app_id', 'deployment_id')
+```
+
+---
+
+## Use case: custom CI/CD
+
+```typescript
+import { NivoAPI } from '@nivo-lat/sdk'
+import { readFileSync } from 'fs'
+import { createZip } from './utils/zip'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
+
+async function deploy() {
+  console.log('Creating ZIP...')
+  const zipPath = await createZip('./dist')
+
+  console.log('Deploying...')
+  const result = await nivo.apps.uploadAndWait(
+    process.env.NIVO_APP_ID!,
+    readFileSync(zipPath),
+    'app.zip',
+    { onLog: (chunk) => process.stdout.write(chunk) },
+  )
+
+  if (result.status !== 'success') {
+    throw new Error(`Deploy failed with status: ${result.status}`)
+  }
+  console.log('Deploy completed successfully!')
+}
+
+deploy().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})
+```
+
+---
+
+## Reference
+
+| Method | Description |
+|--------|-------------|
+| `apps.upload(id, file, filename?)` | Sends a ZIP and starts the deploy. |
+| `apps.uploadAndWait(id, file, filename?, opts?)` | Sends a ZIP and waits for the build. |
+| `apps.deploy(id)` | Triggers a redeploy (GitHub/image). |
+| `apps.deployAndWait(id, opts?)` | Redeploy and wait for the build. |
+| `apps.waitForDeployment(id, deploymentId, opts?)` | Follows an in-progress deploy. |
+| `apps.deployments(id, opts?)` | Lists deployments. |
+| `apps.deploymentLogs(id, deploymentId)` | Logs of a deployment. |
+| `apps.cancelDeployment(id, deploymentId)` | Cancels a deploy. |
+| `apps.retryDeployment(id, deploymentId)` | Retries a deploy. |
+| `apps.rollbackDeployment(id, deploymentId)` | Rolls back to a previous deploy. |

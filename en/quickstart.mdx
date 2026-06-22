@@ -1,0 +1,188 @@
+---
+title: "Quickstart"
+description: "From zero to your first deploy in under 5 minutes using the Nivo CLI."
+---
+
+<Note>
+  You'll need **Node.js 18+** and a [nivo.lat](https://nivo.lat) account with a project created.
+</Note>
+
+## 1. Install the CLI
+
+```bash
+npm install -g @nivo-lat/cli
+```
+
+Confirm the installation:
+
+```bash
+nivo --version
+```
+
+## 2. Log in
+
+```bash
+nivo login
+```
+
+The CLI opens your browser and shows a verification code. Confirm the code to authenticate. Your API key is stored locally at `~/.config/nivo/config.json`.
+
+<Warning>
+  Never share the `~/.config/nivo/config.json` file — it contains your API key.
+</Warning>
+
+## 3. Configure the project
+
+Create a `.nivo` file at the root of your project. Pick the runtime that matches your stack:
+
+<Tabs>
+  <Tab title="Node.js">
+    ```json .nivo
+    {
+      "name": "my-node-app",
+      "projectId": "YOUR_PROJECT_ID",
+      "runtime": "node20",
+      "installCmd": "npm install",
+      "buildCmd": "npm run build",
+      "startCmd": "npm start",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```json .nivo
+    {
+      "name": "my-python-app",
+      "projectId": "YOUR_PROJECT_ID",
+      "runtime": "python3.11",
+      "installCmd": "pip install -r requirements.txt",
+      "startCmd": "python main.py",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Bun">
+    ```json .nivo
+    {
+      "name": "my-bun-app",
+      "projectId": "YOUR_PROJECT_ID",
+      "runtime": "bun1",
+      "installCmd": "bun install",
+      "buildCmd": "bun run build",
+      "startCmd": "bun start",
+      "ramMb": 256
+    }
+    ```
+  </Tab>
+  <Tab title="Dockerfile">
+    ```json .nivo
+    {
+      "name": "my-docker-app",
+      "projectId": "YOUR_PROJECT_ID",
+      "buildSystem": "dockerfile",
+      "dockerfilePath": "Dockerfile",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+  <Tab title="Docker image">
+    ```json .nivo
+    {
+      "name": "my-image-app",
+      "projectId": "YOUR_PROJECT_ID",
+      "sourceType": "image",
+      "buildSystem": "dockerimage",
+      "dockerImage": "ghcr.io/my-org/my-app:latest",
+      "ramMb": 512
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+  Find your `projectId` in the dashboard: open your project and copy the ID from the URL or the general settings.
+</Tip>
+
+## 4. Link the project
+
+```bash
+nivo link
+```
+
+The CLI creates the app on the platform and fills in the `appId` in `.nivo` automatically. You only need to do this once.
+
+## 5. Deploy
+
+```bash
+nivo deploy . --watch
+```
+
+With `--watch`, logs stream in real time until the deploy finishes successfully or fails.
+
+<Tip>
+  Omit `--watch` for a silent deploy that returns immediately.
+</Tip>
+
+---
+
+## What happens under the hood
+
+<Steps>
+  <Step title="Compression">
+    The CLI compresses the current directory into a `.zip`, ignoring `node_modules`, `.git` and other unnecessary files.
+  </Step>
+  <Step title="Upload">
+    The `.zip` is sent to Nivo's servers via multipart upload.
+  </Step>
+  <Step title="Build">
+    The server runs `installCmd` and then `buildCmd` inside the build container.
+  </Step>
+  <Step title="Startup">
+    The app starts with `startCmd`. The health check confirms the port is responding.
+  </Step>
+  <Step title="Public URL">
+    A `*.nivo.lat` URL is generated and traffic is routed automatically.
+  </Step>
+</Steps>
+
+---
+
+## Environment variables
+
+Set variables before deploying via the dashboard or the SDK:
+
+```typescript
+import { NivoAPI } from '@nivo-lat/sdk'
+
+const nivo = new NivoAPI(process.env.NIVO_API_KEY!, {
+  projectId: process.env.NIVO_PROJECT_ID!
+})
+
+await nivo.apps.updateEnv('YOUR_APP_ID', {
+  DATABASE_URL: 'postgres://...',
+  SECRET_KEY: 'super-secret'
+})
+```
+
+<Warning>
+  After changing environment variables, run a new deploy for the changes to take effect.
+</Warning>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Database" icon="database" href="/en/sdk/databases">
+    Provision a PostgreSQL or MySQL for your app.
+  </Card>
+  <Card title="Storage" icon="hard-drive" href="/en/sdk/storage">
+    Create buckets to store files.
+  </Card>
+  <Card title="All CLI commands" icon="terminal" href="/en/cli/overview">
+    Complete CLI command reference.
+  </Card>
+  <Card title=".nivo file" icon="file" href="/en/config">
+    Every available configuration field.
+  </Card>
+</CardGroup>
