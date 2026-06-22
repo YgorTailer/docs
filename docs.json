@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/schema.json",
   "name": "Nivo",
-  "theme": "mint",
+  "theme": "maple",
   "colors": {
     "primary": "#7C3AED",
     "light": "#a78bfa",
@@ -89,5 +89,18 @@
   "footerSocials": {
     "x": "https://x.com/nivocloud"
   },
-  "logo": "/images/logo(2).png"
+  "logo": {
+    "light": "/images/logo_1(1).png",
+    "dark": "/images/logo_1(1).png"
+  },
+  "favicon": {
+    "light": "/images/logo_1(1).png",
+    "dark": "/images/logo_1(1).png"
+  },
+  "appearance": {
+    "default": "light"
+  },
+  "background": {
+    "decoration": "grid"
+  }
 }
